@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/things-go/ginp/deploy"
 	"github.com/things-go/ginp/errors"
 )
 
@@ -14,7 +13,7 @@ import (
 type ResponseBody struct {
 	Code    int32       `json:"code"`              // 业务代码
 	Message string      `json:"message,omitempty"` // 消息
-	Detail  string      `json:"detail,omitempty"`  // 主要用于开发调试
+	Detail  string      `json:"detail,omitempty"`  // 主要用于开发调试, gin.IsDebugging() == false 时不显示
 	Data    interface{} `json:"data"`              // 应用数据
 }
 
@@ -37,14 +36,14 @@ func Abort(c *gin.Context, err error, data ...interface{}) {
 	if e.Message != "" {
 		r.Message = e.Message
 	}
-	if !deploy.IsProduction() {
+
+	if gin.IsDebugging() {
 		r.Detail = e.Detail
 	}
 	if len(data) > 0 && data[0] != nil {
 		r.Data = data[0]
 	}
 
-	ContextError(c, err)
 	status := 599
 	switch {
 	case e.Code == -1:
@@ -53,6 +52,13 @@ func Abort(c *gin.Context, err error, data ...interface{}) {
 		status = int(e.Code)
 	}
 	c.AbortWithStatusJSON(status, r)
+}
+
+func ErrorEncoder(c *gin.Context, err error, isBadRequest bool) {
+	if isBadRequest {
+		err = errors.ErrBadRequest(err.Error())
+	}
+	Abort(c, err)
 }
 
 // Attachment application/octet-stream;charset=utf-8
