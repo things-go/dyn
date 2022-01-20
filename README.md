@@ -11,12 +11,12 @@ ginp for gin
 
 ## Usage
 
-ginp是一个gin代码生成器, 集成了 [proto-gen-go-errno](cmd/proto-gen-go-errno) 和 [proto-gen-go-gin](cmd/proto-gen-go-gin)
+`ginp`是一个`gin`代码生成器, 集成了 [proto-gen-go-errno](cmd/proto-gen-go-errno) 和 [proto-gen-go-gin](cmd/proto-gen-go-gin)
 
 - `proto-gen-go-errno` 从`proto` 枚举统一生成错误
 - `proto-gen-go-gin` 从 `proto` 的生成`gin`的代码. 
 
-***注意***: 当使用`proto-gen-go-gin`要禁用`Dgin.isableBindValidation()`
+***注意***: 当使用`proto-gen-go-gin`要禁用`gin`自带的`binding`,使用`gin.isableBindValidation()` 接口
 
 ### Installation
 
