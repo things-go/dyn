@@ -8,7 +8,7 @@ import (
 	"google.golang.org/protobuf/types/pluginpb"
 )
 
-const version = "v0.0.1-rc"
+const version = "v0.0.1-rc1"
 const errorsPackage = "github.com/things-go/ginp/errors"
 
 var showVersion = flag.Bool("version", false, "print the version and exit")
