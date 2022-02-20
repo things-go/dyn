@@ -3,15 +3,16 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/types/pluginpb"
 )
 
-const version = "v0.0.1-rc1"
-const errorsPackage = "github.com/things-go/ginp/errors"
+const version = "v0.0.3"
 
 var showVersion = flag.Bool("version", false, "print the version and exit")
+var errorsPackage = flag.String("epk", "github.com/things-go/ginp/errors", "errors core package in your project")
 
 func main() {
 	flag.Parse()
@@ -23,6 +24,9 @@ func main() {
 	protogen.Options{
 		ParamFunc: flag.CommandLine.Set,
 	}.Run(func(gen *protogen.Plugin) error {
+		if *errorsPackage == "" {
+			log.Fatal("errors package import path must be give with '--go-errno_out=epk=xxx'")
+		}
 		gen.SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
 		for _, f := range gen.Files {
 			if !f.Generate {

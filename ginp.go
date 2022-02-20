@@ -31,7 +31,8 @@ func Response(c *gin.Context, data ...interface{}) {
 func Abort(c *gin.Context, err error, data ...interface{}) {
 	e := errors.FromError(err)
 	r := ResponseBody{
-		Code: e.Code,
+		Code:    e.Code,
+		Message: e.Message,
 	}
 	if e.Message != "" {
 		r.Message = e.Message

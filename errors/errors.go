@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"unsafe"
 
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
@@ -19,7 +20,7 @@ const (
 
 func (x *Error) Error() string {
 	b, _ := json.Marshal(x)
-	return string(b)
+	return *(*string)(unsafe.Pointer(&b))
 }
 
 // GRPCStatus returns the Status represented by se.

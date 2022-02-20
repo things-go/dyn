@@ -8,7 +8,7 @@ import (
 	"google.golang.org/protobuf/types/pluginpb"
 )
 
-const version = "v0.0.1-rc"
+const version = "v0.0.3"
 
 var showVersion = flag.Bool("version", false, "print the version and exit")
 var omitempty = flag.Bool("omitempty", true, "omit if google.api is empty")

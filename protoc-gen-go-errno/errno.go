@@ -40,7 +40,7 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 
 	g.P("// This is a compile-time assertion to ensure that this generated file")
 	g.P("// is compatible with the errors package it is being compiled against.")
-	g.P("const _ = ", protogen.GoImportPath(errorsPackage).Ident("ErrorsProtoPackageIsVersion3"))
+	g.P("const _ = ", protogen.GoImportPath(*errorsPackage).Ident("ErrorsProtoPackageIsVersion3"))
 	g.P()
 	index := 0
 	for _, enum := range file.Enums {
