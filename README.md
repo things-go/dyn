@@ -16,7 +16,7 @@ ginp for gin
 - `proto-gen-go-errno` 从`proto` 枚举统一生成错误
 - `proto-gen-go-gin` 从 `proto` 的生成`gin`的代码. 
 
-***注意***: 当使用`proto-gen-go-gin`要禁用`gin`自带的`binding`,使用`gin.isableBindValidation()` 接口
+***注意***: 当使用`proto-gen-go-gin`要禁用`gin`自带的`binding`,使用`gin.DisableBindValidation()` 接口
 
 ### Installation
 
