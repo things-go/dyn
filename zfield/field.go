@@ -880,183 +880,154 @@ func ShouldFromInt32p(key string, vf func(context.Context) *int32) func(context.
 
 func ShouldFromInt16(key string, vf func(context.Context) int16) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Int16(key, vf(ctx))
 	}
 }
 func ShouldFromInt16p(key string, vf func(context.Context) *int16) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Int16p(key, vf(ctx))
 	}
 }
 func ShouldFromInt8(key string, vf func(context.Context) int8) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Int8(key, vf(ctx))
 	}
 }
 func ShouldFromInt8p(key string, vf func(context.Context) *int8) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Int8p(key, vf(ctx))
 	}
 }
 
 func ShouldFromUint(key string, vf func(context.Context) int) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Int(key, vf(ctx))
 	}
 }
 func ShouldFromUintp(key string, vf func(context.Context) *int) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Intp(key, vf(ctx))
 	}
 }
 func ShouldFromUint64(key string, vf func(context.Context) int64) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Int64(key, vf(ctx))
 	}
 }
 func ShouldFromUint64p(key string, vf func(context.Context) *int64) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Int64p(key, vf(ctx))
 	}
 }
 func ShouldFromUint32(key string, vf func(context.Context) int32) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Int32(key, vf(ctx))
 	}
 }
 func ShouldFromUint32p(key string, vf func(context.Context) *int32) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Int32p(key, vf(ctx))
 	}
 }
 
 func ShouldFromUint16(key string, vf func(context.Context) int16) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Int16(key, vf(ctx))
 	}
 }
 func ShouldFromUint16p(key string, vf func(context.Context) *int16) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Int16p(key, vf(ctx))
 	}
 }
 func ShouldFromUint8(key string, vf func(context.Context) int8) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Int8(key, vf(ctx))
 	}
 }
 func ShouldFromUint8p(key string, vf func(context.Context) *int8) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Int8p(key, vf(ctx))
 	}
 }
 
 func ShouldFromString(key string, vf func(context.Context) string) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.String(key, vf(ctx))
 	}
 }
 func ShouldFromStringp(key string, vf func(context.Context) *string) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Stringp(key, vf(ctx))
 	}
 }
 
 func ShouldFromUintptr(key string, vf func(context.Context) uintptr) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Uintptr(key, vf(ctx))
 	}
 }
 func ShouldFromUintptrp(key string, vf func(context.Context) *uintptr) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Uintptrp(key, vf(ctx))
 	}
 }
 func ShouldFromReflect(key string, vf func(context.Context) interface{}) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Reflect(key, vf(ctx))
 	}
 }
 func ShouldFromStringer(key string, vf func(context.Context) fmt.Stringer) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Stringer(key, vf(ctx))
 	}
 }
 func ShouldFromTime(key string, vf func(context.Context) time.Time) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Time(key, vf(ctx))
 	}
 }
 func ShouldFromTimep(key string, vf func(context.Context) *time.Time) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Timep(key, vf(ctx))
 	}
 }
 func ShouldFromDuration(key string, vf func(context.Context) time.Duration) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Duration(key, vf(ctx))
 	}
 }
 func ShouldFromDurationp(key string, vf func(context.Context) *time.Duration) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Durationp(key, vf(ctx))
 	}
 }
 func ShouldFromAny(key string, vf func(context.Context) interface{}) func(context.Context) zap.Field {
 	return func(ctx context.Context) zap.Field {
-
 		return zap.Any(key, vf(ctx))
 	}
 }
 
 func ShouldBinary(key string, vf func(context.Context) []byte) func(*gin.Context) zap.Field {
 	return func(c *gin.Context) zap.Field {
-
 		return zap.Binary(key, vf(c.Request.Context()))
 	}
 }
 
 func ShouldBoolp(key string, vf func(context.Context) *bool) func(*gin.Context) zap.Field {
 	return func(c *gin.Context) zap.Field {
-
 		return zap.Boolp(key, vf(c.Request.Context()))
 	}
 }
 
 func ShouldByteString(key string, vf func(context.Context) []byte) func(*gin.Context) zap.Field {
 	return func(c *gin.Context) zap.Field {
-
 		return zap.ByteString(key, vf(c.Request.Context()))
 	}
 }
 
 func ShouldComplex128(key string, vf func(context.Context) complex128) func(*gin.Context) zap.Field {
 	return func(c *gin.Context) zap.Field {
-
 		return zap.Complex128(key, vf(c.Request.Context()))
 	}
 }
@@ -1068,20 +1039,17 @@ func ShouldComplex128p(key string, vf func(context.Context) *complex128) func(*g
 }
 func ShouldComplex64(key string, vf func(context.Context) complex64) func(*gin.Context) zap.Field {
 	return func(c *gin.Context) zap.Field {
-
 		return zap.Complex64(key, vf(c.Request.Context()))
 	}
 }
 func ShouldComplex64p(key string, vf func(context.Context) *complex64) func(*gin.Context) zap.Field {
 	return func(c *gin.Context) zap.Field {
-
 		return zap.Complex64p(key, vf(c.Request.Context()))
 	}
 }
 
 func ShouldFloat64(key string, vf func(context.Context) float64) func(*gin.Context) zap.Field {
 	return func(c *gin.Context) zap.Field {
-
 		return zap.Float64(key, vf(c.Request.Context()))
 	}
 }
