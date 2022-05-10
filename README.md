@@ -1,5 +1,5 @@
-# ginp
-ginp for gin 
+# dyn
+dyn project toolkit for gin 
 
 [![GoDoc](https://godoc.org/github.com/things-go/dyn?status.svg)](https://godoc.org/github.com/things-go/dyn)
 [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-blue?logo=go&logoColor=white)](https://pkg.go.dev/github.com/things-go/dyn?tab=doc)
@@ -11,7 +11,7 @@ ginp for gin
 
 ## Usage
 
-`ginp`是一个`gin`代码生成器, 集成了 [proto-gen-go-errno](cmd/proto-gen-go-errno) 和 [proto-gen-go-gin](cmd/proto-gen-go-gin)
+`dyn`是一个`gin`工程工具生成器, 集成了 [proto-gen-go-errno](cmd/proto-gen-go-errno) 和 [proto-gen-go-gin](cmd/proto-gen-go-gin)
 
 - `proto-gen-go-errno` 从`proto` 枚举统一生成错误
 - `proto-gen-go-gin` 从 `proto` 的生成`gin`的代码. 
