@@ -47,8 +47,7 @@ func ValidIsDecimalGt(fl validator.FieldLevel) bool {
 	field := fl.Field()
 	param := fl.Param()
 
-	switch field.Kind() {
-	case reflect.String:
+	if field.Kind() == reflect.String {
 		return IsDecimalGt(field.String(), param)
 	}
 
@@ -60,8 +59,7 @@ func ValidIsDecimalGte(fl validator.FieldLevel) bool {
 	field := fl.Field()
 	param := fl.Param()
 
-	switch field.Kind() {
-	case reflect.String:
+	if field.Kind() == reflect.String {
 		return IsDecimalGte(field.String(), param)
 	}
 	panic(fmt.Sprintf("Bad field type %T", field.Interface()))

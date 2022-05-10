@@ -75,6 +75,22 @@ func ResponseBody(c *gin.Context) zap.Field {
 	return zap.String("responseBody", v.resp.String())
 }
 
+func FromRequestBody(ctx context.Context) string {
+	bv, ok := ctx.Value(ctxBodyKey{}).(*bodyValue)
+	if !ok {
+		return ""
+	}
+	return bv.req
+}
+
+func FromResponseBody(ctx context.Context) string {
+	v, ok := ctx.Value(ctxBodyKey{}).(*bodyValue)
+	if !ok {
+		return ""
+	}
+	return v.resp.String()
+}
+
 type bodyWriter struct {
 	gin.ResponseWriter
 	dupBody *strings.Builder
