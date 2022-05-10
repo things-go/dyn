@@ -9,14 +9,6 @@ import (
 	"github.com/things-go/ginp/errors"
 )
 
-// ResponseBody 应答
-type ResponseBody struct {
-	Code    int32       `json:"code"`              // 业务代码
-	Message string      `json:"message,omitempty"` // 消息
-	Detail  string      `json:"detail,omitempty"`  // 主要用于开发调试, gin.IsDebugging() == false 时不显示
-	Data    interface{} `json:"data"`              // 应用数据
-}
-
 func Response(c *gin.Context, data ...interface{}) {
 	var obj interface{}
 
@@ -28,21 +20,10 @@ func Response(c *gin.Context, data ...interface{}) {
 	c.JSON(http.StatusOK, obj)
 }
 
-func Abort(c *gin.Context, err error, data ...interface{}) {
+func Abort(c *gin.Context, err error) {
 	e := errors.FromError(err)
-	r := ResponseBody{
-		Code:    e.Code,
-		Message: e.Message,
-	}
-	if e.Message != "" {
-		r.Message = e.Message
-	}
-
-	if gin.IsDebugging() {
-		r.Detail = e.Detail
-	}
-	if len(data) > 0 && data[0] != nil {
-		r.Data = data[0]
+	if !gin.IsDebugging() {
+		e.Detail = ""
 	}
 
 	status := 599
@@ -52,7 +33,7 @@ func Abort(c *gin.Context, err error, data ...interface{}) {
 	case e.Code < 1000:
 		status = int(e.Code)
 	}
-	c.AbortWithStatusJSON(status, r)
+	c.AbortWithStatusJSON(status, e)
 }
 
 func ErrorEncoder(c *gin.Context, err error, isBadRequest bool) {

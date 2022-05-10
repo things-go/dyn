@@ -4,10 +4,10 @@ go 1.17
 
 require (
 	github.com/gin-gonic/gin v1.7.7
-	github.com/go-playground/validator/v10 v10.10.1
+	github.com/go-playground/validator/v10 v10.11.0
 	go.uber.org/zap v1.21.0
-	google.golang.org/genproto v0.0.0-20220421151946-72621c1f0bd3
-	google.golang.org/grpc v1.45.0
+	google.golang.org/genproto v0.0.0-20220505152158-f39f71e6c8f3
+	google.golang.org/grpc v1.46.0
 	google.golang.org/protobuf v1.28.0
 )
 
@@ -24,8 +24,8 @@ require (
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
-	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
-	golang.org/x/sys v0.0.0-20220422013727-9388b58f7150 // indirect
+	golang.org/x/crypto v0.0.0-20220507011949-2cf3adece122 // indirect
+	golang.org/x/sys v0.0.0-20220503163025-988cb79eb6c6 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
