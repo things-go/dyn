@@ -1,4 +1,4 @@
-package ginp
+package binding
 
 import (
 	"context"
