@@ -44,6 +44,7 @@ func IsDecimalLte(s, t string) bool {
 func IsNumberGt0(s string) bool {
 	return rxNumberGt0.MatchString(s)
 }
+
 func IsNumberGte0(s string) bool {
 	return rxNumberGte0.MatchString(s)
 }

@@ -194,13 +194,15 @@ func buildMethodDesc(g *protogen.GeneratedFile, m *protogen.Method, method, path
 				fmt.Fprintf(os.Stderr, "\u001B[31mERROR\u001B[m: The corresponding field '%s' declaration in message could not be found in '%s'\n", v, path)
 				os.Exit(2)
 			}
-			if fd.IsMap() {
+			switch {
+			case fd.IsMap():
 				fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: The field in path:'%s' shouldn't be a map.\n", v)
-			} else if fd.IsList() {
+			case fd.IsList():
 				fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: The field in path:'%s' shouldn't be a list.\n", v)
-			} else if fd.Kind() == protoreflect.MessageKind || fd.Kind() == protoreflect.GroupKind {
+			case fd.Kind() == protoreflect.MessageKind || fd.Kind() == protoreflect.GroupKind:
 				fields = fd.Message().Fields()
 			}
+
 		}
 	}
 	return &methodDesc{

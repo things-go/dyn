@@ -21,7 +21,7 @@ func RegisterValidation(valid *validator.Validate) error {
 	)
 
 	err := multierr.Combine(
-		valid.RegisterValidation("mobile", ValidateIsMobile),
+		valid.RegisterValidation("mobile", ValidIsMobile),
 		valid.RegisterValidation("decimal_gt", ValidIsDecimalGt),
 		valid.RegisterValidation("decimal_gte", ValidIsDecimalGte),
 		valid.RegisterValidation("decimal_lt", ValidIsDecimalLt),
@@ -37,8 +37,8 @@ func RegisterValidation(valid *validator.Validate) error {
 	return nil
 }
 
-// ValidateIsMobile 校验是否为手机
-func ValidateIsMobile(fl validator.FieldLevel) bool {
+// ValidIsMobile 校验是否为手机
+func ValidIsMobile(fl validator.FieldLevel) bool {
 	return IsMobile(fl.Field().String())
 }
 
@@ -71,8 +71,7 @@ func ValidIsDecimalLt(fl validator.FieldLevel) bool {
 	field := fl.Field()
 	param := fl.Param()
 
-	switch field.Kind() {
-	case reflect.String:
+	if field.Kind() == reflect.String {
 		return IsDecimalLt(field.String(), param)
 	}
 
@@ -83,8 +82,7 @@ func ValidIsDecimalLte(fl validator.FieldLevel) bool {
 	field := fl.Field()
 	param := fl.Param()
 
-	switch field.Kind() {
-	case reflect.String:
+	if field.Kind() == reflect.String {
 		return IsDecimalLte(field.String(), param)
 	}
 
@@ -102,8 +100,7 @@ func ValidDecimalMaxOf(fl validator.FieldLevel) bool {
 func ValidNumberGt0(fl validator.FieldLevel) bool {
 	field := fl.Field()
 
-	switch field.Kind() {
-	case reflect.String:
+	if field.Kind() == reflect.String {
 		return IsNumberGt0(field.String())
 	}
 	panic(fmt.Sprintf("Bad field type %T", field.Interface()))
@@ -112,8 +109,7 @@ func ValidNumberGt0(fl validator.FieldLevel) bool {
 func ValidNumberGte0(fl validator.FieldLevel) bool {
 	field := fl.Field()
 
-	switch field.Kind() {
-	case reflect.String:
+	if field.Kind() == reflect.String {
 		return IsNumberGte0(field.String())
 	}
 	panic(fmt.Sprintf("Bad field type %T", field.Interface()))
