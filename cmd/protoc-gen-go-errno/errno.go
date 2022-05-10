@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/things-go/ginp/errors"
+	"github.com/things-go/dyn/errors"
 )
 
 const (

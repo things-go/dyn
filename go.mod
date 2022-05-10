@@ -1,4 +1,4 @@
-module github.com/things-go/ginp
+module github.com/things-go/dyn
 
 go 1.17
 

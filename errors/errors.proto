@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package things_go.errors;
 
-option go_package = "github.com/things-go/ginp/errors";
+option go_package = "github.com/things-go/dyn/errors";
 option java_multiple_files = true;
 
 import "google/protobuf/descriptor.proto";

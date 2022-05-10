@@ -12,7 +12,7 @@ import (
 const version = "v0.0.3"
 
 var showVersion = flag.Bool("version", false, "print the version and exit")
-var errorsPackage = flag.String("epk", "github.com/things-go/ginp/errors", "errors core package in your project")
+var errorsPackage = flag.String("epk", "github.com/things-go/dyn/errors", "errors core package in your project")
 
 func main() {
 	flag.Parse()

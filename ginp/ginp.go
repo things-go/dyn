@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/things-go/ginp/errors"
+	"github.com/things-go/dyn/errors"
 )
 
 func Response(c *gin.Context, data ...interface{}) {
