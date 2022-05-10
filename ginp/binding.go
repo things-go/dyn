@@ -23,3 +23,5 @@ func Validate(ctx context.Context, v interface{}) error {
 	}
 	return defaultValidator.StructCtx(ctx, v)
 }
+
+func ValidateStruct(v interface{}) error { return defaultValidator.Struct(v) }

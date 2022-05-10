@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/things-go/dyn/errors"
 )
 
 type Implemented struct{}
@@ -13,5 +15,8 @@ func (*Implemented) Validate(ctx context.Context, v interface{}) error {
 }
 
 func (*Implemented) ErrorEncoder(c *gin.Context, err error, isBadRequest bool) {
-	ErrorEncoder(c, err, isBadRequest)
+	if isBadRequest {
+		err = errors.ErrBadRequest(err.Error())
+	}
+	Abort(c, err)
 }

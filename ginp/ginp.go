@@ -1,7 +1,6 @@
 package ginp
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -34,17 +33,4 @@ func Abort(c *gin.Context, err error) {
 		status = int(e.Code)
 	}
 	c.AbortWithStatusJSON(status, e)
-}
-
-func ErrorEncoder(c *gin.Context, err error, isBadRequest bool) {
-	if isBadRequest {
-		err = errors.ErrBadRequest(err.Error())
-	}
-	Abort(c, err)
-}
-
-// Attachment application/octet-stream;charset=utf-8
-func Attachment(c *gin.Context, filename string, data []byte) {
-	c.Header("Content-Disposition", fmt.Sprintf("attachment;filename=\"%s\"", filename))
-	c.Data(http.StatusOK, "application/octet-stream;charset=utf-8", data)
 }
