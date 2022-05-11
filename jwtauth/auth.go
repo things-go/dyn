@@ -186,8 +186,10 @@ func WithUnauthorizedFallback(f func(c *gin.Context, err error)) Option {
 
 func (sf *Auth) Middleware(opts ...Option) gin.HandlerFunc {
 	o := &options{
-		unauthorizedFallback: func(c *gin.Context, err error) { c.String(http.StatusUnauthorized, err.Error()) },
-		skip:                 func(c *gin.Context) bool { return false },
+		unauthorizedFallback: func(c *gin.Context, err error) {
+			c.String(http.StatusUnauthorized, err.Error())
+		},
+		skip: func(c *gin.Context) bool { return false },
 	}
 	for _, opt := range opts {
 		opt(o)
@@ -196,12 +198,14 @@ func (sf *Auth) Middleware(opts ...Option) gin.HandlerFunc {
 		if !o.skip(c) {
 			token, err := sf.lookup.ExtractToken(c.Request)
 			if err != nil {
-				c.String(http.StatusUnauthorized, err.Error())
+				o.unauthorizedFallback(c, err)
+				c.Abort()
 				return
 			}
 			claims, err := sf.Parse(token)
 			if err != nil {
-				c.String(http.StatusUnauthorized, err.Error())
+				o.unauthorizedFallback(c, err)
+				c.Abort()
 				return
 			}
 			ctx := NewContext(c.Request.Context(), claims)
