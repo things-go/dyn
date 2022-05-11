@@ -94,7 +94,7 @@ func (sf *Auth) Timeout() time.Duration    { return sf.timeout }
 func (sf *Auth) MaxTimeout() time.Duration { return sf.maxTimeout }
 
 func (sf *Auth) Parse(tokenString string) (jwt.Claims, error) {
-	tk, err := jwt.ParseWithClaims(tokenString, Claims{}, func(t *jwt.Token) (interface{}, error) {
+	tk, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(t *jwt.Token) (interface{}, error) {
 		if sf.signingMethod != t.Method {
 			return nil, ErrInvalidSigningAlgorithm
 		}
