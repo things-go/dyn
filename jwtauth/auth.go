@@ -42,6 +42,7 @@ type Config struct {
 	Timeout    time.Duration
 	MaxTimeout time.Duration
 	Issuer     string
+	Lookup     string
 }
 
 // Auth provides a Json-Web-Token authentication implementation.
@@ -52,6 +53,7 @@ type Auth struct {
 	timeout       time.Duration
 	maxTimeout    time.Duration
 	issuer        string
+	lookup        *Lookup
 }
 
 // New auth with Config
@@ -60,6 +62,7 @@ func New(c Config) (*Auth, error) {
 		timeout:    c.Timeout,
 		maxTimeout: c.MaxTimeout,
 		issuer:     c.Issuer,
+		lookup:     NewLookup(c.Lookup),
 	}
 
 	usingAlgo := false
@@ -155,16 +158,8 @@ type Option func(*options)
 
 // options is a jwt option
 type options struct {
-	lookup               *Lookup
 	skip                 func(c *gin.Context) bool
 	unauthorizedFallback func(*gin.Context, error)
-}
-
-// WithLookup see NewLookup
-func WithLookup(lookup string) Option {
-	return func(o *options) {
-		o.lookup = NewLookup(lookup)
-	}
 }
 
 // WithSkip set skip func
@@ -187,7 +182,6 @@ func WithUnauthorizedFallback(f func(c *gin.Context, err error)) Option {
 
 func (sf *Auth) Middleware(opts ...Option) gin.HandlerFunc {
 	o := &options{
-		lookup:               NewLookup(""),
 		unauthorizedFallback: func(c *gin.Context, err error) { c.String(http.StatusUnauthorized, err.Error()) },
 		skip:                 func(c *gin.Context) bool { return false },
 	}
@@ -196,7 +190,7 @@ func (sf *Auth) Middleware(opts ...Option) gin.HandlerFunc {
 	}
 	return func(c *gin.Context) {
 		if !o.skip(c) {
-			token, err := o.lookup.ExtractToken(c.Request)
+			token, err := sf.lookup.ExtractToken(c.Request)
 			if err != nil {
 				c.String(http.StatusUnauthorized, err.Error())
 				return
