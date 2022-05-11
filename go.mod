@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-playground/validator/v10 v10.11.0
+	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/shopspring/decimal v1.3.1
 	github.com/stretchr/testify v1.7.0
