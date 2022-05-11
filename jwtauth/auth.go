@@ -126,6 +126,10 @@ func (sf *Auth) Parse(tokenString string) (jwt.Claims, error) {
 	return tk.Claims, nil
 }
 
+func (sf *Auth) ExtractToken(r *http.Request) (string, error) {
+	return sf.lookup.ExtractToken(r)
+}
+
 func (sf *Auth) GenerateToken(id string, acc Account) (string, time.Time, error) {
 	return sf.generateToken(id, acc, sf.timeout)
 }
