@@ -84,7 +84,7 @@ func FromType(c context.Context) string {
 }
 
 func Subject(c *gin.Context) string {
-	if v, ok := FromAccount(c); ok {
+	if v, ok := FromAccount(c.Request.Context()); ok {
 		return v.Subject
 	}
 	return ""

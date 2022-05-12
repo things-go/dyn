@@ -1,9 +1,12 @@
 package jwtauth
 
 import (
+	"crypto/rsa"
+	"encoding/base64"
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -213,4 +216,38 @@ func (sf *Auth) Middleware(opts ...Option) gin.HandlerFunc {
 		}
 		c.Next()
 	}
+}
+
+func parsePrivateKey(privateKey string) (*rsa.PrivateKey, error) {
+	var err error
+	var priv []byte
+
+	if strings.HasPrefix(privateKey, "-----BEGIN RSA PRIVATE KEY-----") ||
+		strings.HasPrefix(privateKey, "-----BEGIN PRIVATE KEY-----") {
+		priv = []byte(privateKey)
+	} else {
+		priv, err = base64.StdEncoding.DecodeString(privateKey)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return jwt.ParseRSAPrivateKeyFromPEM(priv)
+}
+
+// parsePublicKey parses a public key
+func parsePublicKey(publicKey string) (*rsa.PublicKey, error) {
+	var err error
+	var pub []byte
+
+	if strings.HasPrefix(publicKey, "-----BEGIN RSA PUBLIC KEY-----") ||
+		strings.HasPrefix(publicKey, "-----BEGIN PUBLIC KEY-----") ||
+		strings.HasPrefix(publicKey, "-----BEGIN CERTIFICATE-----") {
+		pub = []byte(publicKey)
+	} else {
+		pub, err = base64.StdEncoding.DecodeString(publicKey)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return jwt.ParseRSAPublicKeyFromPEM(pub)
 }
