@@ -104,11 +104,12 @@ func (sf *Auth) Parse(tokenString string) (jwt.Claims, error) {
 	})
 	if err != nil {
 		if ve, ok := err.(*jwt.ValidationError); ok {
-			if ve.Errors&jwt.ValidationErrorMalformed != 0 {
+			switch {
+			case ve.Errors&jwt.ValidationErrorMalformed != 0:
 				err = ErrInvalidToken
-			} else if ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
+			case ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0:
 				err = ErrTokenExpired
-			} else {
+			default:
 				err = ErrTokenParseFail
 			}
 		}

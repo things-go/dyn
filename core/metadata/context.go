@@ -38,7 +38,7 @@ func MergeContext(ctx context.Context, patchMd Metadata, overwrite bool) context
 			md[k] = v
 		case v == "":
 			delete(md, k)
-		case overwrite == true:
+		case overwrite:
 			md[k] = v
 		default:
 			// skip
