@@ -2,6 +2,7 @@ package jwtauth
 
 import (
 	"context"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -43,6 +44,20 @@ func (sf *Auth) generateToken(id string, acc Account, timeout time.Duration) (st
 		},
 	})
 	return token, expiresAt, err
+}
+
+func (sf *Auth) ParseAccountFromRequest(r *http.Request) (*Account, error) {
+	claims, err := sf.ParseFromRequest(r)
+	if err != nil {
+		return nil, err
+	}
+	cc := claims.(*Claims)
+	return &Account{
+		Subject:  cc.Subject,
+		Type:     cc.Type,
+		Scopes:   cc.Scopes,
+		Metadata: cc.Metadata,
+	}, nil
 }
 
 func FromId(ctx context.Context) string {
@@ -91,18 +106,18 @@ func MustFromSubject(ctx context.Context) int64 {
 	panic("auth: account info must in context, user must auth")
 }
 
-func FromMetadata(c context.Context) metadata.Metadata {
-	if v, ok := FromAccount(c); ok {
-		return v.Metadata
-	}
-	return metadata.Metadata{}
-}
-
 func FromType(c context.Context) string {
 	if v, ok := FromAccount(c); ok {
 		return v.Type
 	}
 	return ""
+}
+
+func FromMetadata(c context.Context) metadata.Metadata {
+	if v, ok := FromAccount(c); ok {
+		return v.Metadata
+	}
+	return metadata.Metadata{}
 }
 
 func Subject(c *gin.Context) string {
