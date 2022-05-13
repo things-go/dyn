@@ -69,7 +69,7 @@ func New(c Config) (*Auth, error) {
 		if err != nil {
 			return nil, ErrInvalidPrivKey
 		}
-		mw.decodeKey, err = parsePrivateKey(c.PubKey)
+		mw.decodeKey, err = parsePublicKey(c.PubKey)
 		if err != nil {
 			return nil, ErrInvalidPubKey
 		}
