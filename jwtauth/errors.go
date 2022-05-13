@@ -22,6 +22,10 @@ var (
 	// needs to be HS256, HS384, HS512, RS256, RS384 or RS512
 	ErrInvalidSigningAlgorithm = errors.New("invalid signing algorithm")
 
+	// ErrInvalidPubKey indicates the the given public key is invalid
+	ErrInvalidPubKey = errors.New("public key invalid")
+	// ErrInvalidPrivKey indicates that the given private key is invalid
+	ErrInvalidPrivKey = errors.New("private key invalid")
 	// ErrMissingSecretKey indicates Secret key is required
 	ErrMissingSecretKey = errors.New("secret key is required")
 )

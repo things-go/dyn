@@ -5,8 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"net/http"
-	"strconv"
-	"strings"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -14,13 +13,6 @@ import (
 
 	"github.com/things-go/dyn/core/metadata"
 )
-
-type Account struct {
-	Subject  string            `json:"subject,omitempty"`
-	Type     string            `json:"type,omitempty"`
-	Scopes   []string          `json:"scopes,omitempty"`
-	Metadata metadata.Metadata `json:"metadata,omitempty"`
-}
 
 type Claims struct {
 	Type     string            `json:"type,omitempty"`
@@ -61,6 +53,7 @@ type Auth struct {
 
 // New auth with Config
 func New(c Config) (*Auth, error) {
+	var err error
 	mw := &Auth{
 		timeout:    c.Timeout,
 		maxTimeout: c.MaxTimeout,
@@ -72,8 +65,14 @@ func New(c Config) (*Auth, error) {
 	switch c.Algorithm {
 	case "RS256", "RS512", "RS384":
 		usingAlgo = true
-		mw.encodeKey = c.PrivKey
-		mw.decodeKey = c.PubKey
+		mw.encodeKey, err = parsePrivateKey(c.PrivKey)
+		if err != nil {
+			return nil, ErrInvalidPrivKey
+		}
+		mw.decodeKey, err = parsePrivateKey(c.PubKey)
+		if err != nil {
+			return nil, ErrInvalidPubKey
+		}
 	case "HS256", "HS512", "HS384":
 	default:
 		c.Algorithm = "HS256"
@@ -115,15 +114,14 @@ func (sf *Auth) Parse(tokenString string) (jwt.Claims, error) {
 		}
 		return nil, err
 	}
+	if !tk.Valid {
+		return nil, ErrInvalidToken
+	}
 	claims, ok := tk.Claims.(*Claims)
 	if !ok {
 		return nil, errors.New("invalid claims")
 	}
 	if claims == nil || claims.Subject == "" {
-		return nil, errors.New("invalid subject")
-	}
-	subject, err := strconv.ParseInt(claims.Subject, 10, 64)
-	if err != nil || subject == 0 {
 		return nil, errors.New("invalid subject")
 	}
 	return tk.Claims, nil
@@ -133,31 +131,16 @@ func (sf *Auth) ExtractToken(r *http.Request) (string, error) {
 	return sf.lookup.ExtractToken(r)
 }
 
-func (sf *Auth) GenerateToken(id string, acc Account) (string, time.Time, error) {
-	return sf.generateToken(id, acc, sf.timeout)
+func (sf *Auth) ParseFromRequest(r *http.Request) (jwt.Claims, error) {
+	token, err := sf.ExtractToken(r)
+	if err != nil {
+		return nil, err
+	}
+	return sf.Parse(token)
 }
 
-func (sf *Auth) GenerateRefreshToken(id string, acc Account) (string, time.Time, error) {
-	return sf.generateToken(id, acc, sf.maxTimeout)
-}
-
-func (sf *Auth) generateToken(id string, acc Account, timeout time.Duration) (string, time.Time, error) {
-	now := time.Now()
-	expiresAt := now.Add(timeout)
-	token, err := jwt.NewWithClaims(sf.signingMethod, &Claims{
-		Type:     acc.Type,
-		Scopes:   acc.Scopes,
-		Metadata: acc.Metadata,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    sf.issuer,
-			Subject:   acc.Subject,
-			ExpiresAt: jwt.NewNumericDate(expiresAt),
-			NotBefore: jwt.NewNumericDate(now),
-			IssuedAt:  jwt.NewNumericDate(now),
-			ID:        id,
-		},
-	}).SignedString(sf.encodeKey)
-	return token, expiresAt, err
+func (sf *Auth) NewWithClaims(claims jwt.Claims) (string, error) {
+	return jwt.NewWithClaims(sf.signingMethod, claims).SignedString(sf.encodeKey)
 }
 
 // Option is jwt option.
@@ -199,54 +182,35 @@ func (sf *Auth) Middleware(opts ...Option) gin.HandlerFunc {
 	}
 	return func(c *gin.Context) {
 		if !o.skip(c) {
-			token, err := sf.lookup.ExtractToken(c.Request)
+			claims, err := sf.ParseFromRequest(c.Request)
 			if err != nil {
 				o.unauthorizedFallback(c, err)
 				c.Abort()
 				return
 			}
-			claims, err := sf.Parse(token)
-			if err != nil {
-				o.unauthorizedFallback(c, err)
-				c.Abort()
-				return
-			}
-			ctx := NewContext(c.Request.Context(), claims)
-			c.Request = c.Request.WithContext(ctx)
+			c.Request = c.Request.WithContext(NewContext(c.Request.Context(), claims))
 		}
 		c.Next()
 	}
 }
 
 func parsePrivateKey(privateKey string) (*rsa.PrivateKey, error) {
-	var err error
-	var priv []byte
-
-	if strings.HasPrefix(privateKey, "-----BEGIN RSA PRIVATE KEY-----") ||
-		strings.HasPrefix(privateKey, "-----BEGIN PRIVATE KEY-----") {
-		priv = []byte(privateKey)
-	} else {
-		priv, err = base64.StdEncoding.DecodeString(privateKey)
+	priv, err := base64.StdEncoding.DecodeString(privateKey)
+	if err != nil {
+		priv, err = os.ReadFile(privateKey)
 		if err != nil {
-			return nil, err
+			priv = []byte(privateKey)
 		}
 	}
 	return jwt.ParseRSAPrivateKeyFromPEM(priv)
 }
 
-// parsePublicKey parses a public key
 func parsePublicKey(publicKey string) (*rsa.PublicKey, error) {
-	var err error
-	var pub []byte
-
-	if strings.HasPrefix(publicKey, "-----BEGIN RSA PUBLIC KEY-----") ||
-		strings.HasPrefix(publicKey, "-----BEGIN PUBLIC KEY-----") ||
-		strings.HasPrefix(publicKey, "-----BEGIN CERTIFICATE-----") {
-		pub = []byte(publicKey)
-	} else {
-		pub, err = base64.StdEncoding.DecodeString(publicKey)
+	pub, err := base64.StdEncoding.DecodeString(publicKey)
+	if err != nil {
+		pub, err = os.ReadFile(publicKey)
 		if err != nil {
-			return nil, err
+			pub = []byte(publicKey)
 		}
 	}
 	return jwt.ParseRSAPublicKeyFromPEM(pub)
