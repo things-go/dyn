@@ -3,7 +3,6 @@ package auth
 import (
 	"crypto/rsa"
 	"encoding/base64"
-	"errors"
 	"os"
 	"time"
 
@@ -122,13 +121,19 @@ func (sf *JwtProvider) ParseToken(tokenString string) (*Account, error) {
 		return nil, ErrInvalidToken
 	}
 	claims, ok := tk.Claims.(*Claims)
-	if !ok {
-		return nil, errors.New("invalid claims")
+	if !ok || claims == nil {
+		return nil, jwt.ErrTokenInvalidClaims
 	}
-	if claims == nil || claims.Subject == "" {
-		return nil, errors.New("invalid subject")
+	if claims.Issuer != sf.issuer {
+		return nil, jwt.ErrTokenInvalidIssuer
+	}
+	if claims.Subject == "" {
+		return nil, ErrInvalidToken
 	}
 	cc := tk.Claims.(*Claims)
+	if cc.Metadata != nil && cc.ID != "" {
+		cc.Metadata.Set(TokenUniqueId, cc.ID)
+	}
 	return &Account{
 		Subject:  cc.Subject,
 		Type:     cc.Type,

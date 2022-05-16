@@ -9,6 +9,8 @@ import (
 	"github.com/things-go/dyn/core/metadata"
 )
 
+const TokenUniqueId = "dyn:auth:uniqueId"
+
 type ctxAuthKey struct{}
 
 // NewContext put auth info into context
@@ -39,6 +41,11 @@ func MustFromSubject(ctx context.Context) int64 {
 	panic("auth: account info must in context, user must auth")
 }
 
+func FromId(c context.Context) string {
+	md := FromMetadata(c)
+	return md.Get(TokenUniqueId)
+}
+
 func FromType(c context.Context) string {
 	if v, ok := FromContext(c); ok {
 		return v.Type
@@ -47,7 +54,7 @@ func FromType(c context.Context) string {
 }
 
 func FromMetadata(c context.Context) metadata.Metadata {
-	if v, ok := FromContext(c); ok {
+	if v, ok := FromContext(c); ok && v.Metadata != nil {
 		return v.Metadata
 	}
 	return metadata.Metadata{}
