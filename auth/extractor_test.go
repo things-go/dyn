@@ -1,12 +1,10 @@
-package jwtauth
+package auth
 
 import (
 	"fmt"
 	"net/http"
 	"net/url"
 	"testing"
-
-	"github.com/golang-jwt/jwt/v4/request"
 )
 
 func TestExtractor(t *testing.T) {
@@ -14,7 +12,7 @@ func TestExtractor(t *testing.T) {
 
 	var tests = []struct {
 		name      string
-		extractor request.Extractor
+		extractor Extractor
 		headers   map[string]string
 		query     url.Values
 		cookie    map[string]string

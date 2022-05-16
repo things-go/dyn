@@ -1,9 +1,7 @@
-package jwtauth
+package auth
 
 import (
 	"errors"
-
-	"github.com/golang-jwt/jwt/v4/request"
 )
 
 var (
@@ -11,7 +9,7 @@ var (
 	// if authing with a HTTP header, the Auth header needs to be set
 	// if authing with URL Query, the query token variable is empty
 	// if authing with a cookie, the token cookie is empty
-	ErrMissingToken = request.ErrNoTokenInRequest
+	ErrMissingToken = errors.New("no token present in request")
 	// ErrInvalidToken indicates auth token is invalid
 	ErrInvalidToken = errors.New("invalid token provided")
 	// ErrTokenExpired indicates auth token is expired

@@ -1,15 +1,13 @@
-package jwtauth
+package auth
 
 import (
 	"net/http"
 	"strings"
-
-	"github.com/golang-jwt/jwt/v4/request"
 )
 
 // Lookup is a tool that looks up the token
 type Lookup struct {
-	extractors request.MultiExtractor
+	extractors MultiExtractor
 }
 
 // NewLookup new lookup
@@ -26,7 +24,7 @@ func NewLookup(lookup string) *Lookup {
 		lookup = "header:Authorization:Bearer"
 	}
 	methods := strings.Split(lookup, ",")
-	lookups := make(request.MultiExtractor, 0, len(methods))
+	lookups := make(MultiExtractor, 0, len(methods))
 	for _, method := range methods {
 		parts := strings.Split(strings.TrimSpace(method), ":")
 		if !(len(parts) == 2 || len(parts) == 3) {

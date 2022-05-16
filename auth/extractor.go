@@ -1,10 +1,33 @@
-package jwtauth
+package auth
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"strings"
 )
+
+// Extractor is an interface for extracting a token from an HTTP request.
+// The ExtractToken method should return a token string or an error.
+// If no token is present, you must return ErrNoTokenInRequest.
+type Extractor interface {
+	ExtractToken(*http.Request) (string, error)
+}
+
+// MultiExtractor tries Extractors in order until one returns a token string or an error occurs
+type MultiExtractor []Extractor
+
+func (e MultiExtractor) ExtractToken(req *http.Request) (string, error) {
+	// loop over header names and return the first one that contains data
+	for _, extractor := range e {
+		if tok, err := extractor.ExtractToken(req); tok != "" {
+			return tok, nil
+		} else if !errors.Is(err, ErrMissingToken) {
+			return "", err
+		}
+	}
+	return "", ErrMissingToken
+}
 
 // HeaderExtractor is an extractor for finding a token in a header.
 // Looks at each specified header in order until there's a match

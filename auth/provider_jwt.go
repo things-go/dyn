@@ -1,14 +1,12 @@
-package jwtauth
+package auth
 
 import (
 	"crypto/rsa"
 	"encoding/base64"
 	"errors"
-	"net/http"
 	"os"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 
 	"github.com/things-go/dyn/core/metadata"
@@ -21,8 +19,7 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-// Config Auth config
-type Config struct {
+type JwtConfig struct {
 	// 支持签名算法: HS256, HS384, HS512, RS256, RS384 or RS512
 	// Optional, Default HS256.
 	Algorithm string
@@ -33,32 +30,20 @@ type Config struct {
 	// Public key for asymmetric algorithms
 	// Required, RS256, RS384 or RS512.
 	PrivKey, PubKey string
-	// if timeout <= maxTimeout, maxTimeout = timeout + 30 * time.Minute
-	Timeout    time.Duration
-	MaxTimeout time.Duration
-	Issuer     string
-	Lookup     string
+	Issuer          string
 }
 
-// Auth provides a Json-Web-Token authentication implementation.
-type Auth struct {
+type JwtProvider struct {
 	signingMethod jwt.SigningMethod
 	encodeKey     interface{}
 	decodeKey     interface{}
-	timeout       time.Duration
-	maxTimeout    time.Duration
 	issuer        string
-	lookup        *Lookup
 }
 
-// New auth with Config
-func New(c Config) (*Auth, error) {
+func NewJwtProvider(c JwtConfig) (Provider, error) {
 	var err error
-	mw := &Auth{
-		timeout:    c.Timeout,
-		maxTimeout: c.MaxTimeout,
-		issuer:     c.Issuer,
-		lookup:     NewLookup(c.Lookup),
+	mw := &JwtProvider{
+		issuer: c.Issuer,
 	}
 
 	usingAlgo := false
@@ -86,16 +71,34 @@ func New(c Config) (*Auth, error) {
 		mw.encodeKey = c.Key
 		mw.decodeKey = c.Key
 	}
-	if mw.timeout <= mw.maxTimeout {
-		mw.maxTimeout = mw.timeout + 30*time.Minute
-	}
 	return mw, nil
 }
+func (sf *JwtProvider) GenerateToken(id string, acc *Account, timeout time.Duration) (string, time.Time, error) {
+	return sf.generateToken(id, acc, timeout)
+}
+func (sf *JwtProvider) GenerateRefreshToken(id string, acc *Account, timeout time.Duration) (string, time.Time, error) {
+	return sf.generateToken(id, acc, timeout)
+}
+func (sf *JwtProvider) generateToken(id string, acc *Account, timeout time.Duration) (string, time.Time, error) {
+	now := time.Now()
+	expiresAt := now.Add(timeout)
+	token, err := jwt.NewWithClaims(sf.signingMethod, &Claims{
+		Type:     acc.Type,
+		Scopes:   acc.Scopes,
+		Metadata: acc.Metadata,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    sf.issuer,
+			Subject:   acc.Subject,
+			ExpiresAt: jwt.NewNumericDate(expiresAt),
+			NotBefore: jwt.NewNumericDate(now),
+			IssuedAt:  jwt.NewNumericDate(now),
+			ID:        id,
+		},
+	}).SignedString(sf.encodeKey)
+	return token, expiresAt, err
+}
 
-func (sf *Auth) Timeout() time.Duration    { return sf.timeout }
-func (sf *Auth) MaxTimeout() time.Duration { return sf.maxTimeout }
-
-func (sf *Auth) Parse(tokenString string) (jwt.Claims, error) {
+func (sf *JwtProvider) ParseToken(tokenString string) (*Account, error) {
 	tk, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(t *jwt.Token) (interface{}, error) {
 		if sf.signingMethod != t.Method {
 			return nil, ErrInvalidSigningAlgorithm
@@ -125,76 +128,16 @@ func (sf *Auth) Parse(tokenString string) (jwt.Claims, error) {
 	if claims == nil || claims.Subject == "" {
 		return nil, errors.New("invalid subject")
 	}
-	return tk.Claims, nil
+	cc := tk.Claims.(*Claims)
+	return &Account{
+		Subject:  cc.Subject,
+		Type:     cc.Type,
+		Scopes:   cc.Scopes,
+		Metadata: cc.Metadata,
+	}, nil
 }
 
-func (sf *Auth) ExtractToken(r *http.Request) (string, error) {
-	return sf.lookup.ExtractToken(r)
-}
-
-func (sf *Auth) ParseFromRequest(r *http.Request) (jwt.Claims, error) {
-	token, err := sf.ExtractToken(r)
-	if err != nil {
-		return nil, err
-	}
-	return sf.Parse(token)
-}
-
-func (sf *Auth) NewWithClaims(claims jwt.Claims) (string, error) {
-	return jwt.NewWithClaims(sf.signingMethod, claims).SignedString(sf.encodeKey)
-}
-
-// Option is jwt option.
-type Option func(*options)
-
-// options is a jwt option
-type options struct {
-	skip                 func(c *gin.Context) bool
-	unauthorizedFallback func(*gin.Context, error)
-}
-
-// WithSkip set skip func
-func WithSkip(f func(c *gin.Context) bool) Option {
-	return func(o *options) {
-		if f != nil {
-			o.skip = f
-		}
-	}
-}
-
-// WithUnauthorizedFallback sets the fallback handler when requests are unauthorized.
-func WithUnauthorizedFallback(f func(c *gin.Context, err error)) Option {
-	return func(o *options) {
-		if f != nil {
-			o.unauthorizedFallback = f
-		}
-	}
-}
-
-func (sf *Auth) Middleware(opts ...Option) gin.HandlerFunc {
-	o := &options{
-		unauthorizedFallback: func(c *gin.Context, err error) {
-			c.String(http.StatusUnauthorized, err.Error())
-		},
-		skip: func(c *gin.Context) bool { return false },
-	}
-	for _, opt := range opts {
-		opt(o)
-	}
-	return func(c *gin.Context) {
-		if !o.skip(c) {
-			claims, err := sf.ParseFromRequest(c.Request)
-			if err != nil {
-				o.unauthorizedFallback(c, err)
-				c.Abort()
-				return
-			}
-			c.Request = c.Request.WithContext(NewContext(c.Request.Context(), claims))
-		}
-		c.Next()
-	}
-}
-
+// helper
 func parsePrivateKey(privateKey string) (*rsa.PrivateKey, error) {
 	priv, err := base64.StdEncoding.DecodeString(privateKey)
 	if err != nil {
