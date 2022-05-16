@@ -1,5 +1,5 @@
 version: v1
-name: buf.build/thinkgo/ginp
+name: buf.build/thinkgo/dyn
 breaking:
   use:
     - FILE
