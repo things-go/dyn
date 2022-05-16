@@ -24,36 +24,36 @@ type Account struct {
 
 // Config Auth config
 type Config struct {
-	// if timeout <= maxTimeout, maxTimeout = timeout + 30 * time.Minute
-	Timeout    time.Duration
-	MaxTimeout time.Duration
-	Lookup     string
+	// if timeout <= refreshTimeout, refreshTimeout = timeout + 30 * time.Minute
+	Timeout        time.Duration
+	RefreshTimeout time.Duration
+	Lookup         string
 }
 
 // Auth provides a Json-Web-Token authentication implementation.
 type Auth struct {
-	provider   Provider
-	timeout    time.Duration
-	maxTimeout time.Duration
-	lookup     *Lookup
+	provider       Provider
+	timeout        time.Duration
+	refreshTimeout time.Duration
+	lookup         *Lookup
 }
 
 // New auth with Config
 func New(p Provider, c Config) *Auth {
 	mw := &Auth{
-		provider:   p,
-		timeout:    c.Timeout,
-		maxTimeout: c.MaxTimeout,
-		lookup:     NewLookup(c.Lookup),
+		provider:       p,
+		timeout:        c.Timeout,
+		refreshTimeout: c.RefreshTimeout,
+		lookup:         NewLookup(c.Lookup),
 	}
-	if mw.timeout <= mw.maxTimeout {
-		mw.maxTimeout = mw.timeout + 30*time.Minute
+	if mw.timeout <= mw.refreshTimeout {
+		mw.refreshTimeout = mw.timeout + 30*time.Minute
 	}
 	return mw
 }
 
 func (sf *Auth) Timeout() time.Duration    { return sf.timeout }
-func (sf *Auth) MaxTimeout() time.Duration { return sf.maxTimeout }
+func (sf *Auth) MaxTimeout() time.Duration { return sf.refreshTimeout }
 
 func (sf *Auth) ExtractToken(r *http.Request) (string, error) {
 	return sf.lookup.ExtractToken(r)
@@ -76,7 +76,7 @@ func (sf *Auth) GenerateToken(id string, acc *Account) (string, time.Time, error
 }
 
 func (sf *Auth) GenerateRefreshToken(id string, acc *Account) (string, time.Time, error) {
-	return sf.provider.GenerateRefreshToken(id, acc, sf.maxTimeout)
+	return sf.provider.GenerateRefreshToken(id, acc, sf.refreshTimeout)
 }
 
 // Option is Middleware option.
