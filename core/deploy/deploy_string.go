@@ -8,7 +8,7 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[Unknown-0]
+	_ = x[None-0]
 	_ = x[Local-1]
 	_ = x[Develop-2]
 	_ = x[Debug-3]
@@ -16,9 +16,9 @@ func _() {
 	_ = x[Production-5]
 }
 
-const _Deploy_name = "unknownlocaldevdebuguatprod"
+const _Deploy_name = "nonelocaldevdebuguatprod"
 
-var _Deploy_index = [...]uint8{0, 7, 12, 15, 20, 23, 27}
+var _Deploy_index = [...]uint8{0, 4, 9, 12, 17, 20, 24}
 
 func (i Deploy) String() string {
 	if i < 0 || i >= Deploy(len(_Deploy_index)-1) {

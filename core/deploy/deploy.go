@@ -8,7 +8,7 @@ import (
 type Deploy int
 
 const (
-	Unknown    Deploy = iota // unknown
+	None       Deploy = iota // none
 	Local                    // local
 	Develop                  // dev
 	Debug                    // debug
@@ -16,7 +16,7 @@ const (
 	Production               // prod
 )
 
-var deploy = Unknown
+var deploy = None
 
 func Convert(m string) Deploy {
 	switch m {
@@ -31,7 +31,7 @@ func Convert(m string) Deploy {
 	case Production.String():
 		return Production
 	default:
-		return Unknown
+		return None
 	}
 }
 
@@ -77,7 +77,7 @@ func GetDeploy() string {
 
 // CheckMustDeploy 校验当前的布署环境必须设置非 unknown 模式, 否则panic
 func CheckMustDeploy() {
-	if deploy == Unknown {
+	if deploy == None {
 		log.Fatalf("Please set deploy mode first, must be one of local, dev, debug, uat, prod")
 	}
 }
