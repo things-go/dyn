@@ -24,8 +24,8 @@ func FromContext(ctx context.Context) (acc *Account, ok bool) {
 	return
 }
 
-func FromSubject(c context.Context) int64 {
-	if v, ok := FromContext(c); ok {
+func FromSubject(ctx context.Context) int64 {
+	if v, ok := FromContext(ctx); ok {
 		sub, err := strconv.ParseInt(v.Subject, 10, 64)
 		if err == nil {
 			return sub
@@ -41,20 +41,20 @@ func MustFromSubject(ctx context.Context) int64 {
 	panic("auth: account info must in context, user must auth")
 }
 
-func FromId(c context.Context) string {
-	md := FromMetadata(c)
+func FromId(ctx context.Context) string {
+	md := FromMetadata(ctx)
 	return md.Get(TokenUniqueId)
 }
 
-func FromType(c context.Context) string {
-	if v, ok := FromContext(c); ok {
+func FromType(ctx context.Context) string {
+	if v, ok := FromContext(ctx); ok {
 		return v.Type
 	}
 	return ""
 }
 
-func FromMetadata(c context.Context) metadata.Metadata {
-	if v, ok := FromContext(c); ok && v.Metadata != nil {
+func FromMetadata(ctx context.Context) metadata.Metadata {
+	if v, ok := FromContext(ctx); ok && v.Metadata != nil {
 		return v.Metadata
 	}
 	return metadata.Metadata{}
