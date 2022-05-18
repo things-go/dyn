@@ -24,3 +24,10 @@ func MustFromGin(ctx context.Context) *gin.Context {
 	}
 	return c
 }
+
+func GinMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Request = c.Request.WithContext(WithValueGin(c.Request.Context(), c))
+		c.Next()
+	}
+}
