@@ -10,8 +10,8 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// New constructs a new Logger
-func New(opts ...Option) *zap.Logger {
+// New constructs a new Log
+func New(opts ...Option) (*zap.Logger, zap.AtomicLevel) {
 	c := &Config{}
 	for _, opt := range opts {
 		opt(c)
@@ -28,13 +28,14 @@ func New(opts ...Option) *zap.Logger {
 			zap.AddStacktrace(stackLevel),
 		)
 	}
+	level := zap.NewAtomicLevelAt(toLevel(c.Level))
 	// 初始化core
 	core := zapcore.NewCore(
-		toEncoder(c),                           // 设置encoder
-		toWriter(c),                            // 设置输出
-		zap.NewAtomicLevelAt(toLevel(c.Level)), // 设置日志输出等级
+		toEncoder(c), // 设置encoder
+		toWriter(c),  // 设置输出
+		level,        // 设置日志输出等级
 	)
-	return zap.New(core, options...)
+	return zap.New(core, options...), level
 }
 
 func toLevel(level string) zapcore.Level {

@@ -31,7 +31,7 @@ type Config struct {
 	EncoderConfig *zapcore.EncoderConfig `yaml:"-" json:"-"`
 
 	// see https://github.com/natefinch/lumberjack
-	// lumberjack.Logger
+	// lumberjack.Log
 	// Filename 空字符使用默认, 默认<processname>-lumberjack.log
 	Filename string `yaml:"filename" json:"filename"`
 	// MaxSize 每个日志文件最大尺寸(MB), 默认100MB
@@ -46,7 +46,7 @@ type Config struct {
 	Compress bool `yaml:"compress" json:"compress"`
 }
 
-// Option An Option configures a Logger.
+// Option An Option configures a Log.
 type Option func(c *Config)
 
 // WithConfig with config
@@ -106,7 +106,7 @@ func WithPath(path string) Option {
 	return func(c *Config) { c.Path = path }
 }
 
-/******************************** lumberjack.Logger **************************************/
+/******************************** lumberjack.Log **************************************/
 
 // WithFilename with filename
 // 空字符使用默认, 默认<processname>-lumberjack.log
