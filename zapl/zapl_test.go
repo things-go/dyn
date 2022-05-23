@@ -5,8 +5,8 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	l := New(WithConfig(Config{Level: "debug", Format: "json"}))
-	ReplaceGlobals(l.Sugar().With("test", "test"))
+	l, lv := New(WithConfig(Config{Level: "debug", Format: "json"}))
+	ReplaceGlobals(NewLoggerWith(l, lv))
 
 	Debug("Debug")
 	Info("Info")
@@ -43,7 +43,7 @@ func TestNew(t *testing.T) {
 
 	Named("another").Debug("debug named")
 
-	Desugar().Debug("desugar")
+	Logger().Debug("desugar")
 
 	_ = Sync()
 }
