@@ -28,40 +28,24 @@ func New(opts ...Option) (*zap.Logger, zap.AtomicLevel) {
 			zap.AddStacktrace(stackLevel),
 		)
 	}
-	level := zap.NewAtomicLevelAt(toLevel(c.Level))
+
+	level, err := zap.ParseAtomicLevel(c.Level)
+	if err != nil {
+		level = zap.NewAtomicLevelAt(zap.InfoLevel)
+	}
+
 	// 初始化core
 	core := zapcore.NewCore(
-		toEncoder(c), // 设置encoder
-		toWriter(c),  // 设置输出
-		level,        // 设置日志输出等级
+		toEncoder(c, level), // 设置encoder
+		toWriter(c),         // 设置输出
+		level,               // 设置日志输出等级
 	)
 	return zap.New(core, options...), level
 }
 
-func toLevel(level string) zapcore.Level {
-	switch strings.ToLower(level) {
-	case "debug":
-		return zap.DebugLevel
-	case "info":
-		return zap.InfoLevel
-	case "warn":
-		return zap.WarnLevel
-	case "error":
-		return zap.ErrorLevel
-	case "dpanic":
-		return zap.DPanicLevel
-	case "panic":
-		return zap.PanicLevel
-	case "fatal":
-		return zap.FatalLevel
-	default:
-		return zap.WarnLevel
-	}
-}
-
-func toEncoder(c *Config) zapcore.Encoder {
+func toEncoder(c *Config, level zap.AtomicLevel) zapcore.Encoder {
 	encoderConfig := c.EncoderConfig
-	if c.EncoderConfig == nil {
+	if encoderConfig == nil {
 		encoderConfig = &zapcore.EncoderConfig{
 			TimeKey:        "ts",
 			LevelKey:       "level",
@@ -76,7 +60,7 @@ func toEncoder(c *Config) zapcore.Encoder {
 			EncodeDuration: zapcore.StringDurationEncoder,
 			EncodeCaller:   zapcore.ShortCallerEncoder,
 		}
-		if toLevel(c.Level) == zap.DebugLevel {
+		if level.Level() == zap.DebugLevel {
 			encoderConfig.EncodeCaller = zapcore.FullCallerEncoder
 		}
 	}

@@ -10,20 +10,27 @@ var defaultLogger = NewLoggerWith(zap.NewNop(), zap.NewAtomicLevel())
 // ReplaceGlobals replaces the global Log,
 func ReplaceGlobals(logger *Log) { defaultLogger = logger }
 
+// SetLevelWithText alters the logging level.
+// ParseAtomicLevel set the logging level based on a lowercase or all-caps ASCII
+// representation of the log level.
+// If the provided ASCII representation is
+// invalid an error is returned.
+func SetLevelWithText(text string) error { return defaultLogger.SetLevelWithText(text) }
+
 // SetLevel alters the logging level.
-func SetLevel(lv zapcore.Level) { defaultLogger.level.SetLevel(lv) }
+func SetLevel(lv zapcore.Level) { defaultLogger.SetLevel(lv) }
 
 // Level returns the minimum enabled log level.
-func Level() zapcore.Level { return defaultLogger.level.Level() }
+func Level() zapcore.Level { return defaultLogger.Level() }
 
 // Sugar wraps the Logger to provide a more ergonomic, but slightly slower,
 // API. Sugaring a Logger is quite inexpensive, so it's reasonable for a
 // single application to use both Loggers and SugaredLoggers, converting
 // between them on the boundaries of performance-sensitive code.
-func Sugar() *zap.SugaredLogger { return defaultLogger.log.Sugar() }
+func Sugar() *zap.SugaredLogger { return defaultLogger.Sugar() }
 
 // Logger return internal logger
-func Logger() *zap.Logger { return defaultLogger.log }
+func Logger() *zap.Logger { return defaultLogger.Logger() }
 
 // With adds a variadic number of fields to the logging context. It accepts a
 // mix of strongly-typed Field objects and loosely-typed key-value pairs. When
@@ -52,7 +59,7 @@ func Logger() *zap.Logger { return defaultLogger.log }
 // forgiving: a separate error is logged, but the key-value pair is skipped
 // and execution continues. Passing an orphaned key triggers similar behavior:
 // panics in development and errors in production.
-func With(args ...interface{}) *zap.SugaredLogger { return defaultLogger.log.Sugar().With(args...) }
+func With(args ...interface{}) *zap.SugaredLogger { return defaultLogger.Sugar().With(args...) }
 
 // Named adds a sub-scope to the logger's name. See Log.Named for details.
 func Named(name string) *zap.SugaredLogger { return defaultLogger.Named(name) }

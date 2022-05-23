@@ -17,6 +17,21 @@ func NewLoggerWith(logger *zap.Logger, lv zap.AtomicLevel) *Log { return &Log{lo
 // NewLogger new logger
 func NewLogger(opts ...Option) *Log { return NewLoggerWith(New(opts...)) }
 
+// SetLevelWithText alters the logging level.
+// ParseAtomicLevel set the logging level based on a lowercase or all-caps ASCII
+// representation of the log level.
+// If the provided ASCII representation is
+// invalid an error is returned.
+// see zapcore.Level
+func (l *Log) SetLevelWithText(text string) error {
+	lv, err := zapcore.ParseLevel(text)
+	if err != nil {
+		return err
+	}
+	l.level.SetLevel(lv)
+	return nil
+}
+
 // SetLevel alters the logging level.
 func (l *Log) SetLevel(lv zapcore.Level) { l.level.SetLevel(lv) }
 
