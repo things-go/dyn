@@ -9,6 +9,16 @@ import (
 	"github.com/things-go/dyn/core/encoding"
 )
 
+var defaultCodec encoding.Codec = codec{}
+
+func init() {
+	encoding.Register(defaultCodec)
+}
+
+func Name() string                               { return defaultCodec.Name() }
+func Marshal(v interface{}) ([]byte, error)      { return defaultCodec.Marshal(v) }
+func Unmarshal(data []byte, v interface{}) error { return defaultCodec.Unmarshal(data, v) }
+
 // MarshalOptions is a configurable JSON format marshaller.
 var MarshalOptions = protojson.MarshalOptions{
 	EmitUnpopulated: true,
@@ -17,10 +27,6 @@ var MarshalOptions = protojson.MarshalOptions{
 // UnmarshalOptions is a configurable JSON format parser.
 var UnmarshalOptions = protojson.UnmarshalOptions{
 	DiscardUnknown: true,
-}
-
-func init() {
-	encoding.Register(codec{})
 }
 
 // codec is a Codec implementation with json.

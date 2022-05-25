@@ -86,9 +86,8 @@ func TestJSON_Marshal(t *testing.T) {
 			expect: `"gopher"`,
 		},
 	}
-	cdc := new(codec)
 	for _, v := range tests {
-		data, err := cdc.Marshal(v.input)
+		data, err := Marshal(v.input)
 		assert.NoError(t, err)
 		got := strings.ReplaceAll(string(data), " ", "")
 		assert.Equal(t, got, v.expect)
@@ -122,14 +121,14 @@ func TestJSON_Unmarshal(t *testing.T) {
 			expect: &mock{},
 		},
 	}
-	cdc := new(codec)
+
 	for _, v := range tests {
 		wantB := []byte(v.input)
 
-		err := cdc.Unmarshal(wantB, v.expect)
+		err := Unmarshal(wantB, v.expect)
 		assert.NoError(t, err, "Unmarshal")
 
-		gotB, err := cdc.Marshal(v.expect)
+		gotB, err := Marshal(v.expect)
 		assert.NoError(t, err, "Marshal")
 
 		got := strings.ReplaceAll(string(gotB), " ", "")

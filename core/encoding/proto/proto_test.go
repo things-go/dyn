@@ -22,11 +22,10 @@ func TestCodec(t *testing.T) {
 		}
 		var got testData.TestModel
 
-		cdc := new(codec)
-		tmp, err := cdc.Marshal(&want)
+		tmp, err := Marshal(&want)
 		require.NoError(t, err)
 
-		err = cdc.Unmarshal(tmp, &got)
+		err = Unmarshal(tmp, &got)
 		require.NoError(t, err)
 		require.Equal(t, want.Id, got.Id)
 		require.Equal(t, want.Name, got.Name)

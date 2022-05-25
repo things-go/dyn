@@ -18,7 +18,7 @@ func TestCodec_Marshal(t *testing.T) {
 	}{
 		A: 1,
 	}
-	got, err := (codec{}).Marshal(v)
+	got, err := Marshal(v)
 	require.NoError(t, err)
 	require.Equal(t, string(got), "a: 1\n")
 }
@@ -27,7 +27,7 @@ func TestCodec_Unmarshal(t *testing.T) {
 	for _, tt := range unmarshalTests {
 		v := reflect.ValueOf(tt.value).Type()
 		value := reflect.New(v)
-		err := (codec{}).Unmarshal([]byte(tt.data), value.Interface())
+		err := Unmarshal([]byte(tt.data), value.Interface())
 		if _, ok := err.(*yaml.TypeError); !ok {
 			assert.NoError(t, err)
 		} else {

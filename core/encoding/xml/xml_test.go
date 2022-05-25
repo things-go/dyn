@@ -50,7 +50,7 @@ var marshalTests = []struct {
 
 func TestCodec_Marshal(t *testing.T) {
 	for _, tt := range marshalTests {
-		data, err := (codec{}).Marshal(tt.Value)
+		data, err := Marshal(tt.Value)
 		if err != nil {
 			t.Errorf("marshal(%#v): %s", tt.Value, err)
 		}
@@ -83,7 +83,7 @@ func TestCodec_Unmarshal(t *testing.T) {
 
 		vt := reflect.TypeOf(test.Value)
 		dest := reflect.New(vt.Elem()).Interface()
-		err := (codec{}).Unmarshal([]byte(test.ExpectXML), dest)
+		err := Unmarshal([]byte(test.ExpectXML), dest)
 
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
 			if err != nil {
