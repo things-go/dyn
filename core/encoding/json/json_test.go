@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	testData "github.com/things-go/dyn/testdata/encoding"
 )
@@ -65,74 +66,78 @@ func (a *mock) MarshalJSON() ([]byte, error) {
 }
 
 func TestJSON_Marshal(t *testing.T) {
-	tests := []struct {
-		input  interface{}
-		expect string
-	}{
-		{
-			input:  &testMessage{},
-			expect: `{"a":"","b":"","c":""}`,
-		},
-		{
-			input:  &testMessage{A: "a", B: "b", C: "c"},
-			expect: `{"a":"a","b":"b","c":"c"}`,
-		},
-		{
-			input:  &testData.TestModel{Id: 1, Name: "golang", Hobby: []string{"1", "2"}, Attrs: map[string]string{"key": "value"}},
-			expect: `{"id":"1","name":"golang","hobby":["1","2"],"attrs":{"key":"value"}}`,
-		},
-		{
-			input:  &mock{value: Gopher},
-			expect: `"gopher"`,
-		},
-	}
-	for _, v := range tests {
-		data, err := Marshal(v.input)
-		assert.NoError(t, err)
-		got := strings.ReplaceAll(string(data), " ", "")
-		assert.Equal(t, got, v.expect)
-	}
-}
+	t.Run("name", func(t *testing.T) {
+		require.Equal(t, "json", Name())
+	})
+	t.Run("Marshal", func(t *testing.T) {
+		tests := []struct {
+			input  interface{}
+			expect string
+		}{
+			{
+				input:  &testMessage{},
+				expect: `{"a":"","b":"","c":""}`,
+			},
+			{
+				input:  &testMessage{A: "a", B: "b", C: "c"},
+				expect: `{"a":"a","b":"b","c":"c"}`,
+			},
+			{
+				input:  &testData.TestModel{Id: 1, Name: "golang", Hobby: []string{"1", "2"}, Attrs: map[string]string{"key": "value"}},
+				expect: `{"id":"1","name":"golang","hobby":["1","2"],"attrs":{"key":"value"}}`,
+			},
+			{
+				input:  &mock{value: Gopher},
+				expect: `"gopher"`,
+			},
+		}
+		for _, v := range tests {
+			data, err := Marshal(v.input)
+			assert.NoError(t, err)
+			got := strings.ReplaceAll(string(data), " ", "")
+			assert.Equal(t, got, v.expect)
+		}
+	})
+	t.Run("Marshal", func(t *testing.T) {
+		p := &testData.TestModel{}
+		tests := []struct {
+			input  string
+			expect interface{}
+		}{
+			{
+				input:  `{"a":"","b":"","c":"1111"}`,
+				expect: &testMessage{},
+			},
+			{
+				input:  `{"a":"a","b":"b","c":"c"}`,
+				expect: &testMessage{},
+			},
+			{
+				input:  `{"id":"1","name":"golang","hobby":["1","2"],"attrs":{}}`,
+				expect: &testData.TestModel{},
+			},
+			{
+				input:  `{"id":1,"name":"golang","hobby":["1","2"]}`,
+				expect: &p,
+			},
+			{
+				input:  `"ruster"`,
+				expect: &mock{},
+			},
+		}
 
-func TestJSON_Unmarshal(t *testing.T) {
-	p := &testData.TestModel{}
-	tests := []struct {
-		input  string
-		expect interface{}
-	}{
-		{
-			input:  `{"a":"","b":"","c":"1111"}`,
-			expect: &testMessage{},
-		},
-		{
-			input:  `{"a":"a","b":"b","c":"c"}`,
-			expect: &testMessage{},
-		},
-		{
-			input:  `{"id":"1","name":"golang","hobby":["1","2"],"attrs":{}}`,
-			expect: &testData.TestModel{},
-		},
-		{
-			input:  `{"id":1,"name":"golang","hobby":["1","2"]}`,
-			expect: &p,
-		},
-		{
-			input:  `"ruster"`,
-			expect: &mock{},
-		},
-	}
+		for _, v := range tests {
+			wantB := []byte(v.input)
 
-	for _, v := range tests {
-		wantB := []byte(v.input)
+			err := Unmarshal(wantB, v.expect)
+			assert.NoError(t, err, "Unmarshal")
 
-		err := Unmarshal(wantB, v.expect)
-		assert.NoError(t, err, "Unmarshal")
+			gotB, err := Marshal(v.expect)
+			assert.NoError(t, err, "Marshal")
 
-		gotB, err := Marshal(v.expect)
-		assert.NoError(t, err, "Marshal")
-
-		got := strings.ReplaceAll(string(gotB), " ", "")
-		want := strings.ReplaceAll(string(wantB), " ", "")
-		assert.Equal(t, got, want)
-	}
+			got := strings.ReplaceAll(string(gotB), " ", "")
+			want := strings.ReplaceAll(string(wantB), " ", "")
+			assert.Equal(t, got, want)
+		}
+	})
 }

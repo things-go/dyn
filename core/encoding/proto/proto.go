@@ -8,23 +8,26 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-var defaultCodec encoding.Codec = codec{}
+var defaultCodec = New()
 
 func init() {
-	encoding.Register(codec{})
+	encoding.Register(defaultCodec)
 }
 
 func Name() string                               { return defaultCodec.Name() }
 func Marshal(v interface{}) ([]byte, error)      { return defaultCodec.Marshal(v) }
 func Unmarshal(data []byte, v interface{}) error { return defaultCodec.Unmarshal(data, v) }
 
-// codec is a Codec implementation with protobuf.
-type codec struct{}
+// New returns a new Codec
+func New() Codec { return Codec{} }
 
-func (codec) Name() string { return "proto" }
-func (codec) Marshal(v interface{}) ([]byte, error) {
+// Codec is a Codec implementation with protobuf.
+type Codec struct{}
+
+func (Codec) Name() string { return "proto" }
+func (Codec) Marshal(v interface{}) ([]byte, error) {
 	return proto.Marshal(v.(proto.Message))
 }
-func (codec) Unmarshal(data []byte, v interface{}) error {
+func (Codec) Unmarshal(data []byte, v interface{}) error {
 	return proto.Unmarshal(data, v.(proto.Message))
 }

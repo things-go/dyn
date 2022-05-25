@@ -10,8 +10,7 @@ import (
 
 func TestCodec(t *testing.T) {
 	t.Run("name", func(t *testing.T) {
-		c := new(codec)
-		require.Equal(t, "proto", c.Name())
+		require.Equal(t, "proto", Name())
 	})
 	t.Run("Marshal/Unmarshal", func(t *testing.T) {
 		want := testData.TestModel{
