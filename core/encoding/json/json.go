@@ -39,7 +39,8 @@ func WithDisableProtoJSON() Option {
 	}
 }
 
-// New returns a new Codec
+// New returns a new Codec,
+// default disableProtoJSON is false
 func New(opts ...Option) Codec {
 	codec := Codec{
 		protojson.MarshalOptions{EmitUnpopulated: true},

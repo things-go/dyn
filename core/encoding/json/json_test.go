@@ -212,7 +212,7 @@ func TestJSON_default(t *testing.T) {
 				expect: &testMessage{},
 			},
 			{
-				input:  `{"id":"1","name":"golang","hobby":["1","2"],"attrs":{}}`,
+				input:  `{"id":"1","name":"golang","hobby":["1","2"],"snakeCase":{}}`,
 				expect: &testData.TestModel{},
 			},
 			{

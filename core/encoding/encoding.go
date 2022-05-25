@@ -25,6 +25,7 @@ var (
 )
 
 // Register registers the provided Codec.
+// if register called twice for Codec name, it will overwrite previous Codec.
 func Register(codec Codec) {
 	codecsMu.Lock()
 	defer codecsMu.Unlock()

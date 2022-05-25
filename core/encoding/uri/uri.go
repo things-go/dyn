@@ -12,8 +12,39 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-// Encode encode proto message to url path.
+var defaultCodec = New()
+
+func ReplaceDefaultCodec(codec Codec) { defaultCodec = codec }
 func Encode(pathTemplate string, msg interface{}, needQuery bool) string {
+	return defaultCodec.Encode(pathTemplate, msg, needQuery)
+}
+
+type Option func(*Codec)
+
+func WithDisableProto() Option {
+	return func(c *Codec) {
+		c.disableProto = true
+	}
+}
+
+type Codec struct {
+	f            form.Codec
+	disableProto bool
+}
+
+// New returns a new Codec,
+// default tag name is "form",
+// proto use protoJSON tag
+func New(opts ...Option) Codec {
+	codec := Codec{form.New(), false}
+	for _, opt := range opts {
+		opt(&codec)
+	}
+	return codec
+}
+
+// Encode encode proto message to url path.
+func (c Codec) Encode(pathTemplate string, msg interface{}, needQuery bool) string {
 	if msg == nil || (reflect.ValueOf(msg).Kind() == reflect.Ptr && reflect.ValueOf(msg).IsNil()) {
 		return pathTemplate
 	}
@@ -24,7 +55,9 @@ func Encode(pathTemplate string, msg interface{}, needQuery bool) string {
 
 	path := pathTemplate
 	pathParams := make(map[string]struct{})
-	if mg, ok := msg.(proto.Message); ok {
+	if c.disableProto {
+		// TODO:
+	} else if mg, ok := msg.(proto.Message); ok {
 		path = reg.ReplaceAllStringFunc(pathTemplate, func(in string) string {
 			if len(in) < 4 { //nolint:gomnd // **  explain the 4 number here :-) **
 				return in
@@ -42,12 +75,12 @@ func Encode(pathTemplate string, msg interface{}, needQuery bool) string {
 	}
 
 	if needQuery {
-		u, err := form.Encode(msg)
-		if err == nil && len(u) > 0 {
+		values, err := c.f.Encode(msg)
+		if err == nil && len(values) > 0 {
 			for key := range pathParams {
-				delete(u, key)
+				delete(values, key)
 			}
-			query := u.Encode()
+			query := values.Encode()
 			if query != "" {
 				path += "?" + query
 			}

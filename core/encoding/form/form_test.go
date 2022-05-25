@@ -20,6 +20,15 @@ type TestModel struct {
 	Name string `form:"name"`
 }
 
+func init() {
+	encoder := form.NewEncoder()
+	encoder.SetTagName("form")
+	decoder := form.NewDecoder()
+	decoder.SetTagName("form")
+	codec := New(WithEncoder(encoder), WithDecoder(decoder))
+	ReplaceDefaultCodec(codec)
+}
+
 func TestNew(t *testing.T) {
 	encoder := form.NewEncoder()
 	encoder.SetTagName("json")

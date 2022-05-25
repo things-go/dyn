@@ -27,11 +27,4 @@ func TestRegisterCodec(t *testing.T) {
 	Register(cdc)
 	require.Equal(t, cdc, GetCodec(cdc.Name()))
 	require.Equal(t, []string{cdc.Name()}, Codecs())
-
-	require.Panics(t,
-		func() {
-			Register(cdc)
-		},
-		"should register called twice for driver",
-	)
 }

@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -14,6 +15,9 @@ var nilStruct *int
 
 type Plain struct {
 	V interface{}
+}
+type PresenceTest struct {
+	Exists *struct{}
 }
 
 var marshalTests = []struct {
@@ -49,6 +53,22 @@ var marshalTests = []struct {
 	{Value: &Plain{[3]byte{'<', '/', '>'}}, ExpectXML: `<Plain><V>&lt;/&gt;</V></Plain>`},
 	{Value: &Plain{[]int{1, 2, 3}}, ExpectXML: `<Plain><V>1</V><V>2</V><V>3</V></Plain>`},
 	{Value: &Plain{[3]int{1, 2, 3}}, ExpectXML: `<Plain><V>1</V><V>2</V><V>3</V></Plain>`},
+
+	// Test time.
+	{
+		Value:     &Plain{time.Unix(1e9, 123456789).UTC()},
+		ExpectXML: `<Plain><V>2001-09-09T01:46:40.123456789Z</V></Plain>`,
+	},
+
+	// A pointer to struct{} may be used to test for an element's presence.
+	{
+		Value:     &PresenceTest{new(struct{})},
+		ExpectXML: `<PresenceTest><Exists></Exists></PresenceTest>`,
+	},
+	{
+		Value:     &PresenceTest{},
+		ExpectXML: `<PresenceTest></PresenceTest>`,
+	},
 }
 
 func TestCodec(t *testing.T) {
