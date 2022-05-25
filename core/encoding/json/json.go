@@ -33,11 +33,18 @@ func WithUnmarshalOptions(unmarshalOpts protojson.UnmarshalOptions) Option {
 	}
 }
 
+func WithDisableProtoJSON() Option {
+	return func(c *Codec) {
+		c.disableProtoJSON = true
+	}
+}
+
 // New returns a new Codec
 func New(opts ...Option) Codec {
 	codec := Codec{
 		protojson.MarshalOptions{EmitUnpopulated: true},
 		protojson.UnmarshalOptions{DiscardUnknown: true},
+		false,
 	}
 	for _, opt := range opts {
 		opt(&codec)
@@ -47,8 +54,9 @@ func New(opts ...Option) Codec {
 
 // Codec is a Codec implementation with json.
 type Codec struct {
-	marshalOpts   protojson.MarshalOptions
-	unmarshalOpts protojson.UnmarshalOptions
+	marshalOpts      protojson.MarshalOptions
+	unmarshalOpts    protojson.UnmarshalOptions
+	disableProtoJSON bool
 }
 
 func (Codec) Name() string { return "json" }
@@ -57,6 +65,9 @@ func (c Codec) Marshal(v interface{}) ([]byte, error) {
 	case json.Marshaler:
 		return m.MarshalJSON()
 	case proto.Message:
+		if c.disableProtoJSON {
+			return json.Marshal(m)
+		}
 		return c.marshalOpts.Marshal(m)
 	default:
 		return json.Marshal(m)
@@ -67,6 +78,9 @@ func (c Codec) Unmarshal(data []byte, v interface{}) error {
 	case json.Unmarshaler:
 		return m.UnmarshalJSON(data)
 	case proto.Message:
+		if c.disableProtoJSON {
+			return json.Unmarshal(data, v)
+		}
 		return c.unmarshalOpts.Unmarshal(data, m)
 	default:
 		return json.Unmarshal(data, v)

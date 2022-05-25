@@ -34,11 +34,7 @@ func Register(codec Codec) {
 	if codec.Name() == "" {
 		panic("encoding: register Codec with empty string for Name()")
 	}
-	name := codec.Name()
-	if _, dup := codecs[name]; dup {
-		panic("encoding: Register called twice for driver " + name)
-	}
-	codecs[name] = codec
+	codecs[codec.Name()] = codec
 }
 
 // Codecs returns a sorted list of the names of the registered Codec.

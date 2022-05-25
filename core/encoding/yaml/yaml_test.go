@@ -12,28 +12,32 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func TestCodec_Marshal(t *testing.T) {
-	var v = struct {
-		A int
-	}{
-		A: 1,
-	}
-	got, err := Marshal(v)
-	require.NoError(t, err)
-	require.Equal(t, string(got), "a: 1\n")
-}
-
-func TestCodec_Unmarshal(t *testing.T) {
-	for _, tt := range unmarshalTests {
-		v := reflect.ValueOf(tt.value).Type()
-		value := reflect.New(v)
-		err := Unmarshal([]byte(tt.data), value.Interface())
-		if _, ok := err.(*yaml.TypeError); !ok {
-			assert.NoError(t, err)
-		} else {
-			assert.Equal(t, value.Elem().Interface(), tt.value)
+func TestCodec(t *testing.T) {
+	t.Run("name", func(t *testing.T) {
+		require.Equal(t, "yaml", Name())
+	})
+	t.Run("Marshal", func(t *testing.T) {
+		var v = struct {
+			A int
+		}{
+			A: 1,
 		}
-	}
+		got, err := Marshal(v)
+		require.NoError(t, err)
+		require.Equal(t, string(got), "a: 1\n")
+	})
+	t.Run("Unmarshal", func(t *testing.T) {
+		for _, tt := range unmarshalTests {
+			v := reflect.ValueOf(tt.value).Type()
+			value := reflect.New(v)
+			err := Unmarshal([]byte(tt.data), value.Interface())
+			if _, ok := err.(*yaml.TypeError); !ok {
+				assert.NoError(t, err)
+			} else {
+				assert.Equal(t, value.Elem().Interface(), tt.value)
+			}
+		}
+	})
 }
 
 // copy from yaml

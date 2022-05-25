@@ -14,10 +14,10 @@ func TestCodec(t *testing.T) {
 	})
 	t.Run("Marshal/Unmarshal", func(t *testing.T) {
 		want := testData.TestModel{
-			Id:    1,
-			Name:  "hello",
-			Hobby: []string{"study", "eat", "play"},
-			Attrs: map[string]string{"1": "111", "2": "222"},
+			Id:        1,
+			Name:      "hello",
+			Hobby:     []string{"study", "eat", "play"},
+			SnakeCase: map[string]string{"1": "111", "2": "222"},
 		}
 		var got testData.TestModel
 
@@ -29,6 +29,6 @@ func TestCodec(t *testing.T) {
 		require.Equal(t, want.Id, got.Id)
 		require.Equal(t, want.Name, got.Name)
 		require.Equal(t, want.Hobby, got.Hobby)
-		require.Equal(t, want.Attrs, got.Attrs)
+		require.Equal(t, want.SnakeCase, got.SnakeCase)
 	})
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/encoding/protojson"
 
 	testData "github.com/things-go/dyn/testdata/encoding"
 )
@@ -65,7 +66,105 @@ func (a *mock) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s)
 }
 
-func TestJSON_Marshal(t *testing.T) {
+func TestJSON(t *testing.T) {
+	t.Run("name", func(t *testing.T) {
+		require.Equal(t, "json", New().Name())
+	})
+	t.Run("Marshal", func(t *testing.T) {
+		tests := []struct {
+			codec  Codec
+			input  interface{}
+			expect string
+		}{
+			{
+				codec:  New(),
+				input:  &testMessage{},
+				expect: `{"a":"","b":"","c":""}`,
+			},
+			{
+				codec:  New(),
+				input:  &testMessage{A: "a", B: "b", C: "c"},
+				expect: `{"a":"a","b":"b","c":"c"}`,
+			},
+			{
+				codec:  New(WithMarshalOptions(protojson.MarshalOptions{EmitUnpopulated: true}), WithUnmarshalOptions(protojson.UnmarshalOptions{DiscardUnknown: true})),
+				input:  &testData.TestModel{Id: 1, Name: "golang", Hobby: []string{"1", "2"}, SnakeCase: map[string]string{"key": "value"}},
+				expect: `{"id":"1","name":"golang","hobby":["1","2"],"snakeCase":{"key":"value"}}`,
+			},
+			{
+				codec:  New(WithDisableProtoJSON()),
+				input:  &testData.TestModel{Id: 1, Name: "golang", Hobby: []string{"1", "2"}, SnakeCase: map[string]string{"key": "value"}},
+				expect: `{"id":1,"name":"golang","hobby":["1","2"],"snake_case":{"key":"value"}}`,
+			},
+			{
+				codec:  New(),
+				input:  &mock{value: Gopher},
+				expect: `"gopher"`,
+			},
+		}
+		for _, v := range tests {
+			data, err := v.codec.Marshal(v.input)
+			assert.NoError(t, err)
+			got := strings.ReplaceAll(string(data), " ", "")
+			assert.Equal(t, got, v.expect)
+		}
+	})
+	t.Run("Unmarshal", func(t *testing.T) {
+		p := &testData.TestModel{}
+		tests := []struct {
+			codec  Codec
+			input  string
+			expect interface{}
+		}{
+			{
+				codec:  New(),
+				input:  `{"a":"","b":"","c":"1111"}`,
+				expect: &testMessage{},
+			},
+			{
+				codec:  New(),
+				input:  `{"a":"a","b":"b","c":"c"}`,
+				expect: &testMessage{},
+			},
+			{
+				codec:  New(WithMarshalOptions(protojson.MarshalOptions{EmitUnpopulated: true}), WithUnmarshalOptions(protojson.UnmarshalOptions{DiscardUnknown: true})),
+				input:  `{"id":"1","name":"golang","hobby":["1","2"],"snakeCase":{}}`,
+				expect: &testData.TestModel{},
+			},
+			{
+				codec:  New(WithDisableProtoJSON()),
+				input:  `{"id":1,"name":"golang","hobby":["1","2"]}`,
+				expect: &testData.TestModel{},
+			},
+			{
+				codec:  New(),
+				input:  `{"id":1,"name":"golang","hobby":["1","2"]}`,
+				expect: &p,
+			},
+			{
+				codec:  New(),
+				input:  `"ruster"`,
+				expect: &mock{},
+			},
+		}
+
+		for i, v := range tests {
+			wantB := []byte(v.input)
+
+			err := v.codec.Unmarshal(wantB, v.expect)
+			assert.NoError(t, err, "Unmarshal: %d", i)
+
+			gotB, err := v.codec.Marshal(v.expect)
+			assert.NoError(t, err, "Marshal: %d", i)
+
+			got := strings.ReplaceAll(string(gotB), " ", "")
+			want := strings.ReplaceAll(string(wantB), " ", "")
+			assert.Equal(t, want, got, "Marshal/Unmarshal: %d", i)
+		}
+	})
+}
+
+func TestJSON_default(t *testing.T) {
 	t.Run("name", func(t *testing.T) {
 		require.Equal(t, "json", Name())
 	})
@@ -83,8 +182,8 @@ func TestJSON_Marshal(t *testing.T) {
 				expect: `{"a":"a","b":"b","c":"c"}`,
 			},
 			{
-				input:  &testData.TestModel{Id: 1, Name: "golang", Hobby: []string{"1", "2"}, Attrs: map[string]string{"key": "value"}},
-				expect: `{"id":"1","name":"golang","hobby":["1","2"],"attrs":{"key":"value"}}`,
+				input:  &testData.TestModel{Id: 1, Name: "golang", Hobby: []string{"1", "2"}, SnakeCase: map[string]string{"key": "value"}},
+				expect: `{"id":"1","name":"golang","hobby":["1","2"],"snakeCase":{"key":"value"}}`,
 			},
 			{
 				input:  &mock{value: Gopher},

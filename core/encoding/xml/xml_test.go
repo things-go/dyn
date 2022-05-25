@@ -5,6 +5,9 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var nilStruct *int
@@ -48,57 +51,53 @@ var marshalTests = []struct {
 	{Value: &Plain{[3]int{1, 2, 3}}, ExpectXML: `<Plain><V>1</V><V>2</V><V>3</V></Plain>`},
 }
 
-func TestCodec_Marshal(t *testing.T) {
-	for _, tt := range marshalTests {
-		data, err := Marshal(tt.Value)
-		if err != nil {
-			t.Errorf("marshal(%#v): %s", tt.Value, err)
+func TestCodec(t *testing.T) {
+	t.Run("Name", func(t *testing.T) {
+		require.Equal(t, "xml", Name())
+	})
+	t.Run("Marshal", func(t *testing.T) {
+		for _, tt := range marshalTests {
+			data, err := Marshal(tt.Value)
+			assert.NoError(t, err)
+			assert.Equal(t, tt.ExpectXML, string(data))
 		}
-		if got, want := string(data), tt.ExpectXML; got != want {
-			if strings.Contains(want, "\n") {
-				t.Errorf("marshal(%#v):\nHAVE:\n%s\nWANT:\n%s", tt.Value, got, want)
-			} else {
-				t.Errorf("marshal(%#v):\nhave %#q\nwant %#q", tt.Value, got, want)
+	})
+	t.Run("Unmarshal", func(t *testing.T) {
+		for i, test := range marshalTests {
+			if test.MarshalOnly {
+				continue
 			}
-		}
-	}
-}
+			if _, ok := test.Value.(*Plain); ok {
+				continue
+			}
+			if test.ExpectXML == `<top>`+
+				`<x><b xmlns="space">b</b>`+
+				`<b xmlns="space1">b1</b></x>`+
+				`</top>` {
+				// TODO(rogpeppe): re-enable this test in
+				// https://go-review.googlesource.com/#/c/5910/
+				continue
+			}
 
-func TestCodec_Unmarshal(t *testing.T) {
-	for i, test := range marshalTests {
-		if test.MarshalOnly {
-			continue
-		}
-		if _, ok := test.Value.(*Plain); ok {
-			continue
-		}
-		if test.ExpectXML == `<top>`+
-			`<x><b xmlns="space">b</b>`+
-			`<b xmlns="space1">b1</b></x>`+
-			`</top>` {
-			// TODO(rogpeppe): re-enable this test in
-			// https://go-review.googlesource.com/#/c/5910/
-			continue
-		}
+			vt := reflect.TypeOf(test.Value)
+			dest := reflect.New(vt.Elem()).Interface()
+			err := Unmarshal([]byte(test.ExpectXML), dest)
 
-		vt := reflect.TypeOf(test.Value)
-		dest := reflect.New(vt.Elem()).Interface()
-		err := Unmarshal([]byte(test.ExpectXML), dest)
-
-		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			if err != nil {
-				if test.UnmarshalError == "" {
-					t.Errorf("unmarshal(%#v): %s", test.ExpectXML, err)
+			t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+				if err != nil {
+					if test.UnmarshalError == "" {
+						t.Errorf("unmarshal(%#v): %s", test.ExpectXML, err)
+						return
+					}
+					if !strings.Contains(err.Error(), test.UnmarshalError) {
+						t.Errorf("unmarshal(%#v): %s, want %q", test.ExpectXML, err, test.UnmarshalError)
+					}
 					return
 				}
-				if !strings.Contains(err.Error(), test.UnmarshalError) {
-					t.Errorf("unmarshal(%#v): %s, want %q", test.ExpectXML, err, test.UnmarshalError)
+				if got, want := dest, test.Value; !reflect.DeepEqual(got, want) {
+					t.Errorf("unmarshal(%q):\nhave %#v\nwant %#v", test.ExpectXML, got, want)
 				}
-				return
-			}
-			if got, want := dest, test.Value; !reflect.DeepEqual(got, want) {
-				t.Errorf("unmarshal(%q):\nhave %#v\nwant %#v", test.ExpectXML, got, want)
-			}
-		})
-	}
+			})
+		}
+	})
 }

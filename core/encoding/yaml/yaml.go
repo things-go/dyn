@@ -16,10 +16,11 @@ func Name() string                               { return defaultCodec.Name() }
 func Marshal(v interface{}) ([]byte, error)      { return defaultCodec.Marshal(v) }
 func Unmarshal(data []byte, v interface{}) error { return defaultCodec.Unmarshal(data, v) }
 
-func New() Codec { return Codec{} }
-
 // Codec is a Codec implementation with yaml.
 type Codec struct{}
+
+// New returns a new Codec
+func New() Codec { return Codec{} }
 
 func (Codec) Name() string { return "yaml" }
 func (Codec) Marshal(v interface{}) ([]byte, error) {
