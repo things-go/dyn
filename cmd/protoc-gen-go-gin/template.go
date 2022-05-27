@@ -11,6 +11,7 @@ var httpTemplate = `
 {{$svrName := .ServiceName}}
 {{$useCustomResp := .UseCustomResponse}}
 {{$rpcMode := .RpcMode}}
+{{$allowFromAPI := .AllowFromAPI}}
 type {{$svrType}}HTTPServer interface {
 {{- range .MethodSets}}
 {{- if eq $rpcMode "rpcx"}}
@@ -124,6 +125,51 @@ func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gi
 	}
 }
 {{end}}
+
+{{- if $allowFromAPI}}
+type From{{$svrType}}HTTPServer interface {
+{{- range .MethodSets}}
+{{- if eq $rpcMode "rpcx"}}
+	{{.Name}}(context.Context, *{{.Request}}) (*{{.Reply}}, error)
+{{- else}}
+	{{.Name}}(context.Context, *{{.Request}}, *{{.Reply}}) error
+{{- end}}
+{{- end}}
+    Validate(context.Context, interface{}) error
+	ErrorEncoder(c *gin.Context, err error, isBadRequest bool)
+{{- if $useCustomResp}}
+	ResponseEncoder(c *gin.Context, v interface{})
+{{- end}}
+}
+
+type From{{$svrType}} struct {
+	From{{$svrType}}HTTPServer
+}
+
+func NewFrom{{$svrType}}HTTPServer(from From{{$svrType}}HTTPServer) {{$svrType}}HTTPServer {
+	return &From{{$svrType}}{from}
+}
+
+{{- range .MethodSets}}
+{{- if eq $rpcMode "rpcx"}}
+func (f *From{{$svrType}}) {{.Name}}(ctx context.Context,req *{{.Request}},reply *{{.Reply}}) (err error) {
+	reply, err = f.From{{$svrType}}HTTPServer.{{.Name}}(ctx, req)
+	return
+}
+{{- else}}
+func (f *From{{$svrType}}) {{.Name}}(ctx context.Context,req *{{.Request}}) (*{{.Reply}}, error) {
+	var err error 
+	var reply {{.Reply}}
+
+	err = f.From{{$svrType}}HTTPServer.{{.Name}}(ctx, req, &reply)
+	if err != nil {
+		return nil, err
+	}
+	return &reply, nil
+}
+{{- end}}
+{{- end}}
+{{- end}}
 `
 
 type serviceDesc struct {
@@ -135,6 +181,7 @@ type serviceDesc struct {
 
 	UseCustomResponse bool
 	RpcMode           string
+	AllowFromAPI      bool
 }
 
 type methodDesc struct {

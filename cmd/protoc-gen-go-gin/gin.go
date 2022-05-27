@@ -87,6 +87,7 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 		Metadata:          file.Desc.Path(),
 		UseCustomResponse: *useCustomResponse,
 		RpcMode:           *rpcMode,
+		AllowFromAPI:      *allowFromAPI,
 	}
 	for _, method := range service.Methods {
 		if method.Desc.IsStreamingClient() || method.Desc.IsStreamingServer() {
@@ -221,7 +222,6 @@ func buildMethodDesc(g *protogen.GeneratedFile, m *protogen.Method, method, path
 			case fd.Kind() == protoreflect.MessageKind || fd.Kind() == protoreflect.GroupKind:
 				fields = fd.Message().Fields()
 			}
-
 		}
 	}
 	return &methodDesc{

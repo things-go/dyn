@@ -16,6 +16,7 @@ var allowDeleteBody = flag.Bool("allow_delete_body", false, "allow delete body")
 var allowEmptyPatchBody = flag.Bool("allow_empty_patch_body", false, "allow empty patch body")
 var useCustomResponse = flag.Bool("use_custom_response", false, "use custom response encoder")
 var rpcMode = flag.String("rpc_mode", "", "rpc mode, default empty use official rpc, options: rpcx")
+var allowFromAPI = flag.Bool("allow_from_api", false, "allow from api can convert different api format.")
 
 func main() {
 	flag.Parse()
