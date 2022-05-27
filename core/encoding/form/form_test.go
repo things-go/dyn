@@ -8,33 +8,31 @@ import (
 	"github.com/go-playground/form/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/things-go/dyn/testdata/encoding"
 )
 
 type LoginRequest struct {
-	Username string `form:"username,omitempty" json:"uname"`
-	Password string `form:"password,omitempty" json:"passwd"`
+	Username string `json:"username,omitempty" form:"uname"`
+	Password string `json:"password,omitempty" form:"passwd"`
 }
 
 type TestModel struct {
-	ID   int32  `form:"id"`
-	Name string `form:"name"`
+	ID   int32  `json:"id"`
+	Name string `json:"name"`
 }
 
 func init() {
 	encoder := form.NewEncoder()
-	encoder.SetTagName("form")
 	decoder := form.NewDecoder()
-	decoder.SetTagName("form")
-	codec := New(WithEncoder(encoder), WithDecoder(decoder))
+	codec := New(WithEncoder(encoder), WithDecoder(decoder), WithTagName("json"))
 	ReplaceDefaultCodec(codec)
 }
 
 func TestNew(t *testing.T) {
 	encoder := form.NewEncoder()
-	encoder.SetTagName("json")
 	decoder := form.NewDecoder()
-	decoder.SetTagName("json")
-	codec := New(WithEncoder(encoder), WithDecoder(decoder))
+	codec := New(WithEncoder(encoder), WithDecoder(decoder), WithTagName("form"))
 	req := &LoginRequest{
 		Username: "username",
 		Password: "password",
@@ -99,8 +97,8 @@ func TestFormCodec(t *testing.T) {
 }
 func TestEncode(t *testing.T) {
 	type TestEncode struct {
-		Name string `form:"name"`
-		URL  string `form:"url"`
+		Name string `json:"name"`
+		URL  string `json:"url"`
 	}
 	tests := []struct {
 		name string
@@ -129,8 +127,8 @@ func TestEncode(t *testing.T) {
 }
 func TestDecode(t *testing.T) {
 	type TestDecode struct {
-		Name string `form:"name"`
-		URL  string `form:"url"`
+		Name string `json:"name"`
+		URL  string `json:"url"`
 	}
 	p1 := TestDecode{}
 	type args struct {
@@ -160,6 +158,165 @@ func TestDecode(t *testing.T) {
 			}
 			if !tt.wantErr && !reflect.DeepEqual(tt.args.target, tt.want) {
 				t.Errorf("Decode() target = %v, want %v", tt.args.target, tt.want)
+			}
+		})
+	}
+}
+
+type NoProtoSub struct {
+	Name string `json:"name"`
+}
+
+type NoProtoHello struct {
+	Name string      `json:"name"`
+	Sub  *NoProtoSub `json:"sub"`
+}
+
+func TestEncodeURL(t *testing.T) {
+	type args struct {
+		pathTemplate string
+		msg          interface{}
+		needQuery    bool
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			"proto: no any param",
+			args{
+				"http://helloworld.dev/sub",
+				&encoding.HelloRequest{
+					Name: "test",
+					Sub:  &encoding.Sub{Name: "2233!!!"},
+				},
+				false,
+			},
+			`http://helloworld.dev/sub`,
+		},
+		{
+			"proto: param",
+			args{
+				"http://helloworld.dev/{name}/sub/{sub.name}",
+				&encoding.HelloRequest{
+					Name: "test",
+					Sub:  &encoding.Sub{Name: "2233!!!"},
+				},
+				false,
+			},
+			`http://helloworld.dev/test/sub/2233!!!`,
+		},
+		{
+			"proto: param with proto json_name=naming",
+			args{
+				"http://helloworld.dev/{name}/sub/{sub.naming}",
+				&encoding.HelloRequest{
+					Name: "test",
+					Sub:  &encoding.Sub{Name: "5566!!!"},
+				},
+				false,
+			},
+			`http://helloworld.dev/test/sub/5566!!!`,
+		},
+		{
+			"proto: param with empty",
+			args{
+				"http://helloworld.dev/{name}/sub/{sub.name}",
+				&encoding.HelloRequest{
+					Name: "test",
+				},
+				false,
+			},
+			`http://helloworld.dev/test/sub/`,
+		},
+		{
+			"proto: param not match",
+			args{
+				"http://helloworld.dev/{name}/sub/{sub.name33}",
+				&encoding.HelloRequest{
+					Name: "test",
+				},
+				false,
+			},
+			`http://helloworld.dev/test/sub/{sub.name33}`,
+		},
+		{
+			"proto: param with query",
+			args{
+				"http://helloworld.dev/{name}/sub",
+				&encoding.HelloRequest{
+					Name: "go",
+					Sub:  &encoding.Sub{Name: "golang"},
+				},
+				true,
+			},
+			`http://helloworld.dev/go/sub?sub.naming=golang`,
+		},
+
+		{
+			"no proto: no any param",
+			args{
+				"http://helloworld.dev/sub",
+				&NoProtoHello{
+					Name: "test",
+					Sub:  &NoProtoSub{Name: "2233!!!"},
+				},
+				false,
+			},
+			`http://helloworld.dev/sub`,
+		},
+		{
+			"no proto: param",
+			args{
+				"http://helloworld.dev/{name}/sub/{sub.name}",
+				&NoProtoHello{
+					Name: "test",
+					Sub:  &NoProtoSub{Name: "2233!!!"},
+				},
+				false,
+			},
+			`http://helloworld.dev/test/sub/2233!!!`,
+		},
+		{
+			"no proto: param with empty",
+			args{
+				"http://helloworld.dev/{name}/sub/{sub.name}",
+				&NoProtoHello{
+					Name: "test",
+				},
+				false,
+			},
+			`http://helloworld.dev/test/sub/`,
+		},
+		{
+			"no proto: param not match",
+			args{
+				"http://helloworld.dev/{name}/sub/{sub.name33}",
+				&NoProtoHello{
+					Name: "test",
+				},
+				false,
+			},
+			`http://helloworld.dev/test/sub/{sub.name33}`,
+		},
+		{
+			"no proto: param with query",
+			args{
+				"http://helloworld.dev/{name}/sub",
+				&NoProtoHello{
+					Name: "go",
+					Sub:  &NoProtoSub{Name: "golang"},
+				},
+				true,
+			},
+			`http://helloworld.dev/go/sub?sub.name=golang`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := EncodeURL(tt.args.pathTemplate, tt.args.msg, tt.args.needQuery); got != tt.want {
+				t.Errorf("Encode() = %v, want %v", got, tt.want)
 			}
 		})
 	}

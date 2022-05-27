@@ -92,10 +92,8 @@ func TestDisableProtoCodec(t *testing.T) {
 		Bytes:     &wrapperspb.BytesValue{Value: []byte("123")},
 	}
 	encoder := form.NewEncoder()
-	encoder.SetTagName("json")
 	decoder := form.NewDecoder()
-	decoder.SetTagName("json")
-	codec := New(WithEncoder(encoder), WithDecoder(decoder), WithDisableProto())
+	codec := New(WithEncoder(encoder), WithDecoder(decoder), WithDisableProto(), WithTagName("json"))
 	content, err := codec.Marshal(in)
 	assert.NoError(t, err)
 	assert.Equal(t, "a=19&age=18&b=true&byte=49&byte=50&byte=51&bytes.value=49&bytes.value=50"+
