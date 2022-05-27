@@ -10,9 +10,14 @@ var httpTemplate = `
 {{$svrType := .ServiceType}}
 {{$svrName := .ServiceName}}
 {{$useCustomResp := .UseCustomResponse}}
+{{$rpcMode := .RpcMode}}
 type {{$svrType}}HTTPServer interface {
 {{- range .MethodSets}}
+{{- if eq $rpcMode "rpcx"}}
+	{{.Name}}(context.Context, *{{.Request}}, *{{.Reply}}) error
+{{- else}}
 	{{.Name}}(context.Context, *{{.Request}}) (*{{.Reply}}, error)
+{{- end}}
 {{- end}}
     Validate(context.Context, interface{}) error
 	ErrorEncoder(c *gin.Context, err error, isBadRequest bool)
@@ -24,9 +29,15 @@ type {{$svrType}}HTTPServer interface {
 type Unimplemented{{$svrType}}HTTPServer struct {}
 
 {{- range .MethodSets}}
+{{- if eq $rpcMode "rpcx"}}
+func (*Unimplemented{{$svrType}}HTTPServer) {{.Name}}(context.Context, *{{.Request}}, *{{.Reply}}) error {
+	return errors.New("method {{.Name}} not implemented")
+}
+{{- else}}
 func (*Unimplemented{{$svrType}}HTTPServer) {{.Name}}(context.Context, *{{.Request}}) (*{{.Reply}}, error) {
 	return nil, errors.New("method {{.Name}} not implemented")
 }
+{{- end}}
 {{- end}}
 func (*Unimplemented{{$svrType}}HTTPServer) Validate(context.Context, interface{}) error { return nil }
 func (*Unimplemented{{$svrType}}HTTPServer) ErrorEncoder(c *gin.Context, err error, isBadRequest bool) {
@@ -77,20 +88,38 @@ func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gi
 			return srv.Validate(c.Request.Context(), req)
 		}
 
+		var err error
 		var req {{.Request}}
-		if err := shouldBind(&req); err != nil {
+		{{- if eq $rpcMode "rpcx"}}
+		var reply {{.Reply}}
+		{{- else}}
+		var reply *{{.Reply}}
+		{{- end}}
+		if err = shouldBind(&req); err != nil {
 			srv.ErrorEncoder(c, err, true)
 			return
 		}
-		result, err := srv.{{.Name}}(c.Request.Context(), &req)
+		{{- if eq $rpcMode "rpcx"}}
+		err = srv.{{.Name}}(c.Request.Context(), &req, &reply)
+		{{- else}}
+		reply, err = srv.{{.Name}}(c.Request.Context(), &req)
+		{{- end}}
 		if err != nil {
 			srv.ErrorEncoder(c, err, false)
 			return
 		}
+		{{- if eq $rpcMode "rpcx"}}
 		{{- if $useCustomResp}}
-		srv.ResponseEncoder(c, result)
+		srv.ResponseEncoder(c, &reply)
 		{{- else}}
-		c.JSON(200, result)		
+		c.JSON(200, &reply)
+		{{- end}}
+		{{- else}}
+		{{- if $useCustomResp}}
+		srv.ResponseEncoder(c, reply)
+		{{- else}}
+		c.JSON(200, reply)		
+		{{- end}}
 		{{- end}}
 	}
 }
@@ -105,6 +134,7 @@ type serviceDesc struct {
 	MethodSets  map[string]*methodDesc
 
 	UseCustomResponse bool
+	RpcMode           string
 }
 
 type methodDesc struct {

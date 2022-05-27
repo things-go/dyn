@@ -86,6 +86,7 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 		ServiceName:       string(service.Desc.FullName()),
 		Metadata:          file.Desc.Path(),
 		UseCustomResponse: *useCustomResponse,
+		RpcMode:           *rpcMode,
 	}
 	for _, method := range service.Methods {
 		if method.Desc.IsStreamingClient() || method.Desc.IsStreamingServer() {
