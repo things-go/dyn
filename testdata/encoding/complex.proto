@@ -12,8 +12,8 @@ import "google/protobuf/wrappers.proto";
 // SimpleMessage represents a simple message sent to the Echo service.
 message Complex {
   int64 id = 1;
-  string no_one = 2 [json_name = "numberOne"];
-  Simple simple = 3 [json_name = "very_simple"];
+  string no_one = 2 [ json_name = "numberOne" ];
+  Simple simple = 3 [ json_name = "very_simple" ];
   repeated string simples = 4;
   bool b = 5;
   sex sex = 6;
@@ -38,12 +38,10 @@ message Complex {
   google.protobuf.StringValue string = 23;
   google.protobuf.BytesValue bytes = 24;
 
-  map<string,string> map = 25;
+  map<string, string> map = 25;
 }
 
-message Simple {
-  string component = 1;
-}
+message Simple { string component = 1; }
 
 enum sex {
   man = 0;
