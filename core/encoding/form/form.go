@@ -3,19 +3,17 @@ package form
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/url"
 	"reflect"
 	"regexp"
 	"strings"
 
+	"github.com/go-playground/form/v4"
 	"github.com/spf13/cast"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"github.com/things-go/dyn/core/encoding"
-
-	"github.com/go-playground/form/v4"
-	"google.golang.org/protobuf/proto"
 )
 
 var defaultCodec = New()
@@ -172,8 +170,6 @@ func (c Codec) EncodeURL(pathTemplate string, msg interface{}, needQuery bool) s
 		if value, err := getValueWithField(msg, vars, c.tagName); err == nil {
 			pathParams[key] = struct{}{}
 			return "/" + value
-		} else {
-			log.Println(err)
 		}
 		return in
 	}
