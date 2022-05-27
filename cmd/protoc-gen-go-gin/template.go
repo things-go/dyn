@@ -152,12 +152,16 @@ func NewFrom{{$svrType}}HTTPServer(from From{{$svrType}}HTTPServer) {{$svrType}}
 
 {{- range .MethodSets}}
 {{- if eq $rpcMode "rpcx"}}
-func (f *From{{$svrType}}) {{.Name}}(ctx context.Context,req *{{.Request}},reply *{{.Reply}}) (err error) {
-	reply, err = f.From{{$svrType}}HTTPServer.{{.Name}}(ctx, req)
-	return
+func (f *From{{$svrType}}) {{.Name}}(ctx context.Context, req *{{.Request}}, reply *{{.Reply}}) error {
+	result, err := f.From{{$svrType}}HTTPServer.{{.Name}}(ctx, req)
+	if err != nil {
+		return err
+	}
+	*reply = *result
+	return nil
 }
 {{- else}}
-func (f *From{{$svrType}}) {{.Name}}(ctx context.Context,req *{{.Request}}) (*{{.Reply}}, error) {
+func (f *From{{$svrType}}) {{.Name}}(ctx context.Context, req *{{.Request}}) (*{{.Reply}}, error) {
 	var err error 
 	var reply {{.Reply}}
 
