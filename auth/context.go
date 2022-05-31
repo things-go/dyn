@@ -4,8 +4,6 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
-
 	"github.com/things-go/dyn/core/metadata"
 )
 
@@ -58,11 +56,4 @@ func FromMetadata(ctx context.Context) metadata.Metadata {
 		return v.Metadata
 	}
 	return metadata.Metadata{}
-}
-
-func Subject(c *gin.Context) string {
-	if v, ok := FromContext(c.Request.Context()); ok {
-		return v.Subject
-	}
-	return ""
 }

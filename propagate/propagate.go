@@ -9,6 +9,10 @@ type Propagator interface {
 	// grpc
 	// http
 	Kind() Kind
+	// FullMethod Service full method or path
+	FullMethod() string
+	// Route Service full route
+	Route() string
 }
 
 // Kind defines the type of Transport
@@ -22,9 +26,7 @@ const (
 	KindHTTP Kind = "http"
 )
 
-type (
-	ctxPropagatorKey struct{}
-)
+type ctxPropagatorKey struct{}
 
 // WithValuePropagator returns a new Context that carries value.
 func WithValuePropagator(ctx context.Context, p Propagator) context.Context {
