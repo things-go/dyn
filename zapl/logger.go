@@ -1,6 +1,8 @@
 package zapl
 
 import (
+	"context"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -9,10 +11,17 @@ import (
 type Log struct {
 	log   *zap.Logger
 	level zap.AtomicLevel
+	fn    []func(ctx context.Context) zap.Field
 }
 
 // NewLoggerWith new logger with zap logger and atomic level
-func NewLoggerWith(logger *zap.Logger, lv zap.AtomicLevel) *Log { return &Log{logger, lv} }
+func NewLoggerWith(logger *zap.Logger, lv zap.AtomicLevel) *Log {
+	return &Log{
+		logger,
+		lv,
+		nil,
+	}
+}
 
 // NewLogger new logger
 func NewLogger(opts ...Option) *Log { return NewLoggerWith(New(opts...)) }
@@ -33,7 +42,18 @@ func (l *Log) SetLevelWithText(text string) error {
 }
 
 // SetLevel alters the logging level.
-func (l *Log) SetLevel(lv zapcore.Level) { l.level.SetLevel(lv) }
+func (l *Log) SetLevel(lv zapcore.Level) *Log {
+	l.level.SetLevel(lv)
+	return l
+}
+
+// SetDefaultFieldFn set default field function, which hold always until you call Inject.
+func (l *Log) SetDefaultFieldFn(fs ...func(ctx context.Context) zap.Field) *Log {
+	fn := make([]func(ctx context.Context) zap.Field, 0, len(fs)+len(l.fn))
+	fn = append(fn, l.fn...)
+	l.fn = append(fn, fs...)
+	return l
+}
 
 // Level returns the minimum enabled log level.
 func (l *Log) Level() zapcore.Level { return l.level.Level() }
@@ -46,6 +66,34 @@ func (l *Log) Sugar() *zap.SugaredLogger { return l.log.Sugar() }
 
 // Logger return internal logger
 func (l *Log) Logger() *zap.Logger { return l.log }
+
+// WithFieldFn with field function, until you call Inject
+func (l *Log) WithFieldFn(fs ...func(ctx context.Context) zap.Field) *Log {
+	fn := make([]func(ctx context.Context) zap.Field, 0, len(fs)+len(l.fn))
+	fn = append(fn, l.fn...)
+	fn = append(fn, fs...)
+	return &Log{
+		l.log,
+		l.level,
+		fn,
+	}
+}
+
+// Inject return log with inject fn(ctx) field from context, which your set before.
+func (l *Log) Inject(ctx context.Context, fs ...func(context.Context) zap.Field) *Log {
+	fields := make([]zap.Field, 0, len(l.fn)+len(fs))
+	for _, f := range l.fn {
+		fields = append(fields, f(ctx))
+	}
+	for _, f := range fs {
+		fields = append(fields, f(ctx))
+	}
+	return &Log{
+		l.log.With(fields...),
+		l.level,
+		nil,
+	}
+}
 
 // With adds a variadic number of fields to the logging context. It accepts a
 // mix of strongly-typed Field objects and loosely-typed key-value pairs. When

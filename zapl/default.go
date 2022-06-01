@@ -1,6 +1,8 @@
 package zapl
 
 import (
+	"context"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -18,10 +20,25 @@ func ReplaceGlobals(logger *Log) { defaultLogger = logger }
 func SetLevelWithText(text string) error { return defaultLogger.SetLevelWithText(text) }
 
 // SetLevel alters the logging level.
-func SetLevel(lv zapcore.Level) { defaultLogger.SetLevel(lv) }
+func SetLevel(lv zapcore.Level) *Log { return defaultLogger.SetLevel(lv) }
 
 // Level returns the minimum enabled log level.
 func Level() zapcore.Level { return defaultLogger.Level() }
+
+// SetDefaultFieldFn set default field function, which hold always until you call WithContext.
+func SetDefaultFieldFn(fs ...func(ctx context.Context) zap.Field) *Log {
+	return defaultLogger.SetDefaultFieldFn(fs...)
+}
+
+// WithFieldFn with field function, until you call WithContext
+func WithFieldFn(fs ...func(ctx context.Context) zap.Field) *Log {
+	return defaultLogger.WithFieldFn(fs...)
+}
+
+// WithContext return log with inject fn(ctx) field from context, which your set before.
+func WithContext(ctx context.Context, fs ...func(context.Context) zap.Field) *Log {
+	return defaultLogger.Inject(ctx, fs...)
+}
 
 // Sugar wraps the Logger to provide a more ergonomic, but slightly slower,
 // API. Sugaring a Logger is quite inexpensive, so it's reasonable for a
