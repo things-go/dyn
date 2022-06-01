@@ -1,4 +1,4 @@
-package propagate
+package transport
 
 import (
 	"context"
@@ -43,7 +43,7 @@ func FromPropagator(ctx context.Context) (p Propagator, ok bool) {
 func MustFromPropagator(ctx context.Context) Propagator {
 	p, ok := ctx.Value(ctxPropagatorKey{}).(Propagator)
 	if !ok {
-		panic("propagate: must be set Propagator into context but it is not!!!")
+		panic("transport: must be set Propagator into context but it is not!!!")
 	}
 	return p
 }
