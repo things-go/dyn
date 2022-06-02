@@ -230,3 +230,28 @@ func Any(key string, vf func(context.Context) interface{}) func(*gin.Context) za
 		return zap.Any(key, vf(c.Request.Context()))
 	}
 }
+
+/**************************************  help  ****************************************************/
+
+func App(v string) func(c *gin.Context) zap.Field {
+	field := zap.String("app", v)
+	return func(c *gin.Context) zap.Field { return field }
+}
+func Component(v string) func(c *gin.Context) zap.Field {
+	field := zap.String("component", v)
+	return func(c *gin.Context) zap.Field { return field }
+}
+func Module(v string) func(c *gin.Context) zap.Field {
+	field := zap.String("module", v)
+	return func(c *gin.Context) zap.Field { return field }
+}
+func Unit(v string) func(c *gin.Context) zap.Field {
+	field := zap.String("unit", v)
+	return func(c *gin.Context) zap.Field { return field }
+}
+func TraceId(f func(c context.Context) string) func(c *gin.Context) zap.Field {
+	return String("traceId", f)
+}
+func RequestId(f func(c context.Context) string) func(c *gin.Context) zap.Field {
+	return String("requestId", f)
+}

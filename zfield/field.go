@@ -228,3 +228,28 @@ func FromAny(key string, vf func(context.Context) interface{}) func(context.Cont
 		return zap.Any(key, vf(ctx))
 	}
 }
+
+/**************************************  help  ****************************************************/
+
+func FromApp(v string) func(ctx context.Context) zap.Field {
+	field := zap.String("app", v)
+	return func(ctx context.Context) zap.Field { return field }
+}
+func FromComponent(v string) func(ctx context.Context) zap.Field {
+	field := zap.String("component", v)
+	return func(ctx context.Context) zap.Field { return field }
+}
+func FromModule(v string) func(ctx context.Context) zap.Field {
+	field := zap.String("module", v)
+	return func(ctx context.Context) zap.Field { return field }
+}
+func FromUnit(v string) func(ctx context.Context) zap.Field {
+	field := zap.String("unit", v)
+	return func(ctx context.Context) zap.Field { return field }
+}
+func FromTraceId(f func(c context.Context) string) func(ctx context.Context) zap.Field {
+	return FromString("traceId", f)
+}
+func FromRequestId(f func(c context.Context) string) func(ctx context.Context) zap.Field {
+	return FromString("requestId", f)
+}
