@@ -247,6 +247,10 @@ func FromUnit(v string) func(ctx context.Context) zap.Field {
 	field := zap.String("unit", v)
 	return func(ctx context.Context) zap.Field { return field }
 }
+func FromKind(v string) func(ctx context.Context) zap.Field {
+	field := zap.String("kind", v)
+	return func(ctx context.Context) zap.Field { return field }
+}
 func FromTraceId(f func(c context.Context) string) func(ctx context.Context) zap.Field {
 	return FromString("traceId", f)
 }

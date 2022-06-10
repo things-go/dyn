@@ -4,15 +4,15 @@ import (
 	"context"
 )
 
-type Propagator interface {
+type Transporter interface {
 	// Kind transporter
 	// grpc
 	// http
 	Kind() Kind
-	// FullMethod Service full method or path
-	FullMethod() string
-	// Route Service full route
-	Route() string
+	// FullPath Service full method or path
+	FullPath() string
+	// ClientIp client ip
+	ClientIp() string
 }
 
 // Kind defines the type of Transport
@@ -28,22 +28,22 @@ const (
 
 type ctxTransportKey struct{}
 
-// WithValuePropagator returns a new Context that carries value.
-func WithValuePropagator(ctx context.Context, p Propagator) context.Context {
+// WithValueTransporter returns a new Context that carries value.
+func WithValueTransporter(ctx context.Context, p Transporter) context.Context {
 	return context.WithValue(ctx, ctxTransportKey{}, p)
 }
 
-// FromPropagator returns the Propagator value stored in ctx, if any.
-func FromPropagator(ctx context.Context) (p Propagator, ok bool) {
-	p, ok = ctx.Value(ctxTransportKey{}).(Propagator)
+// FromTransporter returns the Propagator value stored in ctx, if any.
+func FromTransporter(ctx context.Context) (p Transporter, ok bool) {
+	p, ok = ctx.Value(ctxTransportKey{}).(Transporter)
 	return
 }
 
-// MustFromPropagator returns the Propagator value stored in ctx.
-func MustFromPropagator(ctx context.Context) Propagator {
-	p, ok := ctx.Value(ctxTransportKey{}).(Propagator)
+// MustFromTransporter returns the Propagator value stored in ctx.
+func MustFromTransporter(ctx context.Context) Transporter {
+	p, ok := ctx.Value(ctxTransportKey{}).(Transporter)
 	if !ok {
-		panic("transport: must be set Propagator into context but it is not!!!")
+		panic("transport: must be set Transporter into context but it is not!!!")
 	}
 	return p
 }

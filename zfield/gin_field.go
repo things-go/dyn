@@ -249,6 +249,10 @@ func Unit(v string) func(c *gin.Context) zap.Field {
 	field := zap.String("unit", v)
 	return func(c *gin.Context) zap.Field { return field }
 }
+func Kind(v string) func(c *gin.Context) zap.Field {
+	field := zap.String("kind", v)
+	return func(c *gin.Context) zap.Field { return field }
+}
 func TraceId(f func(c context.Context) string) func(c *gin.Context) zap.Field {
 	return String("traceId", f)
 }
