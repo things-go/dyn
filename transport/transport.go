@@ -22,8 +22,8 @@ func (k Kind) String() string { return string(k) }
 
 // Defines a set of transport kind
 const (
-	KindGRPC Kind = "grpc"
-	KindHTTP Kind = "http"
+	GRPC Kind = "grpc"
+	HTTP Kind = "http"
 )
 
 type ctxTransportKey struct{}
@@ -33,13 +33,13 @@ func WithValueTransporter(ctx context.Context, p Transporter) context.Context {
 	return context.WithValue(ctx, ctxTransportKey{}, p)
 }
 
-// FromTransporter returns the Propagator value stored in ctx, if any.
+// FromTransporter returns the Transporter value stored in ctx, if any.
 func FromTransporter(ctx context.Context) (p Transporter, ok bool) {
 	p, ok = ctx.Value(ctxTransportKey{}).(Transporter)
 	return
 }
 
-// MustFromTransporter returns the Propagator value stored in ctx.
+// MustFromTransporter returns the Transporter value stored in ctx.
 func MustFromTransporter(ctx context.Context) Transporter {
 	p, ok := ctx.Value(ctxTransportKey{}).(Transporter)
 	if !ok {

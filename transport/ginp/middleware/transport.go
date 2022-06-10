@@ -22,7 +22,7 @@ type Transport struct {
 }
 
 // Kind returns the transport kind.
-func (tr *Transport) Kind() transport.Kind { return transport.KindHTTP }
+func (tr *Transport) Kind() transport.Kind { return transport.HTTP }
 
 // FullPath Service full method or path
 func (tr *Transport) FullPath() string { return tr.fullMethod }
