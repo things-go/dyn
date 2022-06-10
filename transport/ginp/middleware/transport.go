@@ -9,8 +9,8 @@ import (
 // Transporter is http Transporter
 type Transporter interface {
 	transport.Transporter
-	GinContext() *gin.Context
 	Route() string
+	GinContext() *gin.Context
 }
 
 // Transport is an HTTP transport.
@@ -22,24 +22,19 @@ type Transport struct {
 }
 
 // Kind returns the transport kind.
-func (tr *Transport) Kind() transport.Kind {
-	return transport.KindHTTP
-}
+func (tr *Transport) Kind() transport.Kind { return transport.KindHTTP }
 
 // FullPath Service full method or path
-func (tr *Transport) FullPath() string {
-	return tr.fullMethod
-}
+func (tr *Transport) FullPath() string { return tr.fullMethod }
 
 // ClientIp Service full method or path
-func (tr *Transport) ClientIp() string {
-	return tr.clientIp
-}
+func (tr *Transport) ClientIp() string { return tr.clientIp }
 
 // Route Service full route
-func (tr *Transport) Route() string {
-	return tr.route
-}
+func (tr *Transport) Route() string { return tr.route }
+
+// GinContext Service gin context
+func (tr *Transport) GinContext() *gin.Context { return tr.ginContext }
 
 func TransportInterceptor() gin.HandlerFunc {
 	return func(c *gin.Context) {
