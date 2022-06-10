@@ -51,7 +51,8 @@ func (l *Log) SetLevel(lv zapcore.Level) *Log {
 func (l *Log) SetDefaultFieldFn(fs ...func(ctx context.Context) zap.Field) *Log {
 	fn := make([]func(ctx context.Context) zap.Field, 0, len(fs)+len(l.fn))
 	fn = append(fn, l.fn...)
-	l.fn = append(fn, fs...)
+	fn = append(fn, fs...)
+	l.fn = fn
 	return l
 }
 

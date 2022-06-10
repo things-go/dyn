@@ -121,9 +121,7 @@ func toWriter(c *Config) zapcore.WriteSyncer {
 			return ws[0]
 		}
 		return zapcore.NewMultiWriteSyncer(ws...)
-	case "console":
-		fallthrough
-	default:
+	default: // console
 		return zapcore.AddSync(os.Stdout)
 	}
 }

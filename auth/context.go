@@ -7,7 +7,7 @@ import (
 	"github.com/things-go/dyn/core/metadata"
 )
 
-const TokenUniqueId = "dyn:auth:uniqueId"
+const TokenUniqueId = "dyn:auth:uniqueId" // nolint: revive
 
 type ctxAuthKey struct{}
 

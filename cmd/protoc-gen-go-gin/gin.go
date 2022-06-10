@@ -75,7 +75,8 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 	}
 }
 
-func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, service *protogen.Service, omitempty bool) {
+func genService(gen *protogen.Plugin, file *protogen.File,
+	g *protogen.GeneratedFile, service *protogen.Service, omitempty bool) {
 	if service.Desc.Options().(*descriptorpb.ServiceOptions).GetDeprecated() {
 		g.P("//")
 		g.P(deprecationComment)
@@ -157,7 +158,8 @@ func buildHTTPRule(g *protogen.GeneratedFile, m *protogen.Method, rule *annotati
 	switch {
 	case method == http.MethodGet:
 		if body != "" {
-			_, _ = fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: %s %s body should not be declared.\n", method, path)
+			_, _ = fmt.Fprintf(os.Stderr,
+				"\u001B[31mWARN\u001B[m: %s %s body should not be declared.\n", method, path)
 		}
 		md.HasBody = false
 	case method == http.MethodDelete:
@@ -212,7 +214,7 @@ func buildMethodDesc(g *protogen.GeneratedFile, m *protogen.Method, method, path
 			fd := fields.ByName(protoreflect.Name(field))
 			if fd == nil {
 				fmt.Fprintf(os.Stderr, "\u001B[31mERROR\u001B[m: The corresponding field '%s' declaration in message could not be found in '%s'\n", v, path)
-				os.Exit(2)
+				os.Exit(2) // nolint: gocritic
 			}
 			switch {
 			case fd.IsMap():
@@ -246,7 +248,7 @@ func transformPathParams(path string) string {
 	return strings.Join(paths, "/")
 }
 
-func buildPathVars(method *protogen.Method, path string) (res []string) {
+func buildPathVars(_ *protogen.Method, path string) (res []string) {
 	for _, v := range strings.Split(path, "/") {
 		if strings.HasPrefix(v, "{") && strings.HasSuffix(v, "}") {
 			res = append(res, strings.TrimRight(strings.TrimLeft(v, "{"), "}"))

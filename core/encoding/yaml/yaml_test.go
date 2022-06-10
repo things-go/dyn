@@ -377,7 +377,7 @@ var unmarshalTests = []struct {
 	{
 		"a: 1",
 		&struct {
-			B int "a"
+			B int "a" // nolint: govet
 		}{1},
 	},
 	{
@@ -614,7 +614,7 @@ var unmarshalTests = []struct {
 		"a: 1\nb: 2\n",
 		&struct {
 			A int
-			B int "-"
+			B int "-" // nolint: govet
 		}{1, 0},
 	},
 

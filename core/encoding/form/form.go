@@ -159,7 +159,6 @@ func (c Codec) EncodeURL(pathTemplate string, msg interface{}, needQuery bool) s
 		return pathTemplate
 	}
 
-	path := pathTemplate
 	pathParams := make(map[string]struct{})
 	repl := func(in string) string {
 		if len(in) < 4 { //nolint:gomnd
@@ -189,7 +188,7 @@ func (c Codec) EncodeURL(pathTemplate string, msg interface{}, needQuery bool) s
 			}
 		}
 	}
-	path = reg.ReplaceAllStringFunc(pathTemplate, repl)
+	path := reg.ReplaceAllStringFunc(pathTemplate, repl)
 
 	if needQuery {
 		values, err := c.Encode(msg)

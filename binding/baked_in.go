@@ -49,7 +49,7 @@ func IsNumberGte0(s string) bool {
 	return rxNumberGte0.MatchString(s)
 }
 
-func parseString2Decimal(s, t string) (d decimal.Decimal, tt decimal.Decimal, err error) {
+func parseString2Decimal(s, t string) (d, tt decimal.Decimal, err error) {
 	d, err = decimal.NewFromString(s)
 	if err != nil {
 		return

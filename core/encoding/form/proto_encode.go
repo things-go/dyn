@@ -124,7 +124,7 @@ func encodeMapField(fieldDescriptor protoreflect.FieldDescriptor, mp protoreflec
 
 // EncodeField encode proto message filed
 func EncodeField(fieldDescriptor protoreflect.FieldDescriptor, value protoreflect.Value) (string, error) {
-	switch fieldDescriptor.Kind() {
+	switch fieldDescriptor.Kind() { // nolint: exhaustive
 	case protoreflect.BoolKind:
 		return strconv.FormatBool(value.Bool()), nil
 	case protoreflect.EnumKind:
@@ -155,8 +155,14 @@ func encodeMessage(msgDescriptor protoreflect.MessageDescriptor, value protorefl
 		return marshalDuration(value.Message())
 	case bytesMessageFullname:
 		return marshalBytes(value.Message())
-	case "google.protobuf.DoubleValue", "google.protobuf.FloatValue", "google.protobuf.Int64Value", "google.protobuf.Int32Value",
-		"google.protobuf.UInt64Value", "google.protobuf.UInt32Value", "google.protobuf.BoolValue", "google.protobuf.StringValue":
+	case "google.protobuf.DoubleValue",
+		"google.protobuf.FloatValue",
+		"google.protobuf.Int64Value",
+		"google.protobuf.Int32Value",
+		"google.protobuf.UInt64Value",
+		"google.protobuf.UInt32Value",
+		"google.protobuf.BoolValue",
+		"google.protobuf.StringValue":
 		fd := msgDescriptor.Fields()
 		v := value.Message().Get(fd.ByName(protoreflect.Name("value")))
 		return fmt.Sprintf("%v", v.Interface()), nil
