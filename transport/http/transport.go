@@ -8,6 +8,8 @@ import (
 	"github.com/things-go/dyn/transport"
 )
 
+var _ Transporter = new(Transport)
+
 // Transporter is http Transporter
 type Transporter interface {
 	transport.Transporter
@@ -17,11 +19,11 @@ type Transporter interface {
 
 // Transport is an HTTP transport.
 type Transport struct {
-	fullMethod     string
+	fullPath       string
 	route          string
 	clientIp       string
-	requestHeader  httpHeader
-	responseHeader httpHeader
+	requestHeader  header
+	responseHeader header
 	ginContext     *gin.Context
 }
 
@@ -29,7 +31,7 @@ type Transport struct {
 func (tr *Transport) Kind() transport.Kind { return transport.HTTP }
 
 // FullPath Service full method or path
-func (tr *Transport) FullPath() string { return tr.fullMethod }
+func (tr *Transport) FullPath() string { return tr.fullPath }
 
 // ClientIp Service full method or path
 func (tr *Transport) ClientIp() string { return tr.clientIp }
@@ -42,7 +44,7 @@ func (tr *Transport) RequestHeader() transport.Header { return tr.requestHeader 
 // ReplyHeader return transport response header
 // http: http.Header
 // grpc: metadata.MD
-func (tr *Transport) ReplyHeader() transport.Header { return tr.responseHeader }
+func (tr *Transport) ResponseHeader() transport.Header { return tr.responseHeader }
 
 // Route Service full route
 func (tr *Transport) Route() string { return tr.route }
@@ -50,34 +52,19 @@ func (tr *Transport) Route() string { return tr.route }
 // GinContext Service gin context
 func (tr *Transport) GinContext() *gin.Context { return tr.ginContext }
 
-func TransportInterceptor() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		tr := &Transport{
-			fullMethod:     c.Request.URL.Path,
-			route:          c.FullPath(),
-			clientIp:       c.ClientIP(),
-			requestHeader:  httpHeader(c.Request.Header),
-			responseHeader: httpHeader(c.Writer.Header()),
-			ginContext:     c,
-		}
-		c.Request = c.Request.WithContext(transport.WithValueTransporter(c.Request.Context(), tr))
-		c.Next()
-	}
-}
-
-type httpHeader http.Header
+type header http.Header
 
 // Get returns the value associated with the passed key.
-func (h httpHeader) Get(key string) string { return http.Header(h).Get(key) }
+func (h header) Get(key string) string { return http.Header(h).Get(key) }
 
 // Add adds the key, value pair to the header.
-func (h httpHeader) Add(key, value string) { http.Header(h).Add(key, value) }
+func (h header) Add(key, value string) { http.Header(h).Add(key, value) }
 
 // Set stores the key-value pair.
-func (h httpHeader) Set(key string, value string) { http.Header(h).Set(key, value) }
+func (h header) Set(key string, value string) { http.Header(h).Set(key, value) }
 
 // Keys lists the keys stored in this carrier.
-func (h httpHeader) Keys() []string {
+func (h header) Keys() []string {
 	keys := make([]string, 0, len(h))
 	for k := range http.Header(h) {
 		keys = append(keys, k)
@@ -86,6 +73,20 @@ func (h httpHeader) Keys() []string {
 }
 
 // Clone returns a copy of h or nil if h is nil.
-func (h httpHeader) Clone() transport.Header {
-	return transport.Header(httpHeader(http.Header(h).Clone()))
+func (h header) Clone() transport.Header { return transport.Header(header(http.Header(h).Clone())) }
+
+// TransportInterceptor transport middleware
+func TransportInterceptor() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tr := &Transport{
+			c.Request.URL.Path,
+			c.FullPath(),
+			c.ClientIP(),
+			header(c.Request.Header),
+			header(c.Writer.Header()),
+			c,
+		}
+		c.Request = c.Request.WithContext(transport.WithValueTransporter(c.Request.Context(), tr))
+		c.Next()
+	}
 }

@@ -17,10 +17,10 @@ type Transporter interface {
 	// http: http.Header
 	// grpc: metadata.MD
 	RequestHeader() Header
-	// ReplyHeader return transport response header
+	// ResponseHeader return transport response header
 	// http: http.Header
 	// grpc: metadata.MD
-	ReplyHeader() Header
+	ResponseHeader() Header
 }
 
 // Header is the storage medium used by a Header.
