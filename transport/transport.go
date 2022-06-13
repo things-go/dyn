@@ -13,6 +13,23 @@ type Transporter interface {
 	FullPath() string
 	// ClientIp client ip
 	ClientIp() string
+	// RequestHeader return transport request header
+	// http: http.Header
+	// grpc: metadata.MD
+	RequestHeader() Header
+	// ReplyHeader return transport response header
+	// http: http.Header
+	// grpc: metadata.MD
+	ReplyHeader() Header
+}
+
+// Header is the storage medium used by a Header.
+type Header interface {
+	Get(key string) string
+	Add(key, value string)
+	Set(key string, value string)
+	Keys() []string
+	Clone() Header
 }
 
 // Kind defines the type of Transport
