@@ -41,7 +41,7 @@ func (tr *Transport) ClientIp() string { return tr.clientIp }
 // grpc: metadata.MD
 func (tr *Transport) RequestHeader() transport.Header { return tr.requestHeader }
 
-// ReplyHeader return transport response header
+// ResponseHeader return transport response header
 // http: http.Header
 // grpc: metadata.MD
 func (tr *Transport) ResponseHeader() transport.Header { return tr.responseHeader }
