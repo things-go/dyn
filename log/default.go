@@ -25,21 +25,9 @@ func SetLevel(lv zapcore.Level) *Log { return defaultLogger.SetLevel(lv) }
 // Level returns the minimum enabled log level.
 func Level() zapcore.Level { return defaultLogger.Level() }
 
-// SetDefaultFieldFn set default field function, which hold always until you call Inject.
-// Deprecated: use SetDefaultValuer instead
-func SetDefaultFieldFn(vs ...Valuer) *Log {
-	return defaultLogger.SetDefaultValuer(vs...)
-}
-
 // SetDefaultValuer set default field function, which hold always until you call Inject.
 func SetDefaultValuer(vs ...Valuer) *Log {
 	return defaultLogger.SetDefaultValuer(vs...)
-}
-
-// WithFieldFn with field function, until you call Inject.
-// Deprecated: use WithValuer instead
-func WithFieldFn(vs ...Valuer) *Log {
-	return defaultLogger.WithValuer(vs...)
 }
 
 // WithValuer with field function, until you call Inject
