@@ -263,20 +263,40 @@ func (l *Log) Fatalw(msg string, keysAndValues ...interface{}) {
 
 /**************************** Valuer ******************************************/
 
+func caller(depth int) (file string, line int) {
+	d := depth
+	_, file, line, _ = runtime.Caller(d)
+	if strings.LastIndex(file, "/log/logger.go") > 0 {
+		d++
+		_, file, line, _ = runtime.Caller(d)
+	}
+	if strings.LastIndex(file, "/log/default.go") > 0 {
+		d++
+		_, file, line, _ = runtime.Caller(d)
+	}
+	return file, line
+}
+
 // Caller returns a Valuer that returns a pkg/file:line description of the caller.
 func Caller(depth int) Valuer {
 	return func(context.Context) zap.Field {
-		d := depth
-		_, file, line, _ := runtime.Caller(d)
-		if strings.LastIndex(file, "/log/logger.go") > 0 {
-			d++
-			_, file, line, _ = runtime.Caller(d)
-		}
-		if strings.LastIndex(file, "/log/default.go") > 0 {
-			d++
-			_, file, line, _ = runtime.Caller(d)
-		}
+		file, line := caller(depth)
 		idx := strings.LastIndexByte(file, '/')
 		return zap.String("caller", file[idx+1:]+":"+strconv.Itoa(line))
+	}
+}
+
+// File returns a Valuer that returns a pkg/file:line description of the caller.
+func File(depth int) Valuer {
+	return func(context.Context) zap.Field {
+		file, line := caller(depth)
+		return zap.String("file", file+":"+strconv.Itoa(line))
+	}
+}
+
+// Package returns a Valuer that returns a immutable Valuer which key is pkg
+func Package(pkg string) Valuer {
+	return func(context.Context) zap.Field {
+		return zap.String("pkg", pkg)
 	}
 }

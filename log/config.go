@@ -22,6 +22,8 @@ type Config struct {
 	Adapter string `yaml:"adapter" json:"adapter"`
 	// Stack 是否使能栈调试输出, 默认false
 	Stack bool `yaml:"stack" json:"stack"`
+	// CallerSkip
+	CallerSkip int `yaml:"callerSkip" json:"callerSkip"`
 	// Path 日志保存路径, 默认 empty, 即当前路径
 	Path string `yaml:"path" json:"path"`
 	// Writer 输出
@@ -98,6 +100,11 @@ func WithAdapter(adapter string, writer ...io.Writer) Option {
 // Stack 是否使能栈调试输出, 默认false
 func WithStack(stack bool) Option {
 	return func(c *Config) { c.Stack = stack }
+}
+
+// WithCallerSkip when Stack enabled
+func WithCallerSkip(skip int) Option {
+	return func(c *Config) { c.CallerSkip = skip }
 }
 
 // WithPath with path
