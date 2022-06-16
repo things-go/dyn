@@ -10,7 +10,7 @@ import (
 	"github.com/things-go/dyn/transport"
 )
 
-var _ transport.Transporter = &Transport{}
+var _ transport.Transporter = (*Transport)(nil)
 
 // Transport is a gRPC transport.
 type Transport struct {

@@ -1,17 +1,23 @@
-package zapl
+package log
 
 import (
 	"context"
+	"runtime"
+	"strconv"
+	"strings"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
+// Valuer is returns a log value.
+type Valuer func(ctx context.Context) zap.Field
+
 // Log wrap zap logger
 type Log struct {
 	log   *zap.Logger
 	level zap.AtomicLevel
-	fn    []func(ctx context.Context) zap.Field
+	fn    []Valuer
 }
 
 // NewLoggerWith new logger with zap logger and atomic level
@@ -48,8 +54,8 @@ func (l *Log) SetLevel(lv zapcore.Level) *Log {
 }
 
 // SetDefaultFieldFn set default field function, which hold always until you call Inject.
-func (l *Log) SetDefaultFieldFn(fs ...func(ctx context.Context) zap.Field) *Log {
-	fn := make([]func(ctx context.Context) zap.Field, 0, len(fs)+len(l.fn))
+func (l *Log) SetDefaultFieldFn(fs ...Valuer) *Log {
+	fn := make([]Valuer, 0, len(fs)+len(l.fn))
 	fn = append(fn, l.fn...)
 	fn = append(fn, fs...)
 	l.fn = fn
@@ -69,8 +75,8 @@ func (l *Log) Sugar() *zap.SugaredLogger { return l.log.Sugar() }
 func (l *Log) Logger() *zap.Logger { return l.log }
 
 // WithFieldFn with field function, until you call Inject
-func (l *Log) WithFieldFn(fs ...func(ctx context.Context) zap.Field) *Log {
-	fn := make([]func(ctx context.Context) zap.Field, 0, len(fs)+len(l.fn))
+func (l *Log) WithFieldFn(fs ...Valuer) *Log {
+	fn := make([]Valuer, 0, len(fs)+len(l.fn))
 	fn = append(fn, l.fn...)
 	fn = append(fn, fs...)
 	return &Log{
@@ -253,4 +259,24 @@ func (l *Log) Panicw(msg string, keysAndValues ...interface{}) {
 // variadic key-value pairs are treated as they are in With.
 func (l *Log) Fatalw(msg string, keysAndValues ...interface{}) {
 	l.log.Sugar().Fatalw(msg, keysAndValues...)
+}
+
+/**************************** Valuer ******************************************/
+
+// Caller returns a Valuer that returns a pkg/file:line description of the caller.
+func Caller(depth int) Valuer {
+	return func(context.Context) zap.Field {
+		d := depth
+		_, file, line, _ := runtime.Caller(d)
+		if strings.LastIndex(file, "/log/logger.go") > 0 {
+			d++
+			_, file, line, _ = runtime.Caller(d)
+		}
+		if strings.LastIndex(file, "/log/default.go") > 0 {
+			d++
+			_, file, line, _ = runtime.Caller(d)
+		}
+		idx := strings.LastIndexByte(file, '/')
+		return zap.String("caller", file[idx+1:]+":"+strconv.Itoa(line))
+	}
 }

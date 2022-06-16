@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/things-go/dyn/zapl"
+	"github.com/things-go/dyn/log"
 )
 
 func main() {
-	l := zapl.NewLoggerWith(zapl.New(zapl.WithLevel("debug")))
-	zapl.ReplaceGlobals(l)
+	l := log.NewLoggerWith(log.New(log.WithLevel("debug")))
+	log.ReplaceGlobals(l)
 
-	zapl.Debug("hello")
+	log.Debug("hello")
 }

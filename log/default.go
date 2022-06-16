@@ -1,4 +1,4 @@
-package zapl
+package log
 
 import (
 	"context"
@@ -26,17 +26,17 @@ func SetLevel(lv zapcore.Level) *Log { return defaultLogger.SetLevel(lv) }
 func Level() zapcore.Level { return defaultLogger.Level() }
 
 // SetDefaultFieldFn set default field function, which hold always until you call WithContext.
-func SetDefaultFieldFn(fs ...func(ctx context.Context) zap.Field) *Log {
+func SetDefaultFieldFn(fs ...Valuer) *Log {
 	return defaultLogger.SetDefaultFieldFn(fs...)
 }
 
 // WithFieldFn with field function, until you call WithContext
-func WithFieldFn(fs ...func(ctx context.Context) zap.Field) *Log {
+func WithFieldFn(fs ...Valuer) *Log {
 	return defaultLogger.WithFieldFn(fs...)
 }
 
-// WithContext return log with inject fn(ctx) field from context, which your set before.
-func WithContext(ctx context.Context, fs ...func(context.Context) zap.Field) *Log {
+// Inject return log with inject fn(ctx) field from context, which your set before.
+func Inject(ctx context.Context, fs ...func(context.Context) zap.Field) *Log {
 	return defaultLogger.Inject(ctx, fs...)
 }
 

@@ -1,4 +1,4 @@
-package zapl
+package log
 
 import (
 	"context"
@@ -49,7 +49,7 @@ func TestNew(t *testing.T) {
 
 	Logger().Debug("desugar")
 
-	WithContext(context.Background(),
+	Inject(context.Background(),
 		func(ctx context.Context) zap.Field { return zap.String("field_fn_key2", "field_fn_value2") },
 	).Debug("with context")
 

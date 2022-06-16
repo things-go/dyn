@@ -8,7 +8,7 @@ import (
 	"github.com/things-go/dyn/transport"
 )
 
-var _ Transporter = new(Transport)
+var _ Transporter = (*Transport)(nil)
 
 // Transporter is http Transporter
 type Transporter interface {

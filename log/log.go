@@ -1,4 +1,4 @@
-package zapl
+package log
 
 import (
 	"os"
@@ -87,8 +87,7 @@ func toEncodeLevel(l string) zapcore.LevelEncoder {
 }
 
 func toWriter(c *Config) zapcore.WriteSyncer {
-	switch strings.ToLower(c.Adapter) {
-	case "file":
+	fileWriter := func() zapcore.WriteSyncer {
 		return zapcore.AddSync(&lumberjack.Logger{ // 文件切割
 			Filename:   filepath.Join(c.Path, c.Filename),
 			MaxSize:    c.MaxSize,
@@ -97,31 +96,42 @@ func toWriter(c *Config) zapcore.WriteSyncer {
 			LocalTime:  c.LocalTime,
 			Compress:   c.Compress,
 		})
-	case "multi":
-		return zapcore.NewMultiWriteSyncer(
-			zapcore.AddSync(os.Stdout),
-			zapcore.AddSync(&lumberjack.Logger{ // 文件切割
-				Filename:   filepath.Join(c.Path, c.Filename),
-				MaxSize:    c.MaxSize,
-				MaxAge:     c.MaxAge,
-				MaxBackups: c.MaxBackups,
-				LocalTime:  c.LocalTime,
-				Compress:   c.Compress,
-			}))
-	case "custom":
-		ws := make([]zapcore.WriteSyncer, 0, len(c.Writer))
+	}
+	stdoutWriter := func() zapcore.WriteSyncer {
+		return zapcore.AddSync(os.Stdout)
+	}
+	customWriter := func(w ...zapcore.WriteSyncer) []zapcore.WriteSyncer {
+		ws := make([]zapcore.WriteSyncer, 0, len(c.Writer)+len(w))
 
 		for _, writer := range c.Writer {
 			ws = append(ws, zapcore.AddSync(writer))
 		}
+		for _, writer := range w {
+			ws = append(ws, zapcore.AddSync(writer))
+		}
+		return ws
+	}
+	switch strings.ToLower(c.Adapter) {
+	case "file":
+		return fileWriter()
+	case "multi":
+		return zapcore.NewMultiWriteSyncer(stdoutWriter(), fileWriter())
+	case "file-custom":
+		return zapcore.NewMultiWriteSyncer(customWriter(fileWriter())...)
+	case "console-custom":
+		return zapcore.NewMultiWriteSyncer(customWriter(stdoutWriter())...)
+	case "multi-custom":
+		return zapcore.NewMultiWriteSyncer(customWriter(stdoutWriter(), fileWriter())...)
+	case "custom":
+		ws := customWriter()
 		if len(ws) == 0 {
-			return zapcore.AddSync(os.Stdout)
+			return stdoutWriter()
 		}
 		if len(ws) == 1 {
 			return ws[0]
 		}
 		return zapcore.NewMultiWriteSyncer(ws...)
 	default: // console
-		return zapcore.AddSync(os.Stdout)
+		return stdoutWriter()
 	}
 }

@@ -1,4 +1,4 @@
-package zapl
+package log
 
 import (
 	"io"
@@ -18,7 +18,7 @@ type Config struct {
 	// CapitalLevelEncoder: 大写编码器
 	// CapitalColorLevelEncoder: 大写编码器带颜色
 	EncodeLevel string `yaml:"encodeLevel" json:"encodeLevel"`
-	// Adapter 输出适配器, file,console,multi,custom, 默认 console
+	// Adapter 输出适配器, file,console,multi,custom,file-custom,console-custom,multi-custom 默认 console
 	Adapter string `yaml:"adapter" json:"adapter"`
 	// Stack 是否使能栈调试输出, 默认false
 	Stack bool `yaml:"stack" json:"stack"`
