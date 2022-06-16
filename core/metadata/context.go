@@ -4,16 +4,16 @@ import (
 	"context"
 )
 
-type metadataKey struct{}
+type ctxMetadataKey struct{}
 
 // NewContext creates a new context with client md attached.
 func NewContext(ctx context.Context, md Metadata) context.Context {
-	return context.WithValue(ctx, metadataKey{}, md)
+	return context.WithValue(ctx, ctxMetadataKey{}, md)
 }
 
 // FromContext returns the metadata in ctx if it exists.
 func FromContext(ctx context.Context) (Metadata, bool) {
-	md, ok := ctx.Value(metadataKey{}).(Metadata)
+	md, ok := ctx.Value(ctxMetadataKey{}).(Metadata)
 	return md, ok
 }
 

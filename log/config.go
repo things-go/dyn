@@ -84,7 +84,7 @@ func WithEncoderConfig(encoderConfig *zapcore.EncoderConfig) Option {
 }
 
 // WithAdapter with adapter
-// file,console,multi,custom
+// file,console,multi,custom,file-custom,console-custom,multi-custom
 // writer: 当 adapter=custom使用,如果为writer为空,将使用os.Stdout
 // 默认 console
 func WithAdapter(adapter string, writer ...io.Writer) Option {

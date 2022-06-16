@@ -54,7 +54,13 @@ func (l *Log) SetLevel(lv zapcore.Level) *Log {
 }
 
 // SetDefaultFieldFn set default field function, which hold always until you call Inject.
+// Deprecated: use SetDefaultValuer instead
 func (l *Log) SetDefaultFieldFn(fs ...Valuer) *Log {
+	return l.SetDefaultValuer(fs...)
+}
+
+// SetDefaultValuer set default Valuer function, which hold always until you call Inject.
+func (l *Log) SetDefaultValuer(fs ...Valuer) *Log {
 	fn := make([]Valuer, 0, len(fs)+len(l.fn))
 	fn = append(fn, l.fn...)
 	fn = append(fn, fs...)
@@ -75,7 +81,13 @@ func (l *Log) Sugar() *zap.SugaredLogger { return l.log.Sugar() }
 func (l *Log) Logger() *zap.Logger { return l.log }
 
 // WithFieldFn with field function, until you call Inject
+// Deprecated: use WithValuer instead
 func (l *Log) WithFieldFn(fs ...Valuer) *Log {
+	return l.WithValuer(fs...)
+}
+
+// WithValuer with Valuer function, until you call Inject
+func (l *Log) WithValuer(fs ...Valuer) *Log {
 	fn := make([]Valuer, 0, len(fs)+len(l.fn))
 	fn = append(fn, l.fn...)
 	fn = append(fn, fs...)
