@@ -22,7 +22,7 @@ func TestSlidingWindowAdd(t *testing.T) {
 	listBuckets := func() []float64 {
 		var buckets []float64
 		r.Reduce(func(b *Bucket) {
-			buckets = append(buckets, b.Sum)
+			buckets = append(buckets, b.Sum())
 		})
 		return buckets
 	}
@@ -46,7 +46,7 @@ func TestSlidingWindowReset(t *testing.T) {
 	listBuckets := func() []float64 {
 		var buckets []float64
 		r.Reduce(func(b *Bucket) {
-			buckets = append(buckets, b.Sum)
+			buckets = append(buckets, b.Sum())
 		})
 		return buckets
 	}
@@ -93,7 +93,7 @@ func TestSlidingWindowReduce(t *testing.T) {
 			}
 			var result float64
 			r.Reduce(func(b *Bucket) {
-				result += b.Sum
+				result += b.Sum()
 			})
 			assert.Equal(t, test.expect, result)
 		})
@@ -107,7 +107,7 @@ func TestSlidingWindowBucketTimeBoundary(t *testing.T) {
 	listBuckets := func() []float64 {
 		var buckets []float64
 		r.Reduce(func(b *Bucket) {
-			buckets = append(buckets, b.Sum)
+			buckets = append(buckets, b.Sum())
 		})
 		return buckets
 	}
@@ -156,5 +156,5 @@ func TestSlidingWindowDataRace(t *testing.T) {
 }
 
 func elapse() {
-	time.Sleep(duration)
+	time.Sleep(duration + time.Millisecond*2)
 }

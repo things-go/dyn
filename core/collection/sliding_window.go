@@ -83,6 +83,7 @@ func (s *SlidingWindow) Reduce(fn func(b *Bucket)) {
 	}
 }
 
+//
 func (s *SlidingWindow) span() int {
 	offset := int((time.Since(initTime) - s.lastTime) / s.interval)
 	if offset >= 0 && offset < s.size {
@@ -93,14 +94,10 @@ func (s *SlidingWindow) span() int {
 
 func (s *SlidingWindow) updateOffset() {
 	span := s.span()
-	if span <= 0 {
-		return
-	}
-
 	offset := s.offset
 	// reset expired buckets
 	for i := 0; i < span; i++ {
-		s.buckets[((offset+i+1)%s.size)%s.size].reset()
+		s.buckets[(offset+i+1)%s.size].reset()
 	}
 
 	s.offset = (offset + span) % s.size
@@ -111,16 +108,18 @@ func (s *SlidingWindow) updateOffset() {
 
 // Bucket defines the bucket that holds sum and num of additions.
 type Bucket struct {
-	Sum   float64
-	Count int64
+	sum   float64
+	count int64
 }
 
 func (b *Bucket) add(v float64) {
-	b.Sum += v
-	b.Count++
+	b.sum += v
+	b.count++
 }
 
 func (b *Bucket) reset() {
-	b.Sum = 0
-	b.Count = 0
+	b.sum = 0
+	b.count = 0
 }
+func (b *Bucket) Sum() float64 { return b.sum }
+func (b *Bucket) Count() int64 { return b.count }
