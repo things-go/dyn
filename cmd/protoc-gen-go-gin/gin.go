@@ -213,6 +213,7 @@ func buildMethodDesc(g *protogen.GeneratedFile, m *protogen.Method, method, path
 			}
 			fd := fields.ByName(protoreflect.Name(field))
 			if fd == nil {
+				// nolint: lll
 				fmt.Fprintf(os.Stderr, "\u001B[31mERROR\u001B[m: The corresponding field '%s' declaration in message could not be found in '%s'\n", v, path)
 				os.Exit(2) // nolint: gocritic
 			}

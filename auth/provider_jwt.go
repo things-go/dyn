@@ -57,7 +57,7 @@ func NewJwtProvider(c JwtConfig) (Provider, error) {
 		if err != nil {
 			return nil, ErrInvalidPubKey
 		}
-	case "HS256", "HS512", "HS384":
+	case "HS256", "HS512", "HS384": // nolint:goconst
 	default:
 		c.Algorithm = "HS256"
 	}

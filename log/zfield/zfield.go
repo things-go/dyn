@@ -34,7 +34,6 @@ func Complex128(key string, vf func(context.Context) complex128) func(*gin.Conte
 }
 func Complex128p(key string, vf func(context.Context) *complex128) func(*gin.Context) zap.Field {
 	return func(c *gin.Context) zap.Field {
-
 		return zap.Complex128p(key, vf(c.Request.Context()))
 	}
 }
@@ -261,7 +260,6 @@ func ImmutComplex128(key string, v complex128) func(*gin.Context) zap.Field {
 func ImmutComplex128p(key string, v *complex128) func(*gin.Context) zap.Field {
 	field := zap.Complex128p(key, v)
 	return func(c *gin.Context) zap.Field {
-
 		return field
 	}
 }

@@ -53,7 +53,6 @@ func WithDecoder(decoder *form.Decoder) Option {
 		if decoder != nil {
 			c.decoder = decoder
 		}
-
 	}
 }
 

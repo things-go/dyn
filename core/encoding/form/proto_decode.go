@@ -216,8 +216,8 @@ func parseField(fd protoreflect.FieldDescriptor, value string) (protoreflect.Val
 func parseMessage(md protoreflect.MessageDescriptor, value string) (protoreflect.Value, error) {
 	var msg proto.Message
 	switch md.FullName() {
-	case "google.protobuf.Timestamp":
-		if value == "null" {
+	case "google.protobuf.Timestamp": // nolint: goconst,nolintlint
+		if value == "null" { // nolint: goconst,nolintlint
 			break
 		}
 		t, err := time.Parse(time.RFC3339Nano, value)
@@ -225,8 +225,8 @@ func parseMessage(md protoreflect.MessageDescriptor, value string) (protoreflect
 			return protoreflect.Value{}, err
 		}
 		msg = timestamppb.New(t)
-	case "google.protobuf.Duration":
-		if value == "null" {
+	case "google.protobuf.Duration": // nolint: goconst,nolintlint
+		if value == "null" { // nolint: goconst,nolintlint
 			break
 		}
 		d, err := time.ParseDuration(value)
@@ -234,63 +234,63 @@ func parseMessage(md protoreflect.MessageDescriptor, value string) (protoreflect
 			return protoreflect.Value{}, err
 		}
 		msg = durationpb.New(d)
-	case "google.protobuf.DoubleValue":
+	case "google.protobuf.DoubleValue": // nolint: goconst,nolintlint
 		v, err := strconv.ParseFloat(value, 64) //nolint:gomnd
 		if err != nil {
 			return protoreflect.Value{}, err
 		}
 		msg = wrapperspb.Double(v)
-	case "google.protobuf.FloatValue":
+	case "google.protobuf.FloatValue": // nolint: goconst,nolintlint
 		v, err := strconv.ParseFloat(value, 32) //nolint:gomnd
 		if err != nil {
 			return protoreflect.Value{}, err
 		}
 		msg = wrapperspb.Float(float32(v))
-	case "google.protobuf.Int64Value":
+	case "google.protobuf.Int64Value": // nolint: goconst,nolintlint
 		v, err := strconv.ParseInt(value, 10, 64) //nolint:gomnd
 		if err != nil {
 			return protoreflect.Value{}, err
 		}
 		msg = wrapperspb.Int64(v)
-	case "google.protobuf.Int32Value":
+	case "google.protobuf.Int32Value": // nolint: goconst,nolintlint
 		v, err := strconv.ParseInt(value, 10, 32) //nolint:gomnd
 		if err != nil {
 			return protoreflect.Value{}, err
 		}
 		msg = wrapperspb.Int32(int32(v))
-	case "google.protobuf.UInt64Value":
+	case "google.protobuf.UInt64Value": // nolint: goconst,nolintlint
 		v, err := strconv.ParseUint(value, 10, 64) //nolint:gomnd
 		if err != nil {
 			return protoreflect.Value{}, err
 		}
 		msg = wrapperspb.UInt64(v)
-	case "google.protobuf.UInt32Value":
+	case "google.protobuf.UInt32Value": // nolint: goconst,nolintlint
 		v, err := strconv.ParseUint(value, 10, 32) //nolint:gomnd
 		if err != nil {
 			return protoreflect.Value{}, err
 		}
 		msg = wrapperspb.UInt32(uint32(v))
-	case "google.protobuf.BoolValue":
+	case "google.protobuf.BoolValue": // nolint: goconst,nolintlint
 		v, err := strconv.ParseBool(value)
 		if err != nil {
 			return protoreflect.Value{}, err
 		}
 		msg = wrapperspb.Bool(v)
-	case "google.protobuf.StringValue":
+	case "google.protobuf.StringValue": // nolint: goconst,nolintlint
 		msg = wrapperspb.String(value)
-	case "google.protobuf.BytesValue":
+	case "google.protobuf.BytesValue": // nolint: goconst,nolintlint
 		v, err := base64.StdEncoding.DecodeString(value)
 		if err != nil {
 			return protoreflect.Value{}, err
 		}
 		msg = wrapperspb.Bytes(v)
-	case "google.protobuf.FieldMask":
+	case "google.protobuf.FieldMask": // nolint: goconst,nolintlint
 		fm := &field_mask.FieldMask{}
 		for _, fv := range strings.Split(value, ",") {
 			fm.Paths = append(fm.Paths, jsonSnakeCase(fv))
 		}
 		msg = fm
-	case "google.protobuf.Value":
+	case "google.protobuf.Value": // nolint: goconst,nolintlint
 		fm, err := structpb.NewValue(value)
 		if err != nil {
 			return protoreflect.Value{}, err

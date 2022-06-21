@@ -5,6 +5,7 @@ import (
 	"text/template"
 )
 
+// nolint: lll
 var errnoTemplate = `
 type Option interface {
 	apply(*errors.Error)
