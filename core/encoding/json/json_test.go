@@ -73,7 +73,7 @@ func TestJSON(t *testing.T) {
 	t.Run("Marshal", func(t *testing.T) {
 		tests := []struct {
 			codec  Codec
-			input  interface{}
+			input  any
 			expect string
 		}{
 			{
@@ -114,7 +114,7 @@ func TestJSON(t *testing.T) {
 		tests := []struct {
 			codec  Codec
 			input  string
-			expect interface{}
+			expect any
 		}{
 			{
 				codec:  New(),
@@ -170,7 +170,7 @@ func TestJSON_default(t *testing.T) {
 	})
 	t.Run("Marshal", func(t *testing.T) {
 		tests := []struct {
-			input  interface{}
+			input  any
 			expect string
 		}{
 			{
@@ -201,7 +201,7 @@ func TestJSON_default(t *testing.T) {
 		p := &testData.TestModel{}
 		tests := []struct {
 			input  string
-			expect interface{}
+			expect any
 		}{
 			{
 				input:  `{"a":"","b":"","c":"1111"}`,

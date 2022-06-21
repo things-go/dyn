@@ -198,7 +198,7 @@ func Uintptrp(key string, vf func(context.Context) *uintptr) Valuer {
 		return zap.Uintptrp(key, vf(ctx))
 	}
 }
-func Reflect(key string, vf func(context.Context) interface{}) Valuer {
+func Reflect(key string, vf func(context.Context) any) Valuer {
 	return func(ctx context.Context) zap.Field {
 		return zap.Reflect(key, vf(ctx))
 	}
@@ -228,7 +228,7 @@ func Durationp(key string, vf func(context.Context) *time.Duration) Valuer {
 		return zap.Durationp(key, vf(ctx))
 	}
 }
-func Any(key string, vf func(context.Context) interface{}) Valuer {
+func Any(key string, vf func(context.Context) any) Valuer {
 	return func(ctx context.Context) zap.Field {
 		return zap.Any(key, vf(ctx))
 	}
@@ -454,7 +454,7 @@ func ImmutUintptrp(key string, v *uintptr) Valuer {
 		return field
 	}
 }
-func ImmutReflect(key string, v interface{}) Valuer {
+func ImmutReflect(key string, v any) Valuer {
 	field := zap.Reflect(key, v)
 	return func(ctx context.Context) zap.Field {
 		return field
@@ -490,7 +490,7 @@ func ImmutDurationp(key string, v *time.Duration) Valuer {
 		return field
 	}
 }
-func ImmutAny(key string, v interface{}) Valuer {
+func ImmutAny(key string, v any) Valuer {
 	field := zap.Any(key, v)
 	return func(ctx context.Context) zap.Field {
 		return field

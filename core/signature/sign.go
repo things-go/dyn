@@ -9,23 +9,23 @@ import (
 	"time"
 )
 
-type H map[string]interface{}
+type H map[string]any
 
-func SignSHA256Hex(mp map[string]interface{}, secret string) string {
+func SignSHA256Hex(mp map[string]any, secret string) string {
 	return Sign(mp, secret, func(src string) string {
 		bs := sha256.Sum256([]byte(src))
 		return hex.EncodeToString(bs[:])
 	})
 }
 
-func SignHmacSHA256(mp map[string]interface{}, secret string) string {
+func SignHmacSHA256(mp map[string]any, secret string) string {
 	return Sign(mp, secret, func(src string) string {
 		bs := hmac.New(sha256.New, []byte(src)).Sum(nil)
 		return base64.StdEncoding.EncodeToString(bs)
 	})
 }
 
-func Sign(mp map[string]interface{}, secret string, sign func(string) string) string {
+func Sign(mp map[string]any, secret string, sign func(string) string) string {
 	src := ConcatMap(mp, false) + secret
 	return sign(src)
 }
@@ -45,12 +45,12 @@ func VerifyIat(iat string, timeout time.Duration) bool {
 	return t.Add(timeout).After(time.Now())
 }
 
-func IatSign(mp map[string]interface{}) (iat, sign string) {
+func IatSign(mp map[string]any) (iat, sign string) {
 	iat = Iat()
 	return iat, SignHmacSHA256(mp, iat)
 }
 
 // VerifySign 验证签发时间是否在有效期内, 并验证签名是否正确
-func VerifyIatSign(iat, targetSign string, iatTimout time.Duration, mp map[string]interface{}) bool {
+func VerifyIatSign(iat, targetSign string, iatTimout time.Duration, mp map[string]any) bool {
 	return VerifyIat(iat, iatTimout) && targetSign == SignHmacSHA256(mp, iat)
 }

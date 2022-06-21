@@ -20,10 +20,10 @@ type {{$svrType}}HTTPServer interface {
 	{{.Name}}(context.Context, *{{.Request}}) (*{{.Reply}}, error)
 {{- end}}
 {{- end}}
-    Validate(context.Context, interface{}) error
+    Validate(context.Context, any) error
 	ErrorEncoder(c *gin.Context, err error, isBadRequest bool)
 {{- if $useCustomResp}}
-	ResponseEncoder(c *gin.Context, v interface{})
+	ResponseEncoder(c *gin.Context, v any)
 {{- end}}
 }
 
@@ -40,7 +40,7 @@ func (*Unimplemented{{$svrType}}HTTPServer) {{.Name}}(context.Context, *{{.Reque
 }
 {{- end}}
 {{- end}}
-func (*Unimplemented{{$svrType}}HTTPServer) Validate(context.Context, interface{}) error { return nil }
+func (*Unimplemented{{$svrType}}HTTPServer) Validate(context.Context, any) error { return nil }
 func (*Unimplemented{{$svrType}}HTTPServer) ErrorEncoder(c *gin.Context, err error, isBadRequest bool) {
 	var code = 500
 	if isBadRequest {
@@ -49,7 +49,7 @@ func (*Unimplemented{{$svrType}}HTTPServer) ErrorEncoder(c *gin.Context, err err
 	c.String(code, err.Error())
 }
 {{- if $useCustomResp}}
-func (*Unimplemented{{$svrType}}HTTPServer) ResponseEncoder(c *gin.Context, v interface{}) {
+func (*Unimplemented{{$svrType}}HTTPServer) ResponseEncoder(c *gin.Context, v any) {
 	c.JSON(200, v)
 }
 {{- end}}
@@ -64,7 +64,7 @@ func Register{{$svrType}}HTTPServer(g *gin.RouterGroup, srv {{$svrType}}HTTPServ
 {{range .Methods}}
 func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		shouldBind := func(req interface{}) error {
+		shouldBind := func(req any) error {
 			{{- if .HasBody}}
 			if err := c.ShouldBind(req); err != nil {
 				return err
@@ -135,10 +135,10 @@ type From{{$svrType}}HTTPServer interface {
 	{{.Name}}(context.Context, *{{.Request}}, *{{.Reply}}) error
 {{- end}}
 {{- end}}
-    Validate(context.Context, interface{}) error
+    Validate(context.Context, any) error
 	ErrorEncoder(c *gin.Context, err error, isBadRequest bool)
 {{- if $useCustomResp}}
-	ResponseEncoder(c *gin.Context, v interface{})
+	ResponseEncoder(c *gin.Context, v any)
 {{- end}}
 }
 

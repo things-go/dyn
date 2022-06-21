@@ -45,7 +45,7 @@ func ConcatMapWithSort(mp map[string]string, sep1, sep2 string) string {
 // hasBrace 前后是否带有大括号
 // 格式: hasBrace=false, k1=v1&k2=v2
 // 格式: hasBrace=true, {k1=v1&k2=v2}
-func ConcatMap(mp map[string]interface{}, hasBrace bool) string {
+func ConcatMap(mp map[string]any, hasBrace bool) string {
 	if len(mp) == 0 {
 		return ""
 	}
@@ -81,7 +81,7 @@ func ConcatMap(mp map[string]interface{}, hasBrace bool) string {
 }
 
 // ConcatArray 拼接数组, 不排序, 按","分隔, 忽略空值, 前后带有方括号
-func ConcatArray(v interface{}) string {
+func ConcatArray(v any) string {
 	value := reflect.ValueOf(v)
 	if !(value.Kind() == reflect.Array || value.Kind() == reflect.Slice) {
 		return toString(v)
@@ -107,7 +107,7 @@ func ConcatArray(v interface{}) string {
 	return buff.String()
 }
 
-func toString(vv interface{}) string {
+func toString(vv any) string {
 	vv = indirectToStringer(vv)
 
 	switch s := vv.(type) {
@@ -159,9 +159,9 @@ func toString(vv interface{}) string {
 		return s.String()
 	case error:
 		return s.Error()
-	case map[string]interface{}:
+	case map[string]any:
 		return ConcatMap(s, true)
-	case []interface{}:
+	case []any:
 		if len(s) == 0 {
 			return ""
 		}
@@ -178,7 +178,7 @@ func toString(vv interface{}) string {
 	}
 }
 
-func indirectToStringer(vv interface{}) interface{} {
+func indirectToStringer(vv any) any {
 	if vv == nil {
 		return nil
 	}

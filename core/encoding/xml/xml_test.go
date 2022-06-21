@@ -14,14 +14,14 @@ import (
 var nilStruct *int
 
 type Plain struct {
-	V interface{}
+	V any
 }
 type PresenceTest struct {
 	Exists *struct{}
 }
 
 var marshalTests = []struct {
-	Value          interface{}
+	Value          any
 	ExpectXML      string
 	MarshalOnly    bool
 	MarshalError   string

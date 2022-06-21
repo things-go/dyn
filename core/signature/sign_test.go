@@ -37,7 +37,7 @@ func TestSignSha256Hex(t *testing.T) {
     ]
   }
 }`
-	mp := make(map[string]interface{})
+	mp := make(map[string]any)
 	err := json.Unmarshal([]byte(jsonStr), &mp)
 	if err != nil {
 		t.Fatal(err)
@@ -49,7 +49,7 @@ func TestSignSha256Hex(t *testing.T) {
 	}
 }
 
-var testMp = map[string]interface{}{
+var testMp = map[string]any{
 	"name":   "jjl",
 	"phone":  "13705970181",
 	"phone1": "13705970181",
@@ -74,7 +74,7 @@ func TestIat(t *testing.T) {
 }
 
 func TestIatSign(t *testing.T) {
-	mp := map[string]interface{}{
+	mp := map[string]any{
 		"mobile": 1888888888,
 	}
 	iat, sign := IatSign(mp)

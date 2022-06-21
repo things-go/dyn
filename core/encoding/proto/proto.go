@@ -14,9 +14,9 @@ func init() {
 	encoding.Register(defaultCodec)
 }
 
-func Name() string                               { return defaultCodec.Name() }
-func Marshal(v interface{}) ([]byte, error)      { return defaultCodec.Marshal(v) }
-func Unmarshal(data []byte, v interface{}) error { return defaultCodec.Unmarshal(data, v) }
+func Name() string                       { return defaultCodec.Name() }
+func Marshal(v any) ([]byte, error)      { return defaultCodec.Marshal(v) }
+func Unmarshal(data []byte, v any) error { return defaultCodec.Unmarshal(data, v) }
 
 // New returns a new Codec
 func New() Codec { return Codec{} }
@@ -25,9 +25,9 @@ func New() Codec { return Codec{} }
 type Codec struct{}
 
 func (Codec) Name() string { return "proto" }
-func (Codec) Marshal(v interface{}) ([]byte, error) {
+func (Codec) Marshal(v any) ([]byte, error) {
 	return proto.Marshal(v.(proto.Message))
 }
-func (Codec) Unmarshal(data []byte, v interface{}) error {
+func (Codec) Unmarshal(data []byte, v any) error {
 	return proto.Unmarshal(data, v.(proto.Message))
 }

@@ -15,9 +15,9 @@ func init() {
 	encoding.Register(defaultCodec)
 }
 
-func Name() string                               { return defaultCodec.Name() }
-func Marshal(v interface{}) ([]byte, error)      { return defaultCodec.Marshal(v) }
-func Unmarshal(data []byte, v interface{}) error { return defaultCodec.Unmarshal(data, v) }
+func Name() string                       { return defaultCodec.Name() }
+func Marshal(v any) ([]byte, error)      { return defaultCodec.Marshal(v) }
+func Unmarshal(data []byte, v any) error { return defaultCodec.Unmarshal(data, v) }
 
 type Option func(*Codec)
 
@@ -61,7 +61,7 @@ type Codec struct {
 }
 
 func (Codec) Name() string { return "json" }
-func (c Codec) Marshal(v interface{}) ([]byte, error) {
+func (c Codec) Marshal(v any) ([]byte, error) {
 	switch m := v.(type) {
 	case json.Marshaler:
 		return m.MarshalJSON()
@@ -74,7 +74,7 @@ func (c Codec) Marshal(v interface{}) ([]byte, error) {
 		return json.Marshal(m)
 	}
 }
-func (c Codec) Unmarshal(data []byte, v interface{}) error {
+func (c Codec) Unmarshal(data []byte, v any) error {
 	switch m := v.(type) {
 	case json.Unmarshaler:
 		return m.UnmarshalJSON(data)

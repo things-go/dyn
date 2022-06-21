@@ -17,11 +17,11 @@ func DisableBindValidation() { disableBindValidation = true }
 
 func Validator() *validator.Validate { return defaultValidator }
 
-func Validate(ctx context.Context, v interface{}) error {
+func Validate(ctx context.Context, v any) error {
 	if disableBindValidation {
 		return nil
 	}
 	return defaultValidator.StructCtx(ctx, v)
 }
 
-func ValidateStruct(v interface{}) error { return defaultValidator.Struct(v) }
+func ValidateStruct(v any) error { return defaultValidator.Struct(v) }

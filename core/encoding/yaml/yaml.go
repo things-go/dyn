@@ -12,9 +12,9 @@ func init() {
 	encoding.Register(defaultCodec)
 }
 
-func Name() string                               { return defaultCodec.Name() }
-func Marshal(v interface{}) ([]byte, error)      { return defaultCodec.Marshal(v) }
-func Unmarshal(data []byte, v interface{}) error { return defaultCodec.Unmarshal(data, v) }
+func Name() string                       { return defaultCodec.Name() }
+func Marshal(v any) ([]byte, error)      { return defaultCodec.Marshal(v) }
+func Unmarshal(data []byte, v any) error { return defaultCodec.Unmarshal(data, v) }
 
 // Codec is a Codec implementation with yaml.
 type Codec struct{}
@@ -23,9 +23,9 @@ type Codec struct{}
 func New() Codec { return Codec{} }
 
 func (Codec) Name() string { return "yaml" }
-func (Codec) Marshal(v interface{}) ([]byte, error) {
+func (Codec) Marshal(v any) ([]byte, error) {
 	return yaml.Marshal(v)
 }
-func (Codec) Unmarshal(data []byte, v interface{}) error {
+func (Codec) Unmarshal(data []byte, v any) error {
 	return yaml.Unmarshal(data, v)
 }

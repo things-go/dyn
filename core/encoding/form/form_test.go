@@ -102,7 +102,7 @@ func TestEncode(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		args interface{}
+		args any
 		want url.Values
 	}{
 		{
@@ -133,13 +133,13 @@ func TestDecode(t *testing.T) {
 	p1 := TestDecode{}
 	type args struct {
 		vars   url.Values
-		target interface{}
+		target any
 	}
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
-		want    interface{}
+		want    any
 	}{
 		{
 			name: "test",
@@ -175,7 +175,7 @@ type NoProtoHello struct {
 func TestEncodeURL(t *testing.T) {
 	type args struct {
 		pathTemplate string
-		msg          interface{}
+		msg          any
 		needQuery    bool
 	}
 	tests := []struct {

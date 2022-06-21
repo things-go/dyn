@@ -46,7 +46,7 @@ func Test_ConcatMapWithSort(t *testing.T) {
 func Test_ConcatMap(t *testing.T) {
 	tests := []struct {
 		name     string
-		m        map[string]interface{}
+		m        map[string]any
 		hasBrace bool
 		want     string
 	}{
@@ -58,29 +58,29 @@ func Test_ConcatMap(t *testing.T) {
 		},
 		{
 			"",
-			map[string]interface{}{},
+			map[string]any{},
 			true,
 			"",
 		},
 		{
 			"",
-			map[string]interface{}{
+			map[string]any{
 				"b": 1,
 				"d": "a",
 				"a": 10,
-				"e": map[string]interface{}{
+				"e": map[string]any{
 					"b": 1,
 					"d": "a",
 					"a": 10,
 				},
-				"f": []interface{}{1, 6, 0},
+				"f": []any{1, 6, 0},
 			},
 			false,
 			"a=10&b=1&d=a&e={a=10&b=1&d=a}&f=[1,6,0]",
 		},
 		{
 			"",
-			map[string]interface{}{
+			map[string]any{
 				"b": 1,
 				"d": "a",
 				"a": 10,
@@ -90,11 +90,11 @@ func Test_ConcatMap(t *testing.T) {
 		},
 		{
 			"",
-			map[string]interface{}{
+			map[string]any{
 				"b": 1,
 				"d": "a",
 				"a": 10,
-				"e": []map[string]interface{}{
+				"e": []map[string]any{
 					{
 						"b": 1,
 						"d": "a",
@@ -106,7 +106,7 @@ func Test_ConcatMap(t *testing.T) {
 						"a": 11,
 					},
 				},
-				"f": []interface{}{1, 6, 0},
+				"f": []any{1, 6, 0},
 			},
 			false,
 			"a=10&b=1&d=a&e=[{a=10&b=1&d=a},{a=11&b=2&d=b}]&f=[1,6,0]",
@@ -124,7 +124,7 @@ func Test_ConcatMap(t *testing.T) {
 func Test_ConcatArray(t *testing.T) {
 	tests := []struct {
 		name string
-		arr  interface{}
+		arr  any
 		want string
 	}{
 		{
@@ -134,17 +134,17 @@ func Test_ConcatArray(t *testing.T) {
 		},
 		{
 			"",
-			[]interface{}{},
+			[]any{},
 			"",
 		},
 		{
 			"",
-			[]interface{}{"d", "a", "f", "1"},
+			[]any{"d", "a", "f", "1"},
 			"[d,a,f,1]",
 		},
 		{
 			"",
-			[]interface{}{5, 1, 0, 2},
+			[]any{5, 1, 0, 2},
 			"[5,1,0,2]",
 		},
 		{
@@ -190,7 +190,7 @@ func Test_toString(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		input interface{}
+		input any
 		want  string
 	}{
 		{"", int(8), "8"},
@@ -221,8 +221,8 @@ func Test_toString(t *testing.T) {
 		{"", fmtStringer{}, "fmtStringer"},
 		{"", json.Number("100"), "100"},
 		{"", errors.New("100"), "100"},
-		{"", []interface{}{1, 8, 3}, "[1,8,3]"},
-		{"", map[string]interface{}{"d": 1, "a": 8, "c": 3}, "{a=8&c=3&d=1}"},
+		{"", []any{1, 8, 3}, "[1,8,3]"},
+		{"", map[string]any{"d": 1, "a": 8, "c": 3}, "{a=8&c=3&d=1}"},
 		{"", []int{1, 8, 3}, "[1,8,3]"},
 		{"", []int{}, ""},
 	}
@@ -253,10 +253,10 @@ func BenchmarkConcatSortMap(b *testing.B) {
 }
 
 func BenchmarkConcatMap(b *testing.B) {
-	mp := map[string]interface{}{
+	mp := map[string]any{
 		"b": "1",
 		"d": "a",
-		"f": []interface{}{1, 6, 0},
+		"f": []any{1, 6, 0},
 	}
 	for i := 0; i < b.N; i++ {
 		ConcatMap(mp, false)
@@ -264,7 +264,7 @@ func BenchmarkConcatMap(b *testing.B) {
 }
 
 func BenchmarkConcatArray(b *testing.B) {
-	arr := []interface{}{"d", "a", "f", "1"}
+	arr := []any{"d", "a", "f", "1"}
 	for i := 0; i < b.N; i++ {
 		ConcatArray(arr)
 	}

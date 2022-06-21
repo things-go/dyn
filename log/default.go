@@ -76,7 +76,7 @@ func Logger() *zap.Logger { return defaultLogger.Logger() }
 // forgiving: a separate error is logged, but the key-value pair is skipped
 // and execution continues. Passing an orphaned key triggers similar behavior:
 // panics in development and errors in production.
-func With(args ...interface{}) *zap.SugaredLogger { return defaultLogger.Sugar().With(args...) }
+func With(args ...any) *zap.SugaredLogger { return defaultLogger.Sugar().With(args...) }
 
 // Named adds a sub-scope to the logger's name. See Log.Named for details.
 func Named(name string) *zap.SugaredLogger { return defaultLogger.Named(name) }
@@ -85,77 +85,77 @@ func Named(name string) *zap.SugaredLogger { return defaultLogger.Named(name) }
 func Sync() error { return defaultLogger.Sync() }
 
 // Debug uses fmt.Sprint to construct and log a message.
-func Debug(args ...interface{}) { defaultLogger.Debug(args...) }
+func Debug(args ...any) { defaultLogger.Debug(args...) }
 
 // Info uses fmt.Sprint to construct and log a message.
-func Info(args ...interface{}) { defaultLogger.Info(args...) }
+func Info(args ...any) { defaultLogger.Info(args...) }
 
 // Warn uses fmt.Sprint to construct and log a message.
-func Warn(args ...interface{}) { defaultLogger.Warn(args...) }
+func Warn(args ...any) { defaultLogger.Warn(args...) }
 
 // Error uses fmt.Sprint to construct and log a message.
-func Error(args ...interface{}) { defaultLogger.Error(args...) }
+func Error(args ...any) { defaultLogger.Error(args...) }
 
 // DPanic uses fmt.Sprint to construct and log a message. In development, the
 // logger then panics. (See DPanicLevel for details.)
-func DPanic(args ...interface{}) { defaultLogger.DPanic(args...) }
+func DPanic(args ...any) { defaultLogger.DPanic(args...) }
 
 // Panic uses fmt.Sprint to construct and log a message, then panics.
-func Panic(args ...interface{}) { defaultLogger.Panic(args...) }
+func Panic(args ...any) { defaultLogger.Panic(args...) }
 
 // Fatal uses fmt.Sprint to construct and log a message, then calls os.Exit.
-func Fatal(args ...interface{}) { defaultLogger.Fatal(args...) }
+func Fatal(args ...any) { defaultLogger.Fatal(args...) }
 
 // Debugf uses fmt.Sprintf to log a templated message.
-func Debugf(template string, args ...interface{}) { defaultLogger.Debugf(template, args...) }
+func Debugf(template string, args ...any) { defaultLogger.Debugf(template, args...) }
 
 // Infof uses fmt.Sprintf to log a templated message.
-func Infof(template string, args ...interface{}) { defaultLogger.Infof(template, args...) }
+func Infof(template string, args ...any) { defaultLogger.Infof(template, args...) }
 
 // Warnf uses fmt.Sprintf to log a templated message.
-func Warnf(template string, args ...interface{}) { defaultLogger.Warnf(template, args...) }
+func Warnf(template string, args ...any) { defaultLogger.Warnf(template, args...) }
 
 // Errorf uses fmt.Sprintf to log a templated message.
-func Errorf(template string, args ...interface{}) { defaultLogger.Errorf(template, args...) }
+func Errorf(template string, args ...any) { defaultLogger.Errorf(template, args...) }
 
 // DPanicf uses fmt.Sprintf to log a templated message. In development, the
 // logger then panics. (See DPanicLevel for details.)
-func DPanicf(template string, args ...interface{}) { defaultLogger.DPanicf(template, args...) }
+func DPanicf(template string, args ...any) { defaultLogger.DPanicf(template, args...) }
 
 // Panicf uses fmt.Sprintf to log a templated message, then panics.
-func Panicf(template string, args ...interface{}) { defaultLogger.Panicf(template, args...) }
+func Panicf(template string, args ...any) { defaultLogger.Panicf(template, args...) }
 
 // Fatalf uses fmt.Sprintf to log a templated message, then calls os.Exit.
-func Fatalf(template string, args ...interface{}) { defaultLogger.Fatalf(template, args...) }
+func Fatalf(template string, args ...any) { defaultLogger.Fatalf(template, args...) }
 
 // Debugw logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With.
 //
 // When debug-level logging is disabled, this is much faster than
 //  s.With(keysAndValues).Debug(msg)
-func Debugw(msg string, keysAndValues ...interface{}) { defaultLogger.Debugw(msg, keysAndValues...) }
+func Debugw(msg string, keysAndValues ...any) { defaultLogger.Debugw(msg, keysAndValues...) }
 
 // Infow logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With.
-func Infow(msg string, keysAndValues ...interface{}) { defaultLogger.Infow(msg, keysAndValues...) }
+func Infow(msg string, keysAndValues ...any) { defaultLogger.Infow(msg, keysAndValues...) }
 
 // Warnw logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With.
-func Warnw(msg string, keysAndValues ...interface{}) { defaultLogger.Warnw(msg, keysAndValues...) }
+func Warnw(msg string, keysAndValues ...any) { defaultLogger.Warnw(msg, keysAndValues...) }
 
 // Errorw logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With.
-func Errorw(msg string, keysAndValues ...interface{}) { defaultLogger.Errorw(msg, keysAndValues...) }
+func Errorw(msg string, keysAndValues ...any) { defaultLogger.Errorw(msg, keysAndValues...) }
 
 // DPanicw logs a message with some additional context. In development, the
 // logger then panics. (See DPanicLevel for details.) The variadic key-value
 // pairs are treated as they are in With.
-func DPanicw(msg string, keysAndValues ...interface{}) { defaultLogger.DPanicw(msg, keysAndValues...) }
+func DPanicw(msg string, keysAndValues ...any) { defaultLogger.DPanicw(msg, keysAndValues...) }
 
 // Panicw logs a message with some additional context, then panics. The
 // variadic key-value pairs are treated as they are in With.
-func Panicw(msg string, keysAndValues ...interface{}) { defaultLogger.Panicw(msg, keysAndValues...) }
+func Panicw(msg string, keysAndValues ...any) { defaultLogger.Panicw(msg, keysAndValues...) }
 
 // Fatalw logs a message with some additional context, then calls os.Exit. The
 // variadic key-value pairs are treated as they are in With.
-func Fatalw(msg string, keysAndValues ...interface{}) { defaultLogger.Fatalw(msg, keysAndValues...) }
+func Fatalw(msg string, keysAndValues ...any) { defaultLogger.Fatalw(msg, keysAndValues...) }

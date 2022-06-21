@@ -8,8 +8,8 @@ import (
 	"github.com/things-go/dyn/errors"
 )
 
-func Response(c *gin.Context, data ...interface{}) {
-	var obj interface{}
+func Response(c *gin.Context, data ...any) {
+	var obj any
 
 	if len(data) > 0 {
 		obj = data[0]

@@ -21,13 +21,13 @@ var defaultCodec = New()
 func init() {
 	encoding.Register(defaultCodec)
 }
-func ReplaceDefaultCodec(codec Codec)            { defaultCodec = codec }
-func Name() string                               { return defaultCodec.Name() }
-func Marshal(v interface{}) ([]byte, error)      { return defaultCodec.Marshal(v) }
-func Unmarshal(data []byte, v interface{}) error { return defaultCodec.Unmarshal(data, v) }
-func Encode(v interface{}) (url.Values, error)   { return defaultCodec.Encode(v) }
-func Decode(vs url.Values, v interface{}) error  { return defaultCodec.Decode(vs, v) }
-func EncodeURL(pathTemplate string, msg interface{}, needQuery bool) string {
+func ReplaceDefaultCodec(codec Codec)    { defaultCodec = codec }
+func Name() string                       { return defaultCodec.Name() }
+func Marshal(v any) ([]byte, error)      { return defaultCodec.Marshal(v) }
+func Unmarshal(data []byte, v any) error { return defaultCodec.Unmarshal(data, v) }
+func Encode(v any) (url.Values, error)   { return defaultCodec.Encode(v) }
+func Decode(vs url.Values, v any) error  { return defaultCodec.Decode(vs, v) }
+func EncodeURL(pathTemplate string, msg any, needQuery bool) string {
 	return defaultCodec.EncodeURL(pathTemplate, msg, needQuery)
 }
 
@@ -91,7 +91,7 @@ func New(opts ...Option) Codec {
 
 func (Codec) Name() string { return "x-www-form-urlencoded" }
 
-func (c Codec) Marshal(v interface{}) ([]byte, error) {
+func (c Codec) Marshal(v any) ([]byte, error) {
 	vs, err := c.Encode(v)
 	if err != nil {
 		return nil, err
@@ -99,7 +99,7 @@ func (c Codec) Marshal(v interface{}) ([]byte, error) {
 	return []byte(vs.Encode()), nil
 }
 
-func (c Codec) Unmarshal(data []byte, v interface{}) error {
+func (c Codec) Unmarshal(data []byte, v any) error {
 	vs, err := url.ParseQuery(string(data))
 	if err != nil {
 		return err
@@ -107,7 +107,7 @@ func (c Codec) Unmarshal(data []byte, v interface{}) error {
 	return c.Decode(vs, v)
 }
 
-func (c Codec) Encode(v interface{}) (url.Values, error) {
+func (c Codec) Encode(v any) (url.Values, error) {
 	var vs url.Values
 	var err error
 
@@ -129,7 +129,7 @@ func (c Codec) Encode(v interface{}) (url.Values, error) {
 	return vs, nil
 }
 
-func (c Codec) Decode(vs url.Values, v interface{}) error {
+func (c Codec) Decode(vs url.Values, v any) error {
 	rv := reflect.ValueOf(v)
 	for rv.Kind() == reflect.Ptr {
 		if rv.IsNil() {
@@ -150,7 +150,7 @@ func (c Codec) Decode(vs url.Values, v interface{}) error {
 
 // EncodeURL encode msg to url path.
 // pathTemplate is a template of url path like http://helloworld.dev/{name}/sub/{sub.name},
-func (c Codec) EncodeURL(pathTemplate string, msg interface{}, needQuery bool) string {
+func (c Codec) EncodeURL(pathTemplate string, msg any, needQuery bool) string {
 	if msg == nil || (reflect.ValueOf(msg).Kind() == reflect.Ptr && reflect.ValueOf(msg).IsNil()) {
 		return pathTemplate
 	}
@@ -227,7 +227,7 @@ func getValueFromProtoWithField(v protoreflect.Message, fieldPath []string) (str
 	return EncodeField(fd, v.Get(fd))
 }
 
-func getValueWithField(s interface{}, fieldPath []string, tagName string) (string, error) {
+func getValueWithField(s any, fieldPath []string, tagName string) (string, error) {
 	v := reflect.ValueOf(s)
 	// if pointer get the underlying element
 	for v.Kind() == reflect.Ptr {

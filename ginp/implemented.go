@@ -11,7 +11,7 @@ import (
 
 type Implemented struct{}
 
-func (*Implemented) Validate(ctx context.Context, v interface{}) error {
+func (*Implemented) Validate(ctx context.Context, v any) error {
 	return binding.Validate(ctx, v)
 }
 

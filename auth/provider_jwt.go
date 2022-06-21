@@ -34,8 +34,8 @@ type JwtConfig struct {
 
 type JwtProvider struct {
 	signingMethod jwt.SigningMethod
-	encodeKey     interface{}
-	decodeKey     interface{}
+	encodeKey     any
+	decodeKey     any
 	issuer        string
 }
 
@@ -98,7 +98,7 @@ func (sf *JwtProvider) generateToken(id string, acc *Account, timeout time.Durat
 }
 
 func (sf *JwtProvider) ParseToken(tokenString string) (*Account, error) {
-	tk, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(t *jwt.Token) (interface{}, error) {
+	tk, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(t *jwt.Token) (any, error) {
 		if sf.signingMethod != t.Method {
 			return nil, ErrInvalidSigningAlgorithm
 		}

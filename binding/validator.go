@@ -11,7 +11,7 @@ import (
 
 func RegisterValidation(valid *validator.Validate) error {
 	valid.RegisterCustomTypeFunc(
-		func(field reflect.Value) interface{} {
+		func(field reflect.Value) any {
 			if valuer, ok := field.Interface().(decimal.Decimal); ok {
 				return valuer.String()
 			}

@@ -9,15 +9,15 @@ import (
 
 type invalidCodec struct{}
 
-func (c invalidCodec) Name() string                               { return "" }
-func (c invalidCodec) Marshal(v interface{}) ([]byte, error)      { panic("implement me") }
-func (c invalidCodec) Unmarshal(data []byte, v interface{}) error { panic("implement me") }
+func (c invalidCodec) Name() string                       { return "" }
+func (c invalidCodec) Marshal(v any) ([]byte, error)      { panic("implement me") }
+func (c invalidCodec) Unmarshal(data []byte, v any) error { panic("implement me") }
 
 type codec struct{}
 
-func (codec) Name() string                               { return "xml" }
-func (codec) Marshal(v interface{}) ([]byte, error)      { return xml.Marshal(v) }
-func (codec) Unmarshal(data []byte, v interface{}) error { return xml.Unmarshal(data, v) }
+func (codec) Name() string                       { return "xml" }
+func (codec) Marshal(v any) ([]byte, error)      { return xml.Marshal(v) }
+func (codec) Unmarshal(data []byte, v any) error { return xml.Unmarshal(data, v) }
 
 func TestRegisterCodec(t *testing.T) {
 	require.Panics(t, func() { Register(nil) })

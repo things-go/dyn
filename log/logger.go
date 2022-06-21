@@ -126,7 +126,7 @@ func (l *Log) Inject(ctx context.Context, fs ...func(context.Context) zap.Field)
 // forgiving: a separate error is logged, but the key-value pair is skipped
 // and execution continues. Passing an orphaned key triggers similar behavior:
 // panics in development and errors in production.
-func (l *Log) With(args ...interface{}) *zap.SugaredLogger {
+func (l *Log) With(args ...any) *zap.SugaredLogger {
 	return l.log.Sugar().With(args...)
 }
 
@@ -141,74 +141,74 @@ func (l *Log) Sync() error {
 }
 
 // Debug uses fmt.Sprint to construct and log a message.
-func (l *Log) Debug(args ...interface{}) {
+func (l *Log) Debug(args ...any) {
 	l.log.Sugar().Debug(args...)
 }
 
 // Info uses fmt.Sprint to construct and log a message.
-func (l *Log) Info(args ...interface{}) {
+func (l *Log) Info(args ...any) {
 	l.log.Sugar().Info(args...)
 }
 
 // Warn uses fmt.Sprint to construct and log a message.
-func (l *Log) Warn(args ...interface{}) {
+func (l *Log) Warn(args ...any) {
 	l.log.Sugar().Warn(args...)
 }
 
 // Error uses fmt.Sprint to construct and log a message.
-func (l *Log) Error(args ...interface{}) {
+func (l *Log) Error(args ...any) {
 	l.log.Sugar().Error(args...)
 }
 
 // DPanic uses fmt.Sprint to construct and log a message. In development, the
 // logger then panics. (See DPanicLevel for details.)
-func (l *Log) DPanic(args ...interface{}) {
+func (l *Log) DPanic(args ...any) {
 	l.log.Sugar().DPanic(args...)
 }
 
 // Panic uses fmt.Sprint to construct and log a message, then panics.
-func (l *Log) Panic(args ...interface{}) {
+func (l *Log) Panic(args ...any) {
 	l.log.Sugar().Panic(args...)
 }
 
 // Fatal uses fmt.Sprint to construct and log a message, then calls os.Exit.
-func (l *Log) Fatal(args ...interface{}) {
+func (l *Log) Fatal(args ...any) {
 	l.log.Sugar().Fatal(args...)
 }
 
 // Debugf uses fmt.Sprintf to log a templated message.
-func (l *Log) Debugf(template string, args ...interface{}) {
+func (l *Log) Debugf(template string, args ...any) {
 	l.log.Sugar().Debugf(template, args...)
 }
 
 // Infof uses fmt.Sprintf to log a templated message.
-func (l *Log) Infof(template string, args ...interface{}) {
+func (l *Log) Infof(template string, args ...any) {
 	l.log.Sugar().Infof(template, args...)
 }
 
 // Warnf uses fmt.Sprintf to log a templated message.
-func (l *Log) Warnf(template string, args ...interface{}) {
+func (l *Log) Warnf(template string, args ...any) {
 	l.log.Sugar().Warnf(template, args...)
 }
 
 // Errorf uses fmt.Sprintf to log a templated message.
-func (l *Log) Errorf(template string, args ...interface{}) {
+func (l *Log) Errorf(template string, args ...any) {
 	l.log.Sugar().Errorf(template, args...)
 }
 
 // DPanicf uses fmt.Sprintf to log a templated message. In development, the
 // logger then panics. (See DPanicLevel for details.)
-func (l *Log) DPanicf(template string, args ...interface{}) {
+func (l *Log) DPanicf(template string, args ...any) {
 	l.log.Sugar().DPanicf(template, args...)
 }
 
 // Panicf uses fmt.Sprintf to log a templated message, then panics.
-func (l *Log) Panicf(template string, args ...interface{}) {
+func (l *Log) Panicf(template string, args ...any) {
 	l.log.Sugar().Panicf(template, args...)
 }
 
 // Fatalf uses fmt.Sprintf to log a templated message, then calls os.Exit.
-func (l *Log) Fatalf(template string, args ...interface{}) {
+func (l *Log) Fatalf(template string, args ...any) {
 	l.log.Sugar().Fatalf(template, args...)
 }
 
@@ -217,43 +217,43 @@ func (l *Log) Fatalf(template string, args ...interface{}) {
 //
 // When debug-level logging is disabled, this is much faster than
 //  s.With(keysAndValues).Debug(msg)
-func (l *Log) Debugw(msg string, keysAndValues ...interface{}) {
+func (l *Log) Debugw(msg string, keysAndValues ...any) {
 	l.log.Sugar().Debugw(msg, keysAndValues...)
 }
 
 // Infow logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With.
-func (l *Log) Infow(msg string, keysAndValues ...interface{}) {
+func (l *Log) Infow(msg string, keysAndValues ...any) {
 	l.log.Sugar().Infow(msg, keysAndValues...)
 }
 
 // Warnw logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With.
-func (l *Log) Warnw(msg string, keysAndValues ...interface{}) {
+func (l *Log) Warnw(msg string, keysAndValues ...any) {
 	l.log.Sugar().Warnw(msg, keysAndValues...)
 }
 
 // Errorw logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With.
-func (l *Log) Errorw(msg string, keysAndValues ...interface{}) {
+func (l *Log) Errorw(msg string, keysAndValues ...any) {
 	l.log.Sugar().Errorw(msg, keysAndValues...)
 }
 
 // DPanicw logs a message with some additional context. In development, the
 // logger then panics. (See DPanicLevel for details.) The variadic key-value
 // pairs are treated as they are in With.
-func (l *Log) DPanicw(msg string, keysAndValues ...interface{}) {
+func (l *Log) DPanicw(msg string, keysAndValues ...any) {
 	l.log.Sugar().DPanicw(msg, keysAndValues...)
 }
 
 // Panicw logs a message with some additional context, then panics. The
 // variadic key-value pairs are treated as they are in With.
-func (l *Log) Panicw(msg string, keysAndValues ...interface{}) {
+func (l *Log) Panicw(msg string, keysAndValues ...any) {
 	l.log.Sugar().Panicw(msg, keysAndValues...)
 }
 
 // Fatalw logs a message with some additional context, then calls os.Exit. The
 // variadic key-value pairs are treated as they are in With.
-func (l *Log) Fatalw(msg string, keysAndValues ...interface{}) {
+func (l *Log) Fatalw(msg string, keysAndValues ...any) {
 	l.log.Sugar().Fatalw(msg, keysAndValues...)
 }
