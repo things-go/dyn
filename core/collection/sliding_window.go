@@ -33,7 +33,7 @@ type SlidingWindow struct {
 // use opts to customize the SlidingWindow.
 func NewSlidingWindow(size int, interval time.Duration, opts ...SlidingWindowOption) *SlidingWindow {
 	if size < 1 {
-		panic("size must be greater than 0")
+		panic("collection: size must be greater than 0")
 	}
 	buckets := make([]*Bucket, size)
 	for i := 0; i < size; i++ {
