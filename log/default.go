@@ -25,6 +25,13 @@ func SetLevel(lv zapcore.Level) *Log { return defaultLogger.SetLevel(lv) }
 // Level returns the minimum enabled log level.
 func Level() zapcore.Level { return defaultLogger.Level() }
 
+// Enabled returns true if the given level is at or above this level.
+func Enabled(lvl zapcore.Level) bool { return defaultLogger.Enabled(lvl) }
+
+// V returns true if the given level is at or above this level.
+// same as Enabled
+func V(lvl zapcore.Level) bool { return defaultLogger.V(lvl) }
+
 // SetDefaultValuer set default field function, which hold always until you call Inject.
 func SetDefaultValuer(vs ...Valuer) *Log {
 	return defaultLogger.SetDefaultValuer(vs...)

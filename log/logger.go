@@ -62,6 +62,13 @@ func (l *Log) SetDefaultValuer(fs ...Valuer) *Log {
 // Level returns the minimum enabled log level.
 func (l *Log) Level() zapcore.Level { return l.level.Level() }
 
+// Enabled returns true if the given level is at or above this level.
+func (l *Log) Enabled(lvl zapcore.Level) bool { return l.level.Enabled(lvl) }
+
+// V returns true if the given level is at or above this level.
+// same as Enabled
+func (l *Log) V(lvl zapcore.Level) bool { return l.level.Enabled(lvl) }
+
 // Sugar wraps the Logger to provide a more ergonomic, but slightly slower,
 // API. Sugaring a Logger is quite inexpensive, so it's reasonable for a
 // single application to use both Loggers and SugaredLoggers, converting
