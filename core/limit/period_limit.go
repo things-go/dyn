@@ -70,7 +70,8 @@ func Align() PeriodLimitOption {
 }
 
 // NewPeriodLimit returns a PeriodLimit with given parameters.
-func NewPeriodLimit(periodSecond, quota int, keyPrefix string, store *redis.Client, opts ...PeriodLimitOption) *PeriodLimit {
+func NewPeriodLimit(periodSecond, quota int, keyPrefix string, store *redis.Client,
+	opts ...PeriodLimitOption) *PeriodLimit {
 	if !strings.HasSuffix(keyPrefix, ":") {
 		keyPrefix += ":"
 	}

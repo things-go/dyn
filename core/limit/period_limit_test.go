@@ -58,6 +58,8 @@ func testPeriodLimit(t *testing.T, opts ...PeriodLimitOption) {
 			hitQuota++
 		case OverQuota:
 			overQuota++
+		case Unknown:
+			fallthrough
 		default:
 			t.Error("unknown status")
 		}
