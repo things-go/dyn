@@ -83,10 +83,10 @@ func Logger() *zap.Logger { return defaultLogger.Logger() }
 // forgiving: a separate error is logged, but the key-value pair is skipped
 // and execution continues. Passing an orphaned key triggers similar behavior:
 // panics in development and errors in production.
-func With(args ...any) *zap.SugaredLogger { return defaultLogger.Sugar().With(args...) }
+func With(fields ...zap.Field) *Log { return defaultLogger.With(fields...) }
 
 // Named adds a sub-scope to the logger's name. See Log.Named for details.
-func Named(name string) *zap.SugaredLogger { return defaultLogger.Named(name) }
+func Named(name string) *Log { return defaultLogger.Named(name) }
 
 // Sync flushes any buffered log entries.
 func Sync() error { return defaultLogger.Sync() }

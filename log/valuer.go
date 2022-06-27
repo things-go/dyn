@@ -550,6 +550,9 @@ func Unit(v string) Valuer {
 func Kind(v string) Valuer {
 	return ImmutString("kind", v)
 }
+func Type(v string) Valuer {
+	return ImmutString("type", v)
+}
 func TraceId(f func(c context.Context) string) Valuer {
 	return String("traceId", f)
 }
