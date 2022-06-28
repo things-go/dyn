@@ -43,7 +43,7 @@ func TestNew(t *testing.T) {
 		Panicw("Panicw: %s", "panic")
 	})
 
-	With("aa", "bb").Debug("debug with")
+	With(zap.String("aa", "bb")).Debug("debug with")
 
 	Named("another").Debug("debug named")
 

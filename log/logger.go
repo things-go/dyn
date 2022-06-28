@@ -106,40 +106,23 @@ func (l *Log) Inject(ctx context.Context, fs ...func(context.Context) zap.Field)
 	}
 }
 
-// With adds a variadic number of fields to the logging context. It accepts a
-// mix of strongly-typed Field objects and loosely-typed key-value pairs. When
-// processing pairs, the first element of the pair is used as the field key
-// and the second as the field value.
-//
-// For example,
-//   sugaredLogger.With(
-//     "hello", "world",
-//     "failure", errors.New("oh no"),
-//     Stack(),
-//     "count", 42,
-//     "user", User{Name: "alice"},
-//  )
-// is the equivalent of
-//   unsugared.With(
-//     String("hello", "world"),
-//     String("failure", "oh no"),
-//     Stack(),
-//     Int("count", 42),
-//     Object("user", User{Name: "alice"}),
-//   )
-//
-// Note that the keys in key-value pairs should be strings. In development,
-// passing a non-string key panics. In production, the logger is more
-// forgiving: a separate error is logged, but the key-value pair is skipped
-// and execution continues. Passing an orphaned key triggers similar behavior:
-// panics in development and errors in production.
-func (l *Log) With(args ...any) *zap.SugaredLogger {
-	return l.log.Sugar().With(args...)
+// With creates a child logger and adds structured context to it. Fields added
+// to the child don't affect the parent, and vice versa.
+func (l *Log) With(fields ...zap.Field) *Log {
+	return &Log{
+		log:   l.log.With(fields...),
+		level: l.level,
+		fn:    l.fn,
+	}
 }
 
 // Named adds a sub-scope to the logger's name. See Log.Named for details.
-func (l *Log) Named(name string) *zap.SugaredLogger {
-	return l.log.Sugar().Named(name)
+func (l *Log) Named(name string) *Log {
+	return &Log{
+		log:   l.log.Named(name),
+		level: l.level,
+		fn:    l.fn,
+	}
 }
 
 // Sync flushes any buffered log entries.
