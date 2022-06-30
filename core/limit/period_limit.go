@@ -42,6 +42,21 @@ const (
 	internalHitQuota  = 2
 )
 
+// IsAllowed means allowed state.
+func (p PeriodLimitState) IsAllowed() bool {
+	return p == Allowed
+}
+
+// IsHitQuota means this request exactly hit the quota.
+func (p PeriodLimitState) IsHitQuota() bool {
+	return p == HitQuota
+}
+
+// IsOverQuota means passed the quota.
+func (p PeriodLimitState) IsOverQuota() bool {
+	return p == OverQuota
+}
+
 // ErrUnknownCode is an error that represents unknown status code.
 var ErrUnknownCode = errors.New("unknown status code")
 
