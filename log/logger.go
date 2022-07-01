@@ -8,7 +8,7 @@ import (
 )
 
 // Valuer is returns a log value.
-type Valuer func(ctx context.Context) zap.Field
+type Valuer func(ctx context.Context) Field
 
 // Log wrap zap logger
 type Log struct {
@@ -91,8 +91,8 @@ func (l *Log) WithValuer(fs ...Valuer) *Log {
 }
 
 // Inject return log with inject fn(ctx) field from context, which your set before.
-func (l *Log) Inject(ctx context.Context, fs ...func(context.Context) zap.Field) *Log {
-	fields := make([]zap.Field, 0, len(l.fn)+len(fs))
+func (l *Log) Inject(ctx context.Context, fs ...func(context.Context) Field) *Log {
+	fields := make([]Field, 0, len(l.fn)+len(fs))
 	for _, f := range l.fn {
 		fields = append(fields, f(ctx))
 	}
@@ -108,7 +108,7 @@ func (l *Log) Inject(ctx context.Context, fs ...func(context.Context) zap.Field)
 
 // With creates a child logger and adds structured context to it. Fields added
 // to the child don't affect the parent, and vice versa.
-func (l *Log) With(fields ...zap.Field) *Log {
+func (l *Log) With(fields ...Field) *Log {
 	return &Log{
 		log:   l.log.With(fields...),
 		level: l.level,

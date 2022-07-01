@@ -10,7 +10,7 @@ import (
 func TestNew(t *testing.T) {
 	l, lv := New(WithConfig(Config{Level: "debug", Format: "json"}))
 	ReplaceGlobals(NewLoggerWith(l, lv))
-	SetDefaultValuer(Caller(2), func(ctx context.Context) zap.Field { return zap.String("field_fn_key1", "field_fn_value1") })
+	SetDefaultValuer(Caller(2), func(ctx context.Context) Field { return zap.String("field_fn_key1", "field_fn_value1") })
 
 	Debug("Debug")
 	Info("Info")
@@ -26,12 +26,12 @@ func TestNew(t *testing.T) {
 	Errorf("Errorf: %s", "error")
 	DPanicf("DPanicf: %s", "dPanic")
 
-	Debugw("Debugw: %s", "debug")
-	Infow("Infow: %s", "info")
-	Warnw("Warnw: %s", "warn")
-	Infow("Infow: %s", "info")
-	Errorw("Errorw: %s", "error")
-	DPanicw("DPanicw: %s", "dPanic")
+	Debugw("Debugw", "Debugw", "w")
+	Infow("Infow", "Infow", "w")
+	Warnw("Warnw", "Warnw", "w")
+	Infow("Infow", "Infow", "w")
+	Errorw("Errorw", "Errorw", "w")
+	DPanicw("DPanicw", "DPanicw", "w")
 
 	shouPanic(t, func() {
 		Panic("Panic")
@@ -40,7 +40,7 @@ func TestNew(t *testing.T) {
 		Panicf("Panicf: %s", "panic")
 	})
 	shouPanic(t, func() {
-		Panicw("Panicw: %s", "panic")
+		Panicw("Panicw: %s", "panic", "w")
 	})
 
 	With(zap.String("aa", "bb")).Debug("debug with")
@@ -50,12 +50,14 @@ func TestNew(t *testing.T) {
 	Logger().Debug("desugar")
 
 	Inject(context.Background(),
-		func(ctx context.Context) zap.Field { return zap.String("field_fn_key2", "field_fn_value2") },
+		func(ctx context.Context) Field { return zap.String("field_fn_key2", "field_fn_value2") },
 	).Debug("with context")
 
-	WithValuer(func(ctx context.Context) zap.Field { return zap.String("field_fn_key3", "field_fn_value3") }).
+	WithValuer(func(ctx context.Context) Field { return zap.String("field_fn_key3", "field_fn_value3") }).
 		Inject(context.Background()).
 		Debug("with field fn")
+
+	Logger().With(zap.Namespace("aaaa")).With(zap.String("xx", "yy")).Debug("----<>")
 
 	_ = Sync()
 }

@@ -43,7 +43,7 @@ func WithValuer(vs ...Valuer) *Log {
 }
 
 // Inject return log with inject fn(ctx) field from context, which your set before.
-func Inject(ctx context.Context, fs ...func(context.Context) zap.Field) *Log {
+func Inject(ctx context.Context, fs ...func(context.Context) Field) *Log {
 	return defaultLogger.Inject(ctx, fs...)
 }
 
@@ -83,7 +83,7 @@ func Logger() *zap.Logger { return defaultLogger.Logger() }
 // forgiving: a separate error is logged, but the key-value pair is skipped
 // and execution continues. Passing an orphaned key triggers similar behavior:
 // panics in development and errors in production.
-func With(fields ...zap.Field) *Log { return defaultLogger.With(fields...) }
+func With(fields ...Field) *Log { return defaultLogger.With(fields...) }
 
 // Named adds a sub-scope to the logger's name. See Log.Named for details.
 func Named(name string) *Log { return defaultLogger.Named(name) }
