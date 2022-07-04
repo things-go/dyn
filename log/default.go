@@ -32,19 +32,19 @@ func Enabled(lvl zapcore.Level) bool { return defaultLogger.Enabled(lvl) }
 // same as Enabled
 func V(lvl zapcore.Level) bool { return defaultLogger.V(lvl) }
 
-// SetDefaultValuer set default field function, which hold always until you call Inject.
+// SetDefaultValuer set default field function, which hold always until you call WithContext.
 func SetDefaultValuer(vs ...Valuer) *Log {
 	return defaultLogger.SetDefaultValuer(vs...)
 }
 
-// WithValuer with field function, until you call Inject
+// WithValuer with field function.
 func WithValuer(vs ...Valuer) *Log {
 	return defaultLogger.WithValuer(vs...)
 }
 
-// Inject return log with inject fn(ctx) field from context, which your set before.
-func Inject(ctx context.Context, fs ...func(context.Context) Field) *Log {
-	return defaultLogger.Inject(ctx, fs...)
+// WithContext return log with inject context.
+func WithContext(ctx context.Context) *Log {
+	return defaultLogger.WithContext(ctx)
 }
 
 // Sugar wraps the Logger to provide a more ergonomic, but slightly slower,

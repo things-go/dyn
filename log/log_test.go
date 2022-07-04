@@ -49,12 +49,12 @@ func TestNew(t *testing.T) {
 
 	Logger().Debug("desugar")
 
-	Inject(context.Background(),
-		func(ctx context.Context) Field { return zap.String("field_fn_key2", "field_fn_value2") },
-	).Debug("with context")
+	WithContext(context.Background()).
+		WithValuer(func(ctx context.Context) Field { return zap.String("field_fn_key2", "field_fn_value2") }).
+		Debug("with context")
 
-	WithValuer(func(ctx context.Context) Field { return zap.String("field_fn_key3", "field_fn_value3") }).
-		Inject(context.Background()).
+	WithContext(context.Background()).
+		WithValuer(func(ctx context.Context) Field { return zap.String("field_fn_key3", "field_fn_value3") }).
 		Debug("with field fn")
 
 	Logger().With(zap.Namespace("aaaa")).With(zap.String("xx", "yy")).Debug("----<>")

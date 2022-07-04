@@ -15,6 +15,7 @@ type Log struct {
 	log   *zap.Logger
 	level zap.AtomicLevel
 	fn    []Valuer
+	ctx   context.Context
 }
 
 // NewLoggerWith new logger with zap logger and atomic level
@@ -23,6 +24,7 @@ func NewLoggerWith(logger *zap.Logger, lv zap.AtomicLevel) *Log {
 		logger,
 		lv,
 		nil,
+		context.Background(),
 	}
 }
 
@@ -50,7 +52,7 @@ func (l *Log) SetLevel(lv zapcore.Level) *Log {
 	return l
 }
 
-// SetDefaultValuer set default Valuer function, which hold always until you call Inject.
+// SetDefaultValuer set default Valuer function, which hold always until you call WithContext.
 func (l *Log) SetDefaultValuer(fs ...Valuer) *Log {
 	fn := make([]Valuer, 0, len(fs)+len(l.fn))
 	fn = append(fn, l.fn...)
@@ -78,7 +80,7 @@ func (l *Log) Sugar() *zap.SugaredLogger { return l.log.Sugar() }
 // Logger return internal logger
 func (l *Log) Logger() *zap.Logger { return l.log }
 
-// WithValuer with Valuer function, until you call Inject
+// WithValuer with Valuer function.
 func (l *Log) WithValuer(fs ...Valuer) *Log {
 	fn := make([]Valuer, 0, len(fs)+len(l.fn))
 	fn = append(fn, l.fn...)
@@ -87,22 +89,17 @@ func (l *Log) WithValuer(fs ...Valuer) *Log {
 		l.log,
 		l.level,
 		fn,
+		l.ctx,
 	}
 }
 
-// Inject return log with inject fn(ctx) field from context, which your set before.
-func (l *Log) Inject(ctx context.Context, fs ...func(context.Context) Field) *Log {
-	fields := make([]Field, 0, len(l.fn)+len(fs))
-	for _, f := range l.fn {
-		fields = append(fields, f(ctx))
-	}
-	for _, f := range fs {
-		fields = append(fields, f(ctx))
-	}
+// WithContext return log with inject context.
+func (l *Log) WithContext(ctx context.Context) *Log {
 	return &Log{
-		l.log.With(fields...),
+		l.log,
 		l.level,
-		nil,
+		l.fn,
+		ctx,
 	}
 }
 
@@ -110,96 +107,154 @@ func (l *Log) Inject(ctx context.Context, fs ...func(context.Context) Field) *Lo
 // to the child don't affect the parent, and vice versa.
 func (l *Log) With(fields ...Field) *Log {
 	return &Log{
-		log:   l.log.With(fields...),
-		level: l.level,
-		fn:    l.fn,
+		l.log.With(fields...),
+		l.level,
+		l.fn,
+		l.ctx,
 	}
 }
 
 // Named adds a sub-scope to the logger's name. See Log.Named for details.
 func (l *Log) Named(name string) *Log {
 	return &Log{
-		log:   l.log.Named(name),
-		level: l.level,
-		fn:    l.fn,
+		l.log.Named(name),
+		l.level,
+		l.fn,
+		l.ctx,
 	}
 }
 
 // Sync flushes any buffered log entries.
 func (l *Log) Sync() error {
-	return l.log.Sugar().Sync()
+	return l.log.Sync()
 }
 
 // Debug uses fmt.Sprint to construct and log a message.
 func (l *Log) Debug(args ...any) {
-	l.log.Sugar().Debug(args...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Debug(args...)
 }
 
 // Info uses fmt.Sprint to construct and log a message.
 func (l *Log) Info(args ...any) {
-	l.log.Sugar().Info(args...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Info(args...)
 }
 
 // Warn uses fmt.Sprint to construct and log a message.
 func (l *Log) Warn(args ...any) {
-	l.log.Sugar().Warn(args...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Warn(args...)
 }
 
 // Error uses fmt.Sprint to construct and log a message.
 func (l *Log) Error(args ...any) {
-	l.log.Sugar().Error(args...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Error(args...)
 }
 
 // DPanic uses fmt.Sprint to construct and log a message. In development, the
 // logger then panics. (See DPanicLevel for details.)
 func (l *Log) DPanic(args ...any) {
-	l.log.Sugar().DPanic(args...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().DPanic(args...)
 }
 
 // Panic uses fmt.Sprint to construct and log a message, then panics.
 func (l *Log) Panic(args ...any) {
-	l.log.Sugar().Panic(args...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Panic(args...)
 }
 
 // Fatal uses fmt.Sprint to construct and log a message, then calls os.Exit.
 func (l *Log) Fatal(args ...any) {
-	l.log.Sugar().Fatal(args...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Fatal(args...)
 }
 
 // Debugf uses fmt.Sprintf to log a templated message.
 func (l *Log) Debugf(template string, args ...any) {
-	l.log.Sugar().Debugf(template, args...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Debugf(template, args...)
 }
 
 // Infof uses fmt.Sprintf to log a templated message.
 func (l *Log) Infof(template string, args ...any) {
-	l.log.Sugar().Infof(template, args...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Infof(template, args...)
 }
 
 // Warnf uses fmt.Sprintf to log a templated message.
 func (l *Log) Warnf(template string, args ...any) {
-	l.log.Sugar().Warnf(template, args...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Warnf(template, args...)
 }
 
 // Errorf uses fmt.Sprintf to log a templated message.
 func (l *Log) Errorf(template string, args ...any) {
-	l.log.Sugar().Errorf(template, args...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Errorf(template, args...)
 }
 
 // DPanicf uses fmt.Sprintf to log a templated message. In development, the
 // logger then panics. (See DPanicLevel for details.)
 func (l *Log) DPanicf(template string, args ...any) {
-	l.log.Sugar().DPanicf(template, args...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().DPanicf(template, args...)
 }
 
 // Panicf uses fmt.Sprintf to log a templated message, then panics.
 func (l *Log) Panicf(template string, args ...any) {
-	l.log.Sugar().Panicf(template, args...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Panicf(template, args...)
 }
 
 // Fatalf uses fmt.Sprintf to log a templated message, then calls os.Exit.
 func (l *Log) Fatalf(template string, args ...any) {
-	l.log.Sugar().Fatalf(template, args...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Fatalf(template, args...)
 }
 
 // Debugw logs a message with some additional context. The variadic key-value
@@ -208,42 +263,70 @@ func (l *Log) Fatalf(template string, args ...any) {
 // When debug-level logging is disabled, this is much faster than
 //  s.With(keysAndValues).Debug(msg)
 func (l *Log) Debugw(msg string, keysAndValues ...any) {
-	l.log.Sugar().Debugw(msg, keysAndValues...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Debugw(msg, keysAndValues...)
 }
 
 // Infow logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With.
 func (l *Log) Infow(msg string, keysAndValues ...any) {
-	l.log.Sugar().Infow(msg, keysAndValues...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Infow(msg, keysAndValues...)
 }
 
 // Warnw logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With.
 func (l *Log) Warnw(msg string, keysAndValues ...any) {
-	l.log.Sugar().Warnw(msg, keysAndValues...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Warnw(msg, keysAndValues...)
 }
 
 // Errorw logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With.
 func (l *Log) Errorw(msg string, keysAndValues ...any) {
-	l.log.Sugar().Errorw(msg, keysAndValues...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Errorw(msg, keysAndValues...)
 }
 
 // DPanicw logs a message with some additional context. In development, the
 // logger then panics. (See DPanicLevel for details.) The variadic key-value
 // pairs are treated as they are in With.
 func (l *Log) DPanicw(msg string, keysAndValues ...any) {
-	l.log.Sugar().DPanicw(msg, keysAndValues...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().DPanicw(msg, keysAndValues...)
 }
 
 // Panicw logs a message with some additional context, then panics. The
 // variadic key-value pairs are treated as they are in With.
 func (l *Log) Panicw(msg string, keysAndValues ...any) {
-	l.log.Sugar().Panicw(msg, keysAndValues...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Panicw(msg, keysAndValues...)
 }
 
 // Fatalw logs a message with some additional context, then calls os.Exit. The
 // variadic key-value pairs are treated as they are in With.
 func (l *Log) Fatalw(msg string, keysAndValues ...any) {
-	l.log.Sugar().Fatalw(msg, keysAndValues...)
+	fields := make([]Field, 0, len(l.fn))
+	for _, f := range l.fn {
+		fields = append(fields, f(l.ctx))
+	}
+	l.log.With(fields...).Sugar().Fatalw(msg, keysAndValues...)
 }
