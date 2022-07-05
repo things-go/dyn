@@ -10,7 +10,8 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-const periodLimitScript = `local limit = tonumber(ARGV[1])
+const (
+	periodLimitScript = `local limit = tonumber(ARGV[1])
 local window = tonumber(ARGV[2])
 local current = redis.call("INCRBY", KEYS[1], 1)
 if current == 1 then
@@ -23,6 +24,12 @@ elseif current == limit then
 else
     return 0
 end`
+	periodLimitSetQuotaFull = `local limit = tonumber(ARGV[1])
+local current = tonumber(redis.call("GET", KEYS[1]))
+if current == nil or current < limit then
+	redis.call("SET", KEYS[1], limit)
+end`
+)
 
 // PeriodLimitState period limit state.
 type PeriodLimitState int
@@ -43,19 +50,13 @@ const (
 )
 
 // IsAllowed means allowed state.
-func (p PeriodLimitState) IsAllowed() bool {
-	return p == Allowed
-}
+func (p PeriodLimitState) IsAllowed() bool { return p == Allowed }
 
 // IsHitQuota means this request exactly hit the quota.
-func (p PeriodLimitState) IsHitQuota() bool {
-	return p == HitQuota
-}
+func (p PeriodLimitState) IsHitQuota() bool { return p == HitQuota }
 
 // IsOverQuota means passed the quota.
-func (p PeriodLimitState) IsOverQuota() bool {
-	return p == OverQuota
-}
+func (p PeriodLimitState) IsOverQuota() bool { return p == OverQuota }
 
 // ErrUnknownCode is an error that represents unknown status code.
 var ErrUnknownCode = errors.New("unknown status code")
@@ -85,8 +86,8 @@ func Align() PeriodLimitOption {
 }
 
 // NewPeriodLimit returns a PeriodLimit with given parameters.
-func NewPeriodLimit(periodSecond, quota int, keyPrefix string, store *redis.Client,
-	opts ...PeriodLimitOption) *PeriodLimit {
+func NewPeriodLimit(periodSecond, quota int, keyPrefix string,
+	store *redis.Client, opts ...PeriodLimitOption) *PeriodLimit {
 	if !strings.HasSuffix(keyPrefix, ":") {
 		keyPrefix += ":"
 	}
@@ -135,6 +136,24 @@ func (p *PeriodLimit) TakeCtx(ctx context.Context, key string) (PeriodLimitState
 	default:
 		return Unknown, ErrUnknownCode
 	}
+}
+
+// SetQuotaFull set a permit over quota.
+func (p *PeriodLimit) SetQuotaFull(key string) error {
+	return p.SetQuotaFullCtx(context.Background(), key)
+}
+
+// SetQuotaFullCtx set a permit over quota.
+func (p *PeriodLimit) SetQuotaFullCtx(ctx context.Context, key string) error {
+	// return p.store.IncrBy(ctx, p.keyPrefix+key, int64(p.quota)).Err()
+	err := p.store.Eval(ctx, periodLimitSetQuotaFull,
+		[]string{p.keyPrefix + key},
+		[]string{strconv.Itoa(p.quota)}).
+		Err()
+	if err == redis.Nil {
+		return nil
+	}
+	return err
 }
 
 func (p *PeriodLimit) calcExpireSeconds() int {

@@ -8,6 +8,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	seconds = 1
+	quota   = 5
+	total   = 100
+)
+
 func TestPeriodLimit_Take(t *testing.T) {
 	testPeriodLimit(t)
 }
@@ -17,28 +23,17 @@ func TestPeriodLimit_TakeWithAlign(t *testing.T) {
 }
 
 func TestPeriodLimit_RedisUnavailable(t *testing.T) {
-	const (
-		seconds = 1
-		quota   = 5
-	)
-
-	s, err := miniredis.Run()
+	mr, err := miniredis.Run()
 	assert.Nil(t, err)
 
-	l := NewPeriodLimit(seconds, quota, "periodlimit", redis.NewClient(&redis.Options{Addr: s.Addr()}))
-	s.Close()
+	l := NewPeriodLimit(seconds, quota, "periodlimit", redis.NewClient(&redis.Options{Addr: mr.Addr()}))
+	mr.Close()
 	val, err := l.Take("first")
 	assert.NotNil(t, err)
 	assert.Equal(t, Unknown, val)
 }
 
 func testPeriodLimit(t *testing.T, opts ...PeriodLimitOption) {
-	const (
-		seconds = 1
-		total   = 100
-		quota   = 5
-	)
-
 	mr, err := miniredis.Run()
 	assert.Nil(t, err)
 
@@ -71,11 +66,28 @@ func testPeriodLimit(t *testing.T, opts ...PeriodLimitOption) {
 }
 
 func TestQuotaFull(t *testing.T) {
-	s, err := miniredis.Run()
+	mr, err := miniredis.Run()
 	assert.Nil(t, err)
+	defer mr.Close()
 
-	l := NewPeriodLimit(1, 1, "periodlimit", redis.NewClient(&redis.Options{Addr: s.Addr()}))
+	l := NewPeriodLimit(1, 1, "periodlimit", redis.NewClient(&redis.Options{Addr: mr.Addr()}))
 	val, err := l.Take("first")
 	assert.Nil(t, err)
 	assert.Equal(t, HitQuota, val)
+}
+
+func TestSetQuotaFull(t *testing.T) {
+	mr, err := miniredis.Run()
+	assert.Nil(t, err)
+	defer mr.Close()
+
+	l := NewPeriodLimit(seconds, quota, "periodlimit", redis.NewClient(&redis.Options{Addr: mr.Addr()}))
+
+	err = l.SetQuotaFull("first")
+	assert.Nil(t, err)
+
+	val, err := l.Take("first")
+	assert.Nil(t, err)
+	assert.Equal(t, OverQuota, val)
+
 }
