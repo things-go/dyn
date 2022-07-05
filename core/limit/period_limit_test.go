@@ -89,5 +89,4 @@ func TestSetQuotaFull(t *testing.T) {
 	val, err := l.Take("first")
 	assert.Nil(t, err)
 	assert.Equal(t, OverQuota, val)
-
 }
