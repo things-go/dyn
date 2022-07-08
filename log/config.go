@@ -104,7 +104,13 @@ func WithStack(stack bool) Option {
 	return func(c *Config) { c.Stack = stack }
 }
 
-// WithCallerSkip when Stack enabled
+// WithAddCaller with AddCaller
+// 是否输出调用 filename 和 line number
+func WithAddCaller(b bool) Option {
+	return func(c *Config) { c.AddCaller = b }
+}
+
+// WithCallerSkip when AddCaller enabled
 func WithCallerSkip(skip int) Option {
 	return func(c *Config) { c.CallerSkip = skip }
 }

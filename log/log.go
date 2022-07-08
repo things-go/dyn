@@ -24,9 +24,7 @@ func New(opts ...Option) (*zap.Logger, zap.AtomicLevel) {
 	}
 	if c.Stack {
 		// 栈调用,及使能等级
-		options = append(options,
-			zap.AddStacktrace(zap.NewAtomicLevelAt(zap.DPanicLevel)), // 只显示栈的错误等级
-		)
+		options = append(options, zap.AddStacktrace(zap.NewAtomicLevelAt(zap.DPanicLevel))) // 只显示栈的错误等级
 	}
 
 	level, err := zap.ParseAtomicLevel(c.Level)
