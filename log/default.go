@@ -22,15 +22,15 @@ func SetLevelWithText(text string) error { return defaultLogger.SetLevelWithText
 // SetLevel alters the logging level.
 func SetLevel(lv zapcore.Level) *Log { return defaultLogger.SetLevel(lv) }
 
-// Level returns the minimum enabled log level.
-func Level() zapcore.Level { return defaultLogger.Level() }
+// GetLevel returns the minimum enabled log level.
+func GetLevel() zapcore.Level { return defaultLogger.GetLevel() }
 
 // Enabled returns true if the given level is at or above this level.
 func Enabled(lvl zapcore.Level) bool { return defaultLogger.Enabled(lvl) }
 
 // V returns true if the given level is at or above this level.
 // same as Enabled
-func V(lvl zapcore.Level) bool { return defaultLogger.V(lvl) }
+func V(lvl int) bool { return defaultLogger.V(lvl) }
 
 // SetDefaultValuer set default field function, which hold always until you call WithContext.
 func SetDefaultValuer(vs ...Valuer) *Log {

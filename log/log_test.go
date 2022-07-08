@@ -10,7 +10,7 @@ import (
 func TestNew(t *testing.T) {
 	l, lv := New(WithConfig(Config{Level: "debug", Format: "json"}))
 	ReplaceGlobals(NewLoggerWith(l, lv))
-	SetDefaultValuer(Caller(2), func(ctx context.Context) Field { return zap.String("field_fn_key1", "field_fn_value1") })
+	SetDefaultValuer(Caller(3), func(ctx context.Context) Field { return zap.String("field_fn_key1", "field_fn_value1") })
 
 	Debug("Debug")
 	Info("Info")

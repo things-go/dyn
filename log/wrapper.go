@@ -2,9 +2,21 @@ package log
 
 import (
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type Field = zap.Field
+type Level = zapcore.Level
+
+const (
+	DebugLevel  = zap.DebugLevel
+	InfoLevel   = zap.InfoLevel
+	WarnLevel   = zap.WarnLevel
+	ErrorLevel  = zap.ErrorLevel
+	DPanicLevel = zap.DPanicLevel
+	PanicLevel  = zap.PanicLevel
+	FatalLevel  = zap.FatalLevel
+)
 
 var (
 	Skip        = zap.Skip

@@ -22,7 +22,9 @@ type Config struct {
 	Adapter string `yaml:"adapter" json:"adapter"`
 	// Stack 是否使能栈调试输出, 默认false
 	Stack bool `yaml:"stack" json:"stack"`
-	// CallerSkip
+	// AddCaller add caller
+	AddCaller bool `yaml:"addCaller" json:"addCaller"`
+	// CallerSkip call skip if AddCaller enabled
 	CallerSkip int `yaml:"callerSkip" json:"callerSkip"`
 	// Path 日志保存路径, 默认 empty, 即当前路径
 	Path string `yaml:"path" json:"path"`
