@@ -157,7 +157,11 @@ func (f *From{{$svrType}}) {{.Name}}(ctx context.Context, req *{{.Request}}, rep
 	if err != nil {
 		return err
 	}
-	*reply = *result
+	if result == nil {
+		*reply = {{.Reply}}{}
+	} else {
+		*reply = *result
+	}
 	return nil
 }
 {{- else}}
