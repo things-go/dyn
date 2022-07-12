@@ -73,7 +73,7 @@ func TestQuotaFull(t *testing.T) {
 	l := NewPeriodLimit(1, 1, "periodlimit", redis.NewClient(&redis.Options{Addr: mr.Addr()}))
 	val, err := l.Take("first")
 	assert.Nil(t, err)
-	assert.Equal(t, HitQuota, val)
+	assert.True(t, val.IsHitQuota())
 }
 
 func TestSetQuotaFull(t *testing.T) {
@@ -89,4 +89,25 @@ func TestSetQuotaFull(t *testing.T) {
 	val, err := l.Take("first")
 	assert.Nil(t, err)
 	assert.Equal(t, OverQuota, val)
+}
+
+func TestDel(t *testing.T) {
+	mr, err := miniredis.Run()
+	assert.Nil(t, err)
+	defer mr.Close()
+
+	l := NewPeriodLimit(seconds, quota, "periodlimit", redis.NewClient(&redis.Options{Addr: mr.Addr()}))
+	err = l.SetQuotaFull("first")
+	assert.Nil(t, err)
+
+	val, err := l.Take("first")
+	assert.Nil(t, err)
+	assert.True(t, val.IsOverQuota())
+
+	err = l.Del("first")
+	assert.Nil(t, err)
+
+	val, err = l.Take("first")
+	assert.Nil(t, err)
+	assert.True(t, val.IsAllowed())
 }

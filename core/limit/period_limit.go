@@ -156,6 +156,16 @@ func (p *PeriodLimit) SetQuotaFullCtx(ctx context.Context, key string) error {
 	return err
 }
 
+// Del delete a permit
+func (p *PeriodLimit) Del(key string) error {
+	return p.DelCtx(context.Background(), key)
+}
+
+// DelCtx delete a permit
+func (p *PeriodLimit) DelCtx(ctx context.Context, key string) error {
+	return p.store.Del(ctx, p.keyPrefix+key).Err()
+}
+
 func (p *PeriodLimit) calcExpireSeconds() int {
 	if p.align {
 		now := time.Now()
