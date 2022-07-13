@@ -8,7 +8,6 @@ require (
 	github.com/go-playground/form/v4 v4.2.0
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/gogo/protobuf v1.3.2
 	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/shopspring/decimal v1.3.1
@@ -19,7 +18,7 @@ require (
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
 	golang.org/x/time v0.0.0-20220609170525-579cf78fd858
 	google.golang.org/genproto v0.0.0-20220711200234-e2551ce405a2
-	google.golang.org/grpc v1.47.0
+	google.golang.org/grpc v1.48.0
 	google.golang.org/protobuf v1.28.0
 	gopkg.in/yaml.v3 v3.0.1
 )
