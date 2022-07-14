@@ -51,6 +51,13 @@ func FromType(ctx context.Context) string {
 	return ""
 }
 
+func FromScopes(ctx context.Context) []string {
+	if v, ok := FromContext(ctx); ok {
+		return v.Scopes
+	}
+	return nil
+}
+
 func FromMetadata(ctx context.Context) metadata.Metadata {
 	if v, ok := FromContext(ctx); ok && v.Metadata != nil {
 		return v.Metadata
