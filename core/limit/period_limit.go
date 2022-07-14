@@ -110,13 +110,11 @@ func (p *PeriodLimit) Take(key string) (PeriodLimitState, error) {
 
 // TakeCtx requests a permit with context, it returns the permit state.
 func (p *PeriodLimit) TakeCtx(ctx context.Context, key string) (PeriodLimitState, error) {
-	result, err := p.store.Eval(ctx, periodLimitScript,
+	result, err := p.store.Eval(ctx,
+		periodLimitScript,
 		[]string{p.keyPrefix + key},
-		[]string{
-			strconv.Itoa(p.quota),
-			strconv.Itoa(p.calcExpireSeconds()),
-		}).
-		Result()
+		[]string{strconv.Itoa(p.quota), strconv.Itoa(p.calcExpireSeconds())},
+	).Result()
 	if err != nil {
 		return Unknown, err
 	}
@@ -146,10 +144,11 @@ func (p *PeriodLimit) SetQuotaFull(key string) error {
 // SetQuotaFullCtx set a permit over quota.
 func (p *PeriodLimit) SetQuotaFullCtx(ctx context.Context, key string) error {
 	// return p.store.IncrBy(ctx, p.keyPrefix+key, int64(p.quota)).Err()
-	err := p.store.Eval(ctx, periodLimitSetQuotaFull,
+	err := p.store.Eval(ctx,
+		periodLimitSetQuotaFull,
 		[]string{p.keyPrefix + key},
-		[]string{strconv.Itoa(p.quota)}).
-		Err()
+		[]string{strconv.Itoa(p.quota)},
+	).Err()
 	if err == redis.Nil {
 		return nil
 	}
@@ -164,6 +163,37 @@ func (p *PeriodLimit) Del(key string) error {
 // DelCtx delete a permit
 func (p *PeriodLimit) DelCtx(ctx context.Context, key string) error {
 	return p.store.Del(ctx, p.keyPrefix+key).Err()
+}
+
+// TTL get key ttl
+// if key not exist, t = -1.
+// if key exist, but not set expire time, t = -2
+func (p *PeriodLimit) TTL(key string) (time.Duration, error) {
+	return p.TTLCtx(context.Background(), key)
+}
+
+// TTLCtx get key ttl
+// if key not exist, time = -1.
+// if key exist, but not set expire time, t = -2
+func (p *PeriodLimit) TTLCtx(ctx context.Context, key string) (time.Duration, error) {
+	return p.store.TTL(ctx, p.keyPrefix+key).Result()
+}
+
+// GetInt get count
+func (p *PeriodLimit) GetInt(key string) (int, bool, error) {
+	return p.GetIntCtx(context.Background(), key)
+}
+
+// GetIntCtx get count
+func (p *PeriodLimit) GetIntCtx(ctx context.Context, key string) (int, bool, error) {
+	v, err := p.store.Get(ctx, p.keyPrefix+key).Int()
+	if err != nil {
+		if err == redis.Nil {
+			return 0, false, nil
+		}
+		return 0, false, err
+	}
+	return v, true, nil
 }
 
 func (p *PeriodLimit) calcExpireSeconds() int {

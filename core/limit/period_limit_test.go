@@ -97,8 +97,29 @@ func TestDel(t *testing.T) {
 	defer mr.Close()
 
 	l := NewPeriodLimit(seconds, quota, "periodlimit", redis.NewClient(&redis.Options{Addr: mr.Addr()}))
+
+	v, b, err := l.GetInt("first")
+	assert.Nil(t, err)
+	assert.False(t, b)
+	assert.Equal(t, 0, v)
+
+	// 第一次ttl, 不存在
+	tt, err := l.TTL("first")
+	assert.Nil(t, err)
+	assert.Equal(t, int(tt), -2)
+
 	err = l.SetQuotaFull("first")
 	assert.Nil(t, err)
+
+	// 第二次ttl, key 存在
+	tt, err = l.TTL("first")
+	assert.Nil(t, err)
+	assert.LessOrEqual(t, int(tt.Seconds()), seconds)
+
+	v, b, err = l.GetInt("first")
+	assert.Nil(t, err)
+	assert.True(t, b)
+	assert.Equal(t, quota, v)
 
 	val, err := l.Take("first")
 	assert.Nil(t, err)
