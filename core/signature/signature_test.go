@@ -12,7 +12,7 @@ import (
 var aesKeySizes = []int{16, 24, 32}
 
 func TestEncryptDecrypt(t *testing.T) {
-	plainText := "helloworld,this is golang language. welcome"
+	plainText := []byte("helloworld,this is golang language. welcome")
 	for _, keySize := range aesKeySizes {
 		key := make([]byte, keySize)
 		_, err := io.ReadFull(rand.Reader, key)
@@ -23,7 +23,7 @@ func TestEncryptDecrypt(t *testing.T) {
 
 		got, err := Decrypt(string(key), cipherText)
 		require.NoError(t, err)
-		require.Equal(t, []byte(plainText), got)
+		require.Equal(t, plainText, got)
 	}
 }
 

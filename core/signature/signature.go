@@ -53,7 +53,7 @@ func RsaDecrypt(pri *rsa.PrivateKey, ciphertext string) (string, error) {
 
 // Encrypt aes cbc, iv + ciphertext base64 encoded.
 // key must 16, 24, 32
-func Encrypt(key, rawText string) (string, error) {
+func Encrypt(key string, rawText []byte) (string, error) {
 	bsKey := []byte(key)
 	cip, err := aes.NewCipher(bsKey)
 	if err != nil {
@@ -61,7 +61,7 @@ func Encrypt(key, rawText string) (string, error) {
 	}
 	blockSize := cip.BlockSize()
 
-	orig := PCKSPadding([]byte(rawText), blockSize)
+	orig := PCKSPadding(rawText, blockSize)
 	cipherText := make([]byte, blockSize+len(orig))
 
 	// 生成随机iv
