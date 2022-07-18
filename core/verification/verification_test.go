@@ -94,7 +94,7 @@ func TestSendCode_Concurrency_MaxSendPerDay(t *testing.T) {
 		go func() {
 			defer wg.Done()
 
-			err = l.SendCode(target, code)
+			err := l.SendCode(target, code)
 			if err != nil {
 				require.ErrorIs(t, err, ErrMaxSendPerDay)
 				atomic.AddUint32(&failed, 1)
@@ -144,7 +144,7 @@ func TestSendCode_Concurrency_ResendTooFrequently(t *testing.T) {
 		go func() {
 			defer wg.Done()
 
-			err = l.SendCode(target, code)
+			err := l.SendCode(target, code)
 			if err != nil {
 				require.ErrorIs(t, err, ErrResendTooFrequently)
 				atomic.AddUint32(&failed, 1)
@@ -245,7 +245,7 @@ func TestVerifyCode_Concurrency_CodeMaxError(t *testing.T) {
 		go func() {
 			defer wg.Done()
 
-			err = l.VerifyCode(target, badCode)
+			err := l.VerifyCode(target, badCode)
 			if err != nil {
 				if errors.Is(err, ErrCodeMaxError) {
 					atomic.AddUint32(&failedMaxError, 1)
