@@ -260,3 +260,29 @@ func TestVerifyCode_Concurrency_CodeMaxError(t *testing.T) {
 	require.Equal(t, uint32(3), failedVerify)
 	require.Equal(t, uint32(12), failedMaxError)
 }
+
+func TestErrorMap(t *testing.T) {
+	var ErrCodeVerificationExample = errors.New("example verification error")
+	var ErrCodeMaxErrorExample = errors.New("example max error")
+
+	mr, err := miniredis.Run()
+	require.Nil(t, err)
+	defer mr.Close()
+
+	l := New(new(TestProvider),
+		redis.NewClient(&redis.Options{Addr: mr.Addr()}),
+		WithErrorMap(map[error]error{
+			ErrCodeVerification: ErrCodeVerificationExample,
+			ErrCodeMaxError:     ErrCodeMaxErrorExample,
+		}),
+	)
+	err = l.SendCode(target, code)
+	require.Nil(t, err)
+
+	for i := 0; i < 3; i++ {
+		err = l.VerifyCode(target, badCode)
+		assert.Error(t, err, ErrCodeVerificationExample)
+	}
+	err = l.VerifyCode(target, badCode)
+	assert.Error(t, err, ErrCodeMaxErrorExample)
+}

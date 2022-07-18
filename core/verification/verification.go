@@ -96,6 +96,7 @@ type Verification struct {
 	maxSendPerDay     int           // 验证码一天最大发送次数, 默认: 10
 	availWindowSec    int           // 验证码有效窗口时间, 默认180, 单位: 秒
 	resendIntervalSec int           // 重发验证码间隔时间, 默认60, 单位: 秒
+	errMap            map[error]error
 }
 
 // Option sms选项
@@ -148,6 +149,17 @@ func WithResendIntervalSecond(sec int) Option {
 	}
 }
 
+func WithErrorMap(mp map[error]error) Option {
+	return func(v *Verification) {
+		if v.errMap == nil {
+			v.errMap = make(map[error]error)
+			for kk, vv := range mp {
+				v.errMap[kk] = vv
+			}
+		}
+	}
+}
+
 // New new a Verification
 func New(p Provider, store *redis.Client, opts ...Option) *Verification {
 	v := &Verification{
@@ -159,6 +171,7 @@ func New(p Provider, store *redis.Client, opts ...Option) *Verification {
 		10,
 		180,
 		60,
+		nil,
 	}
 	for _, opt := range opts {
 		opt(v)
@@ -184,20 +197,27 @@ func (sf *Verification) SendCode(target, code string) error {
 	if err != nil {
 		return err
 	}
-	sts, ok := result.(int64)
-	if !ok {
-		return ErrUnknownCode
+
+	if sts, ok := result.(int64); !ok {
+		err = ErrUnknownCode
+	} else {
+		switch sts {
+		case 0:
+			err = sf.p.SendCode(target, code)
+		case 1:
+			err = ErrMaxSendPerDay
+		case 2:
+			err = ErrResendTooFrequently
+		default:
+			err = ErrUnknownCode
+		}
 	}
-	switch sts {
-	case 0:
-		return sf.p.SendCode(target, code)
-	case 1:
-		return ErrMaxSendPerDay
-	case 2:
-		return ErrResendTooFrequently
-	default:
-		return ErrUnknownCode
+	if err != nil && sf.errMap != nil && len(sf.errMap) > 0 {
+		if e, ok := sf.errMap[err]; ok {
+			return e
+		}
 	}
+	return err
 }
 
 // VerifyCode verify code from redis cache.
@@ -214,22 +234,29 @@ func (sf *Verification) VerifyCode(target, code string) error {
 	if err != nil {
 		return err
 	}
-	sts, ok := result.(int64)
-	if !ok {
-		return ErrUnknownCode
+
+	if sts, ok := result.(int64); !ok {
+		err = ErrUnknownCode
+	} else {
+		switch sts {
+		case 0:
+			return nil
+		case 1:
+			err = ErrCodeRequired
+		case 2:
+			err = ErrCodeExpired
+		case 3:
+			err = ErrCodeMaxError
+		case 4:
+			err = ErrCodeVerification
+		default:
+			err = ErrUnknownCode
+		}
 	}
-	switch sts {
-	case 0:
-		return nil
-	case 1:
-		return ErrCodeRequired
-	case 2:
-		return ErrCodeExpired
-	case 3:
-		return ErrCodeMaxError
-	case 4:
-		return ErrCodeVerification
-	default:
-		return ErrUnknownCode
+	if err != nil && sf.errMap != nil && len(sf.errMap) > 0 {
+		if e, ok := sf.errMap[err]; ok {
+			return e
+		}
 	}
+	return err
 }
