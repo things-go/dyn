@@ -37,7 +37,7 @@ else
 	redis.call("EXPIRE", key, expires)
 end
 
-return 0 
+return 0 -- 成功
 `
 	verifiedLimitVerifyCodeScript = `
 local key = KEYS[1] -- key
@@ -61,7 +61,7 @@ if errCnt >= maxErrorCount then
 end
 if currentCode == code then
     redis.call('HSET', key, "lasted", lastedAt - availWindowTime) -- 设置成过期
-    return 0
+    return 0 -- 成功
 else
     redis.call('HINCRBY', key, "err", 1)
     return 4 -- 验证码错误

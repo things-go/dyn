@@ -17,11 +17,11 @@ if current == 1 then
     redis.call("EXPIRE", KEYS[1], window)
 end
 if current < limit then
-    return 1
+    return 0 -- allow
 elseif current == limit then
-    return 2
+    return 1 -- hit quota
 else
-    return 0
+    return 2 -- over quata
 end`
 	periodLimitSetQuotaFullScript = `local limit = tonumber(ARGV[1])
 local current = tonumber(redis.call("GET", KEYS[1]))
@@ -42,10 +42,6 @@ const (
 	HitQuota
 	// OverQuota means passed the quota.
 	OverQuota
-
-	internalOverQuota = 0
-	internalAllowed   = 1
-	internalHitQuota  = 2
 )
 
 // IsAllowed means allowed state.
@@ -57,9 +53,6 @@ func (p PeriodLimitState) IsHitQuota() bool { return p == HitQuota }
 // IsOverQuota means passed the quota.
 func (p PeriodLimitState) IsOverQuota() bool { return p == OverQuota }
 
-// PeriodLimitOption defines the method to customize a PeriodLimit.
-type PeriodLimitOption func(l *PeriodLimit)
-
 // A PeriodLimit is used to limit requests during a period of time.
 type PeriodLimit struct {
 	// a period seconds of time
@@ -69,16 +62,7 @@ type PeriodLimit struct {
 	// keyPrefix in redis
 	keyPrefix string
 	store     *redis.Client
-	align     bool
-}
-
-// Align returns a func to customize a PeriodLimit with alignment.
-// For example, if we want to limit end users with 5 sms verification messages every day,
-// we need to align with the local timezone and the start of the day.
-func Align() PeriodLimitOption {
-	return func(l *PeriodLimit) {
-		l.align = true
-	}
+	isAlign   bool
 }
 
 // NewPeriodLimit returns a PeriodLimit with given parameters.
@@ -98,6 +82,8 @@ func NewPeriodLimit(periodSecond, quota int, keyPrefix string,
 	}
 	return limiter
 }
+
+func (p *PeriodLimit) align() { p.isAlign = true }
 
 // Take requests a permit, it returns the permit state.
 func (p *PeriodLimit) Take(key string) (PeriodLimitState, error) {
@@ -121,12 +107,12 @@ func (p *PeriodLimit) TakeCtx(ctx context.Context, key string) (PeriodLimitState
 	}
 
 	switch code {
-	case internalOverQuota:
-		return OverQuota, nil
-	case internalAllowed:
+	case 0:
 		return Allowed, nil
-	case internalHitQuota:
+	case 1:
 		return HitQuota, nil
+	case 2:
+		return OverQuota, nil
 	default:
 		return Unknown, ErrUnknownCode
 	}
@@ -193,7 +179,7 @@ func (p *PeriodLimit) GetIntCtx(ctx context.Context, key string) (int, bool, err
 }
 
 func (p *PeriodLimit) calcExpireSeconds() int {
-	if p.align {
+	if p.isAlign {
 		now := time.Now()
 		_, offset := now.Zone()
 		unix := now.Unix() + int64(offset)

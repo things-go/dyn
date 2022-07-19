@@ -65,7 +65,7 @@ func testPeriodLimit(t *testing.T, opts ...PeriodLimitOption) {
 	assert.Equal(t, total-quota, overQuota)
 }
 
-func TestQuotaFull(t *testing.T) {
+func TestPeriodLimit_QuotaFull(t *testing.T) {
 	mr, err := miniredis.Run()
 	assert.Nil(t, err)
 	defer mr.Close()
@@ -76,7 +76,7 @@ func TestQuotaFull(t *testing.T) {
 	assert.True(t, val.IsHitQuota())
 }
 
-func TestSetQuotaFull(t *testing.T) {
+func TestPeriodLimit_SetQuotaFull(t *testing.T) {
 	mr, err := miniredis.Run()
 	assert.Nil(t, err)
 	defer mr.Close()
@@ -91,7 +91,7 @@ func TestSetQuotaFull(t *testing.T) {
 	assert.Equal(t, OverQuota, val)
 }
 
-func TestDel(t *testing.T) {
+func TestPeriodLimit_Del(t *testing.T) {
 	mr, err := miniredis.Run()
 	assert.Nil(t, err)
 	defer mr.Close()
