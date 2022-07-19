@@ -23,12 +23,12 @@ local now = tonumber(ARGV[3])
 local requested = tonumber(ARGV[4])
 local fill_time = capacity/rate
 local ttl = math.floor(fill_time*2)
-local last_tokens = tonumber(redis.call("get", KEYS[1]))
+local last_tokens = tonumber(redis.call("GET", KEYS[1]))
 if last_tokens == nil then
     last_tokens = capacity
 end
 
-local last_refreshed = tonumber(redis.call("get", KEYS[2]))
+local last_refreshed = tonumber(redis.call("GET", KEYS[2]))
 if last_refreshed == nil then
     last_refreshed = 0
 end
@@ -41,8 +41,8 @@ if allowed then
     new_tokens = filled_tokens - requested
 end
 
-redis.call("setex", KEYS[1], ttl, new_tokens)
-redis.call("setex", KEYS[2], ttl, now)
+redis.call("SETEX", KEYS[1], ttl, new_tokens)
+redis.call("SETEX", KEYS[2], ttl, now)
 
 return allowed`
 	tokenFormat     = "{%s}.tokens"

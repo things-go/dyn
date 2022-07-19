@@ -14,7 +14,7 @@ const (
 local window = tonumber(ARGV[2])
 local current = redis.call("INCRBY", KEYS[1], 1)
 if current == 1 then
-    redis.call("expire", KEYS[1], window)
+    redis.call("EXPIRE", KEYS[1], window)
 end
 if current < limit then
     return 1

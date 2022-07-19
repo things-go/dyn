@@ -19,7 +19,7 @@ local resendWindowTime = tonumber(ARGV[3]) -- 验证码重发限制窗口时间
 local now = tonumber(ARGV[4]) -- 当前时间, 单位秒
 local expires = tonumber(ARGV[5]) -- key 过期时间, 单位秒
 
-if (redis.call('exists', key) == 1) then
+if (redis.call('EXISTS', key) == 1) then
     local sendCnt = tonumber(redis.call('HGET', key, "send"))
     if sendCnt >= maxSendPerDay then
         return 1 -- 超过每天发送限制次数
@@ -34,7 +34,7 @@ if (redis.call('exists', key) == 1) then
 	redis.call('HMSET', key, 'code', code, 'err', 0, 'send', sendCnt, 'lasted', now)
 else
     redis.call('HMSET', key, 'code', code, 'err', 0, 'send', 1, 'lasted', now)
-	redis.call("expire", key, expires)
+	redis.call("EXPIRE", key, expires)
 end
 
 return 0 
@@ -46,7 +46,7 @@ local maxErrorCount = tonumber(ARGV[2]) -- 验证码最大验证失败次数
 local availWindowTime = tonumber(ARGV[3]) -- 验证码有效窗口时间, 单位秒
 local now = tonumber(ARGV[4]) -- 当前时间, 单位秒
 
-if redis.call('exists', key) == 0 then
+if redis.call('EXISTS', key) == 0 then
     return 1  -- 未发送短信验证码
 end
 
