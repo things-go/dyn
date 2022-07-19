@@ -1,4 +1,4 @@
-package verification
+package limit
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	sendCodeScript = `
+	verifiedLimitSendCodeScript = `
 local key = KEYS[1] -- key
 local code = ARGV[1] -- 验证码
 local maxSendPerDay = tonumber(ARGV[2]) -- 验证码一天最大发送次数
@@ -39,7 +39,7 @@ end
 
 return 0 
 `
-	verifyCodeScript = `
+	verifiedLimitVerifyCodeScript = `
 local key = KEYS[1] -- key
 local code = ARGV[1] -- 验证码
 local maxErrorCount = tonumber(ARGV[2]) -- 验证码最大验证失败次数
@@ -69,41 +69,40 @@ end
 `
 )
 
-// error defined
+// error defined for verified
 var (
-	ErrUnknownCode         = errors.New("verification: unknown status code")
-	ErrMaxSendPerDay       = errors.New("verification: reach the maximum send times")
-	ErrResendTooFrequently = errors.New("verification: resend too frequently")
-	ErrCodeRequired        = errors.New("verification: code is required")
-	ErrCodeExpired         = errors.New("verification: code is expired")
-	ErrCodeMaxError        = errors.New("verification: reach the maximum error times")
-	ErrCodeVerification    = errors.New("verification: code verification failed")
+	ErrMaxSendPerDay       = errors.New("limit: reach the maximum send times")
+	ErrResendTooFrequently = errors.New("limit: resend too frequently")
+	ErrCodeRequired        = errors.New("limit: code is required")
+	ErrCodeExpired         = errors.New("limit: code is expired")
+	ErrCodeMaxError        = errors.New("limit: reach the maximum error times")
+	ErrCodeVerification    = errors.New("limit: code verified failed")
 )
 
-// Provider the provider
-type Provider interface {
+// VerifiedProvider the provider
+type VerifiedProvider interface {
 	Name() string
 	SendCode(target, code string) error
 }
 
-// Verification verification code
-type Verification struct {
-	p                 Provider      // Provider send code
-	store             *redis.Client // store client
-	keyPrefix         string        // store 存验证码key的前缀, 默认 verification:
-	keyExpires        time.Duration // store 存验证码key的过期时间, 默认: 24 小时
-	maxErrorCount     int           // 最大验证失败次数, 默认: 3
-	maxSendPerDay     int           // 验证码一天最大发送次数, 默认: 10
-	availWindowSec    int           // 验证码有效窗口时间, 默认180, 单位: 秒
-	resendIntervalSec int           // 重发验证码间隔时间, 默认60, 单位: 秒
+// VerifiedLimit verified code limit
+type VerifiedLimit struct {
+	p                 VerifiedProvider // VerifiedProvider send code
+	store             *redis.Client    // store client
+	keyPrefix         string           // store 存验证码key的前缀, 默认 verified:
+	keyExpires        time.Duration    // store 存验证码key的过期时间, 默认: 24 小时
+	maxErrorCount     int              // 最大验证失败次数, 默认: 3
+	maxSendPerDay     int              // 验证码一天最大发送次数, 默认: 10
+	availWindowSec    int              // 验证码有效窗口时间, 默认180, 单位: 秒
+	resendIntervalSec int              // 重发验证码间隔时间, 默认60, 单位: 秒
 }
 
 // Option sms选项
-type Option func(*Verification)
+type Option func(*VerifiedLimit)
 
-// WithKeyPrefix redis存验证码key的前缀, 默认 SMS:
-func WithKeyPrefix(k string) Option {
-	return func(v *Verification) {
+// WithVerifiedKeyPrefix redis存验证码key的前缀, 默认 SMS:
+func WithVerifiedKeyPrefix(k string) Option {
+	return func(v *VerifiedLimit) {
 		if k != "" {
 			if !strings.HasSuffix(k, ":") {
 				k += ":"
@@ -113,47 +112,47 @@ func WithKeyPrefix(k string) Option {
 	}
 }
 
-// WithKeyExpires redis存验证码key的过期时间, 默认 24小时
-func WithKeyExpires(expires time.Duration) Option {
-	return func(v *Verification) {
+// WithVerifiedKeyExpires redis存验证码key的过期时间, 默认 24小时
+func WithVerifiedKeyExpires(expires time.Duration) Option {
+	return func(v *VerifiedLimit) {
 		v.keyExpires = expires
 	}
 }
 
-// WithMaxErrorCount 验证码最大验证失败次数, 默认: 3
-func WithMaxErrorCount(cnt int) Option {
-	return func(v *Verification) {
+// WithVerifiedMaxErrorCount 验证码最大验证失败次数, 默认: 3
+func WithVerifiedMaxErrorCount(cnt int) Option {
+	return func(v *VerifiedLimit) {
 		v.maxErrorCount = cnt
 	}
 }
 
-// WithMaxSendPerDay 验证码一天最大发送次数, 默认: 10
-func WithMaxSendPerDay(cnt int) Option {
-	return func(v *Verification) {
+// WithVerifiedMaxSendPerDay 验证码一天最大发送次数, 默认: 10
+func WithVerifiedMaxSendPerDay(cnt int) Option {
+	return func(v *VerifiedLimit) {
 		v.maxSendPerDay = cnt
 	}
 }
 
-// WithAvailWindowSecond 验证码有效窗口时间, 默认180, 单位: 秒
-func WithAvailWindowSecond(sec int) Option {
-	return func(v *Verification) {
+// WithVerifiedAvailWindowSecond 验证码有效窗口时间, 默认180, 单位: 秒
+func WithVerifiedAvailWindowSecond(sec int) Option {
+	return func(v *VerifiedLimit) {
 		v.availWindowSec = sec
 	}
 }
 
-// WithResendIntervalSecond 重发验证码间隔时间, 默认60, 单位: 秒
-func WithResendIntervalSecond(sec int) Option {
-	return func(v *Verification) {
+// WithVerifiedResendIntervalSecond 重发验证码间隔时间, 默认60, 单位: 秒
+func WithVerifiedResendIntervalSecond(sec int) Option {
+	return func(v *VerifiedLimit) {
 		v.resendIntervalSec = sec
 	}
 }
 
-// New a Verification
-func New(p Provider, store *redis.Client, opts ...Option) *Verification {
-	v := &Verification{
+// NewVerified  new a verified limit
+func NewVerified(p VerifiedProvider, store *redis.Client, opts ...Option) *VerifiedLimit {
+	v := &VerifiedLimit{
 		p,
 		store,
-		"verification:",
+		"verified:",
 		time.Hour * 24,
 		3,
 		10,
@@ -167,18 +166,18 @@ func New(p Provider, store *redis.Client, opts ...Option) *Verification {
 }
 
 // Name the provider name
-func (sf *Verification) Name() string { return sf.p.Name() }
+func (v *VerifiedLimit) Name() string { return v.p.Name() }
 
 // SendCode send code and store in redis cache.
-func (sf *Verification) SendCode(target, code string) error {
-	result, err := sf.store.Eval(context.Background(), sendCodeScript,
-		[]string{sf.keyPrefix + target},
+func (v *VerifiedLimit) SendCode(target, code string) error {
+	result, err := v.store.Eval(context.Background(), verifiedLimitSendCodeScript,
+		[]string{v.keyPrefix + target},
 		[]string{
 			code,
-			strconv.Itoa(sf.maxSendPerDay),
-			strconv.Itoa(sf.resendIntervalSec),
+			strconv.Itoa(v.maxSendPerDay),
+			strconv.Itoa(v.resendIntervalSec),
 			strconv.FormatInt(time.Now().Unix(), 10),
-			strconv.FormatInt(int64(sf.keyExpires/time.Second), 10),
+			strconv.FormatInt(int64(v.keyExpires/time.Second), 10),
 		},
 	).Result()
 	if err != nil {
@@ -190,7 +189,7 @@ func (sf *Verification) SendCode(target, code string) error {
 	}
 	switch sts {
 	case 0:
-		err = sf.p.SendCode(target, code)
+		err = v.p.SendCode(target, code)
 	case 1:
 		err = ErrMaxSendPerDay
 	case 2:
@@ -202,13 +201,13 @@ func (sf *Verification) SendCode(target, code string) error {
 }
 
 // VerifyCode verify code from redis cache.
-func (sf *Verification) VerifyCode(target, code string) error {
-	result, err := sf.store.Eval(context.Background(), verifyCodeScript,
-		[]string{sf.keyPrefix + target},
+func (v *VerifiedLimit) VerifyCode(target, code string) error {
+	result, err := v.store.Eval(context.Background(), verifiedLimitVerifyCodeScript,
+		[]string{v.keyPrefix + target},
 		[]string{
 			code,
-			strconv.Itoa(sf.maxErrorCount),
-			strconv.Itoa(sf.availWindowSec),
+			strconv.Itoa(v.maxErrorCount),
+			strconv.Itoa(v.availWindowSec),
 			strconv.FormatInt(time.Now().Unix(), 10),
 		},
 	).Result()

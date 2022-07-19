@@ -1,4 +1,4 @@
-package verification
+package limit
 
 import (
 	"errors"
@@ -19,7 +19,7 @@ const (
 	badCode = "654321"
 )
 
-var _ Provider = (*TestProvider)(nil)
+var _ VerifiedProvider = (*TestProvider)(nil)
 
 type TestProvider struct{}
 
@@ -28,7 +28,7 @@ func (t TestProvider) Name() string { return "test_provider" }
 func (t TestProvider) SendCode(target, code string) error { return nil }
 
 func TestName(t *testing.T) {
-	l := New(new(TestProvider), redis.NewClient(&redis.Options{Addr: "127.0.0.1:6379"}))
+	l := NewVerified(new(TestProvider), redis.NewClient(&redis.Options{Addr: "127.0.0.1:6379"}))
 	require.Equal(t, "test_provider", l.Name())
 }
 
@@ -36,7 +36,7 @@ func TestSendCode_RedisUnavailable(t *testing.T) {
 	mr, err := miniredis.Run()
 	require.Nil(t, err)
 
-	l := New(new(TestProvider), redis.NewClient(&redis.Options{Addr: mr.Addr()}))
+	l := NewVerified(new(TestProvider), redis.NewClient(&redis.Options{Addr: mr.Addr()}))
 	mr.Close()
 
 	err = l.SendCode(target, code)
@@ -47,10 +47,10 @@ func TestSendCode_Success(t *testing.T) {
 	require.Nil(t, err)
 	defer mr.Close()
 
-	l := New(new(TestProvider),
+	l := NewVerified(new(TestProvider),
 		redis.NewClient(&redis.Options{Addr: mr.Addr()}),
-		WithKeyPrefix("verification"),
-		WithKeyExpires(time.Hour),
+		WithVerifiedKeyPrefix("verification"),
+		WithVerifiedKeyExpires(time.Hour),
 	)
 	err = l.SendCode(target, code)
 	require.NoError(t, err)
@@ -61,10 +61,10 @@ func TestSendCode_MaxSendPerDay(t *testing.T) {
 	require.Nil(t, err)
 	defer mr.Close()
 
-	l := New(new(TestProvider),
+	l := NewVerified(new(TestProvider),
 		redis.NewClient(&redis.Options{Addr: mr.Addr()}),
-		WithMaxSendPerDay(1),
-		WithResendIntervalSecond(1),
+		WithVerifiedMaxSendPerDay(1),
+		WithVerifiedResendIntervalSecond(1),
 	)
 
 	err = l.SendCode(target, code)
@@ -83,9 +83,9 @@ func TestSendCode_Concurrency_MaxSendPerDay(t *testing.T) {
 	require.Nil(t, err)
 	defer mr.Close()
 
-	l := New(new(TestProvider),
+	l := NewVerified(new(TestProvider),
 		redis.NewClient(&redis.Options{Addr: mr.Addr()}),
-		WithMaxSendPerDay(1),
+		WithVerifiedMaxSendPerDay(1),
 	)
 
 	wg := &sync.WaitGroup{}
@@ -114,9 +114,9 @@ func TestSendCode_ResendTooFrequently(t *testing.T) {
 	require.Nil(t, err)
 	defer mr.Close()
 
-	l := New(new(TestProvider),
+	l := NewVerified(new(TestProvider),
 		redis.NewClient(&redis.Options{Addr: mr.Addr()}),
-		WithResendIntervalSecond(1),
+		WithVerifiedResendIntervalSecond(1),
 	)
 
 	err = l.SendCode(target, code)
@@ -133,9 +133,9 @@ func TestSendCode_Concurrency_ResendTooFrequently(t *testing.T) {
 	require.Nil(t, err)
 	defer mr.Close()
 
-	l := New(new(TestProvider),
+	l := NewVerified(new(TestProvider),
 		redis.NewClient(&redis.Options{Addr: mr.Addr()}),
-		WithResendIntervalSecond(1),
+		WithVerifiedResendIntervalSecond(1),
 	)
 
 	wg := &sync.WaitGroup{}
@@ -164,9 +164,9 @@ func TestVerifyCode_Success(t *testing.T) {
 	require.Nil(t, err)
 	defer mr.Close()
 
-	l := New(new(TestProvider),
+	l := NewVerified(new(TestProvider),
 		redis.NewClient(&redis.Options{Addr: mr.Addr()}),
-		WithResendIntervalSecond(1),
+		WithVerifiedResendIntervalSecond(1),
 	)
 
 	err = l.SendCode(target, code)
@@ -181,7 +181,7 @@ func TestVerifyCode_CodeRequired(t *testing.T) {
 	require.Nil(t, err)
 	defer mr.Close()
 
-	l := New(new(TestProvider), redis.NewClient(&redis.Options{Addr: mr.Addr()}))
+	l := NewVerified(new(TestProvider), redis.NewClient(&redis.Options{Addr: mr.Addr()}))
 
 	err = l.VerifyCode(target, code)
 	assert.Error(t, err, ErrCodeRequired)
@@ -192,9 +192,9 @@ func TestVerifyCode_CodeExpired(t *testing.T) {
 	require.Nil(t, err)
 	defer mr.Close()
 
-	l := New(new(TestProvider),
+	l := NewVerified(new(TestProvider),
 		redis.NewClient(&redis.Options{Addr: mr.Addr()}),
-		WithAvailWindowSecond(1),
+		WithVerifiedAvailWindowSecond(1),
 	)
 	err = l.SendCode(target, code)
 	require.Nil(t, err)
@@ -208,9 +208,9 @@ func TestVerifyCode_CodeMaxError(t *testing.T) {
 	require.Nil(t, err)
 	defer mr.Close()
 
-	l := New(new(TestProvider),
+	l := NewVerified(new(TestProvider),
 		redis.NewClient(&redis.Options{Addr: mr.Addr()}),
-		WithMaxErrorCount(3),
+		WithVerifiedMaxErrorCount(3),
 	)
 	err = l.SendCode(target, code)
 	require.Nil(t, err)
@@ -231,9 +231,9 @@ func TestVerifyCode_Concurrency_CodeMaxError(t *testing.T) {
 	require.Nil(t, err)
 	defer mr.Close()
 
-	l := New(new(TestProvider),
+	l := NewVerified(new(TestProvider),
 		redis.NewClient(&redis.Options{Addr: mr.Addr()}),
-		WithMaxErrorCount(3),
+		WithVerifiedMaxErrorCount(3),
 	)
 
 	err = l.SendCode(target, code)

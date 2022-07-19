@@ -2,7 +2,6 @@ package limit
 
 import (
 	"context"
-	"errors"
 	"strconv"
 	"strings"
 	"time"
@@ -24,7 +23,7 @@ elseif current == limit then
 else
     return 0
 end`
-	periodLimitSetQuotaFull = `local limit = tonumber(ARGV[1])
+	periodLimitSetQuotaFullScript = `local limit = tonumber(ARGV[1])
 local current = tonumber(redis.call("GET", KEYS[1]))
 if current == nil or current < limit then
 	redis.call("SET", KEYS[1], limit)
@@ -57,9 +56,6 @@ func (p PeriodLimitState) IsHitQuota() bool { return p == HitQuota }
 
 // IsOverQuota means passed the quota.
 func (p PeriodLimitState) IsOverQuota() bool { return p == OverQuota }
-
-// ErrUnknownCode is an error that represents unknown status code.
-var ErrUnknownCode = errors.New("unknown status code")
 
 // PeriodLimitOption defines the method to customize a PeriodLimit.
 type PeriodLimitOption func(l *PeriodLimit)
@@ -145,7 +141,7 @@ func (p *PeriodLimit) SetQuotaFull(key string) error {
 func (p *PeriodLimit) SetQuotaFullCtx(ctx context.Context, key string) error {
 	// return p.store.IncrBy(ctx, p.keyPrefix+key, int64(p.quota)).Err()
 	err := p.store.Eval(ctx,
-		periodLimitSetQuotaFull,
+		periodLimitSetQuotaFullScript,
 		[]string{p.keyPrefix + key},
 		[]string{strconv.Itoa(p.quota)},
 	).Err()
