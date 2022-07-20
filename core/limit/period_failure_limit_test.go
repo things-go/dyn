@@ -9,6 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var internalErr = errors.New("internal error")
+
 func TestPeriodFailureLimit_Check(t *testing.T) {
 	testPeriodFailureLimit(t)
 }
@@ -23,7 +25,7 @@ func TestPeriodFailureLimit_RedisUnavailable(t *testing.T) {
 
 	l := NewPeriodFailureLimit(seconds, quota, "PeriodFailureLimit", redis.NewClient(&redis.Options{Addr: mr.Addr()}))
 	mr.Close()
-	err = l.Check("first", true)
+	err = l.CheckErr("first", nil)
 	assert.NotNil(t, err)
 }
 
@@ -36,7 +38,7 @@ func testPeriodFailureLimit(t *testing.T, opts ...PeriodLimitOption) {
 	l := NewPeriodFailureLimit(seconds, quota, "PeriodFailureLimit", redis.NewClient(&redis.Options{Addr: mr.Addr()}), opts...)
 	var inLimitCnt, overFailureTimeCnt int
 	for i := 0; i < total; i++ {
-		err = l.Check("first", false)
+		err = l.CheckErr("first", internalErr)
 		assert.Error(t, err)
 		if errors.Is(err, ErrInLimitFailureTimes) {
 			inLimitCnt++
@@ -49,7 +51,7 @@ func testPeriodFailureLimit(t *testing.T, opts ...PeriodLimitOption) {
 	assert.Equal(t, quota, inLimitCnt)
 	assert.Equal(t, total-quota, overFailureTimeCnt)
 
-	err = l.Check("first", true)
+	err = l.CheckErr("first", nil)
 	assert.ErrorIs(t, err, ErrOverMaxFailureTimes)
 }
 
@@ -62,7 +64,7 @@ func TestPeriodFailureLimit_Check_In_Limit_Failure_Time_Then_Success(t *testing.
 	l := NewPeriodFailureLimit(seconds, quota, "PeriodFailureLimit", redis.NewClient(&redis.Options{Addr: mr.Addr()}))
 	var inLimitCnt, overFailureTimeCnt int
 	for i := 0; i < quota-1; i++ {
-		err = l.Check("first", false)
+		err = l.CheckErr("first", internalErr)
 		assert.Error(t, err)
 		if errors.Is(err, ErrInLimitFailureTimes) {
 			inLimitCnt++
@@ -75,7 +77,7 @@ func TestPeriodFailureLimit_Check_In_Limit_Failure_Time_Then_Success(t *testing.
 	assert.Equal(t, quota-1, inLimitCnt)
 	assert.Equal(t, 0, overFailureTimeCnt)
 
-	err = l.Check("first", true)
+	err = l.CheckErr("first", nil)
 	assert.NoError(t, err)
 
 	v, existed, err := l.GetInt("first")
@@ -93,7 +95,7 @@ func TestPeriodFailureLimit_Check_Over_Limit_Failure_Time_Then_Success_Always_Ov
 	l := NewPeriodFailureLimit(seconds, quota, "PeriodFailureLimit", redis.NewClient(&redis.Options{Addr: mr.Addr()}))
 	var inLimitCnt, overFailureTimeCnt int
 	for i := 0; i < quota+1; i++ {
-		err = l.Check("first", false)
+		err = l.CheckErr("first", internalErr)
 		assert.Error(t, err)
 		if errors.Is(err, ErrInLimitFailureTimes) {
 			inLimitCnt++
@@ -106,7 +108,7 @@ func TestPeriodFailureLimit_Check_Over_Limit_Failure_Time_Then_Success_Always_Ov
 	assert.Equal(t, quota, inLimitCnt)
 	assert.Equal(t, 1, overFailureTimeCnt)
 
-	err = l.Check("first", true)
+	err = l.CheckErr("first", nil)
 	assert.ErrorIs(t, err, ErrOverMaxFailureTimes)
 
 	v, existed, err := l.GetInt("first")
@@ -125,7 +127,7 @@ func TestPeriodFailureLimit_SetQuotaFull(t *testing.T) {
 	err = l.SetQuotaFull("first")
 	assert.Nil(t, err)
 
-	err = l.Check("first", true)
+	err = l.CheckErr("first", nil)
 	assert.ErrorIs(t, err, ErrOverMaxFailureTimes)
 }
 
@@ -159,15 +161,15 @@ func TestPeriodFailureLimit_Del(t *testing.T) {
 	assert.True(t, b)
 	assert.Equal(t, quota, v)
 
-	err = l.Check("first", false)
+	err = l.CheckErr("first", internalErr)
 	assert.ErrorIs(t, err, ErrOverMaxFailureTimes)
 
 	err = l.Del("first")
 	assert.Nil(t, err)
 
-	err = l.Check("first", false)
+	err = l.CheckErr("first", internalErr)
 	assert.ErrorIs(t, err, ErrInLimitFailureTimes)
 
-	err = l.Check("first", true)
+	err = l.CheckErr("first", nil)
 	assert.Nil(t, err)
 }

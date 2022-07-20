@@ -125,7 +125,6 @@ func (p *PeriodLimit) SetQuotaFull(key string) error {
 
 // SetQuotaFullCtx set a permit over quota.
 func (p *PeriodLimit) SetQuotaFullCtx(ctx context.Context, key string) error {
-	// return p.store.IncrBy(ctx, p.keyPrefix+key, int64(p.quota)).Err()
 	err := p.store.Eval(ctx,
 		periodLimitSetQuotaFullScript,
 		[]string{p.keyPrefix + key},

@@ -84,6 +84,22 @@ func (p *PeriodFailureLimit) align() {
 	p.isAlign = true
 }
 
+// CheckErr requests a permit with context.
+func (p *PeriodFailureLimit) CheckErr(key string, err error) error {
+	return p.Check(key, err == nil)
+}
+
+// CheckErrCtx requests a permit with context.
+// return result:
+// nil: 表示成功
+// ErrUnknownCode: lua脚本错误
+// ErrInLimitFailureTimes: 表示还在最大失败次数范围内
+// ErrOverMaxFailureTimes: 表示超过了最大失败验证次数
+// NOTE: success 为 false, 只会出现 ErrInLimitFailureTimes 或 ErrOverMaxFailureTimes
+func (p *PeriodFailureLimit) CheckErrCtx(ctx context.Context, key string, err error) error {
+	return p.CheckCtx(ctx, key, err == nil)
+}
+
 // Check requests a permit with context.
 func (p *PeriodFailureLimit) Check(key string, success bool) error {
 	return p.CheckCtx(context.Background(), key, success)
@@ -136,7 +152,6 @@ func (p *PeriodFailureLimit) SetQuotaFull(key string) error {
 
 // SetQuotaFullCtx set a permit over quota.
 func (p *PeriodFailureLimit) SetQuotaFullCtx(ctx context.Context, key string) error {
-	// return p.store.IncrBy(ctx, p.keyPrefix+key, int64(p.quota)).Err()
 	err := p.store.Eval(ctx,
 		periodFailureLimitSetQuotaFullScript,
 		[]string{p.keyPrefix + key},
