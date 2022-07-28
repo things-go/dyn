@@ -1,6 +1,7 @@
 package limit
 
 import (
+	"context"
 	"testing"
 
 	"github.com/alicebob/miniredis/v2"
@@ -28,7 +29,7 @@ func TestPeriodLimit_RedisUnavailable(t *testing.T) {
 
 	l := NewPeriodLimit(seconds, quota, "periodlimit", redis.NewClient(&redis.Options{Addr: mr.Addr()}))
 	mr.Close()
-	val, err := l.Take("first")
+	val, err := l.Take(context.Background(), "first")
 	assert.NotNil(t, err)
 	assert.Equal(t, Unknown, val)
 }
@@ -42,7 +43,7 @@ func testPeriodLimit(t *testing.T, opts ...PeriodLimitOption) {
 	l := NewPeriodLimit(seconds, quota, "periodlimit", redis.NewClient(&redis.Options{Addr: mr.Addr()}), opts...)
 	var allowed, hitQuota, overQuota int
 	for i := 0; i < total; i++ {
-		val, err := l.Take("first")
+		val, err := l.Take(context.Background(), "first")
 		if err != nil {
 			t.Error(err)
 		}
@@ -71,7 +72,7 @@ func TestPeriodLimit_QuotaFull(t *testing.T) {
 	defer mr.Close()
 
 	l := NewPeriodLimit(1, 1, "periodlimit", redis.NewClient(&redis.Options{Addr: mr.Addr()}))
-	val, err := l.Take("first")
+	val, err := l.Take(context.Background(), "first")
 	assert.Nil(t, err)
 	assert.True(t, val.IsHitQuota())
 }
@@ -83,10 +84,10 @@ func TestPeriodLimit_SetQuotaFull(t *testing.T) {
 
 	l := NewPeriodLimit(seconds, quota, "periodlimit", redis.NewClient(&redis.Options{Addr: mr.Addr()}))
 
-	err = l.SetQuotaFull("first")
+	err = l.SetQuotaFull(context.Background(), "first")
 	assert.Nil(t, err)
 
-	val, err := l.Take("first")
+	val, err := l.Take(context.Background(), "first")
 	assert.Nil(t, err)
 	assert.Equal(t, OverQuota, val)
 }
@@ -98,37 +99,37 @@ func TestPeriodLimit_Del(t *testing.T) {
 
 	l := NewPeriodLimit(seconds, quota, "periodlimit", redis.NewClient(&redis.Options{Addr: mr.Addr()}))
 
-	v, b, err := l.GetInt("first")
+	v, b, err := l.GetInt(context.Background(), "first")
 	assert.Nil(t, err)
 	assert.False(t, b)
 	assert.Equal(t, 0, v)
 
 	// 第一次ttl, 不存在
-	tt, err := l.TTL("first")
+	tt, err := l.TTL(context.Background(), "first")
 	assert.Nil(t, err)
 	assert.Equal(t, int(tt), -2)
 
-	err = l.SetQuotaFull("first")
+	err = l.SetQuotaFull(context.Background(), "first")
 	assert.Nil(t, err)
 
 	// 第二次ttl, key 存在
-	tt, err = l.TTL("first")
+	tt, err = l.TTL(context.Background(), "first")
 	assert.Nil(t, err)
 	assert.LessOrEqual(t, int(tt.Seconds()), seconds)
 
-	v, b, err = l.GetInt("first")
+	v, b, err = l.GetInt(context.Background(), "first")
 	assert.Nil(t, err)
 	assert.True(t, b)
 	assert.Equal(t, quota, v)
 
-	val, err := l.Take("first")
+	val, err := l.Take(context.Background(), "first")
 	assert.Nil(t, err)
 	assert.True(t, val.IsOverQuota())
 
-	err = l.Del("first")
+	err = l.Del(context.Background(), "first")
 	assert.Nil(t, err)
 
-	val, err = l.Take("first")
+	val, err = l.Take(context.Background(), "first")
 	assert.Nil(t, err)
 	assert.True(t, val.IsAllowed())
 }

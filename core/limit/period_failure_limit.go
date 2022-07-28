@@ -84,35 +84,25 @@ func (p *PeriodFailureLimit) align() {
 	p.isAlign = true
 }
 
-// CheckErr requests a permit with context.
-func (p *PeriodFailureLimit) CheckErr(key string, err error) error {
-	return p.Check(key, err == nil)
-}
-
-// CheckErrCtx requests a permit with context.
+// CheckErr requests a permit.
 // return result:
 // nil: 表示成功
 // ErrUnknownCode: lua脚本错误
 // ErrInLimitFailureTimes: 表示还在最大失败次数范围内
 // ErrOverMaxFailureTimes: 表示超过了最大失败验证次数
 // NOTE: success 为 false, 只会出现 ErrInLimitFailureTimes 或 ErrOverMaxFailureTimes
-func (p *PeriodFailureLimit) CheckErrCtx(ctx context.Context, key string, err error) error {
-	return p.CheckCtx(ctx, key, err == nil)
+func (p *PeriodFailureLimit) CheckErr(ctx context.Context, key string, err error) error {
+	return p.Check(ctx, key, err == nil)
 }
 
-// Check requests a permit with context.
-func (p *PeriodFailureLimit) Check(key string, success bool) error {
-	return p.CheckCtx(context.Background(), key, success)
-}
-
-// CheckCtx requests a permit with context.
+// Check requests a permit.
 // return result:
 // nil: 表示成功
 // ErrUnknownCode: lua脚本错误
 // ErrInLimitFailureTimes: 表示还在最大失败次数范围内
 // ErrOverMaxFailureTimes: 表示超过了最大失败验证次数
 // NOTE: success 为 false, 只会出现 ErrInLimitFailureTimes 或 ErrOverMaxFailureTimes
-func (p *PeriodFailureLimit) CheckCtx(ctx context.Context, key string, success bool) error {
+func (p *PeriodFailureLimit) Check(ctx context.Context, key string, success bool) error {
 	s := "0"
 	if success {
 		s = "1"
@@ -146,12 +136,7 @@ func (p *PeriodFailureLimit) CheckCtx(ctx context.Context, key string, success b
 }
 
 // SetQuotaFull set a permit over quota.
-func (p *PeriodFailureLimit) SetQuotaFull(key string) error {
-	return p.SetQuotaFullCtx(context.Background(), key)
-}
-
-// SetQuotaFullCtx set a permit over quota.
-func (p *PeriodFailureLimit) SetQuotaFullCtx(ctx context.Context, key string) error {
+func (p *PeriodFailureLimit) SetQuotaFull(ctx context.Context, key string) error {
 	err := p.store.Eval(ctx,
 		periodFailureLimitSetQuotaFullScript,
 		[]string{p.keyPrefix + key},
@@ -164,36 +149,19 @@ func (p *PeriodFailureLimit) SetQuotaFullCtx(ctx context.Context, key string) er
 }
 
 // Del delete a permit
-func (p *PeriodFailureLimit) Del(key string) error {
-	return p.DelCtx(context.Background(), key)
-}
-
-// DelCtx delete a permit
-func (p *PeriodFailureLimit) DelCtx(ctx context.Context, key string) error {
+func (p *PeriodFailureLimit) Del(ctx context.Context, key string) error {
 	return p.store.Del(ctx, p.keyPrefix+key).Err()
 }
 
 // TTL get key ttl
-// if key not exist, t = -1.
-// if key exist, but not set expire time, t = -2
-func (p *PeriodFailureLimit) TTL(key string) (time.Duration, error) {
-	return p.TTLCtx(context.Background(), key)
-}
-
-// TTLCtx get key ttl
 // if key not exist, time = -1.
 // if key exist, but not set expire time, t = -2
-func (p *PeriodFailureLimit) TTLCtx(ctx context.Context, key string) (time.Duration, error) {
+func (p *PeriodFailureLimit) TTL(ctx context.Context, key string) (time.Duration, error) {
 	return p.store.TTL(ctx, p.keyPrefix+key).Result()
 }
 
 // GetInt get count
-func (p *PeriodFailureLimit) GetInt(key string) (int, bool, error) {
-	return p.GetIntCtx(context.Background(), key)
-}
-
-// GetIntCtx get count
-func (p *PeriodFailureLimit) GetIntCtx(ctx context.Context, key string) (int, bool, error) {
+func (p *PeriodFailureLimit) GetInt(ctx context.Context, key string) (int, bool, error) {
 	v, err := p.store.Get(ctx, p.keyPrefix+key).Int()
 	if err != nil {
 		if err == redis.Nil {

@@ -85,13 +85,8 @@ func NewPeriodLimit(periodSecond, quota int, keyPrefix string,
 
 func (p *PeriodLimit) align() { p.isAlign = true }
 
-// Take requests a permit, it returns the permit state.
-func (p *PeriodLimit) Take(key string) (PeriodLimitState, error) {
-	return p.TakeCtx(context.Background(), key)
-}
-
-// TakeCtx requests a permit with context, it returns the permit state.
-func (p *PeriodLimit) TakeCtx(ctx context.Context, key string) (PeriodLimitState, error) {
+// Take requests a permit with context, it returns the permit state.
+func (p *PeriodLimit) Take(ctx context.Context, key string) (PeriodLimitState, error) {
 	result, err := p.store.Eval(ctx,
 		periodLimitScript,
 		[]string{p.keyPrefix + key},
@@ -119,12 +114,7 @@ func (p *PeriodLimit) TakeCtx(ctx context.Context, key string) (PeriodLimitState
 }
 
 // SetQuotaFull set a permit over quota.
-func (p *PeriodLimit) SetQuotaFull(key string) error {
-	return p.SetQuotaFullCtx(context.Background(), key)
-}
-
-// SetQuotaFullCtx set a permit over quota.
-func (p *PeriodLimit) SetQuotaFullCtx(ctx context.Context, key string) error {
+func (p *PeriodLimit) SetQuotaFull(ctx context.Context, key string) error {
 	err := p.store.Eval(ctx,
 		periodLimitSetQuotaFullScript,
 		[]string{p.keyPrefix + key},
@@ -137,36 +127,19 @@ func (p *PeriodLimit) SetQuotaFullCtx(ctx context.Context, key string) error {
 }
 
 // Del delete a permit
-func (p *PeriodLimit) Del(key string) error {
-	return p.DelCtx(context.Background(), key)
-}
-
-// DelCtx delete a permit
-func (p *PeriodLimit) DelCtx(ctx context.Context, key string) error {
+func (p *PeriodLimit) Del(ctx context.Context, key string) error {
 	return p.store.Del(ctx, p.keyPrefix+key).Err()
 }
 
 // TTL get key ttl
-// if key not exist, t = -1.
-// if key exist, but not set expire time, t = -2
-func (p *PeriodLimit) TTL(key string) (time.Duration, error) {
-	return p.TTLCtx(context.Background(), key)
-}
-
-// TTLCtx get key ttl
 // if key not exist, time = -1.
 // if key exist, but not set expire time, t = -2
-func (p *PeriodLimit) TTLCtx(ctx context.Context, key string) (time.Duration, error) {
+func (p *PeriodLimit) TTL(ctx context.Context, key string) (time.Duration, error) {
 	return p.store.TTL(ctx, p.keyPrefix+key).Result()
 }
 
 // GetInt get count
-func (p *PeriodLimit) GetInt(key string) (int, bool, error) {
-	return p.GetIntCtx(context.Background(), key)
-}
-
-// GetIntCtx get count
-func (p *PeriodLimit) GetIntCtx(ctx context.Context, key string) (int, bool, error) {
+func (p *PeriodLimit) GetInt(ctx context.Context, key string) (int, bool, error) {
 	v, err := p.store.Get(ctx, p.keyPrefix+key).Int()
 	if err != nil {
 		if err == redis.Nil {
