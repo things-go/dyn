@@ -135,7 +135,7 @@ func TestSendCode_Concurrency_ResendTooFrequently(t *testing.T) {
 
 	l := NewVerified(new(TestProvider),
 		redis.NewClient(&redis.Options{Addr: mr.Addr()}),
-		WithVerifiedResendIntervalSecond(1),
+		WithVerifiedResendIntervalSecond(3),
 	)
 
 	wg := &sync.WaitGroup{}
