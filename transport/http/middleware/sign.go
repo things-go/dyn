@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unsafe"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
@@ -20,15 +21,18 @@ import (
 
 // 客户端签名加密过程
 // 随机生成一个randomKey
-// 如果body不为空并且body不为空需要加密 body=Base64(AesCBCEncrypt(randomKey,body))
-// 拼接str = timestamp+method+url+body
+// 如果body不为空并且需要加密 cipherBody = Base64(AesCBCEncrypt(randomKey,body)), 消息体传密文
+// 如果body不为空并且不需要加密 cipherBody = body 保留原文, 消息体传原文
+// 拼接str = timestamp+method+url+cipherBody
 // sign = Base64(HMAC(randomKey,str))
 // secret = Base64(RsaEncrypt(randomKey, pubkey))
 
 // 服务端验签解密过程则是上述的逆过程
 
+// SignOption 签名选项
 type SignOption func(*SignConfig)
 
+//  签名配置
 type SignConfig struct {
 	privKey       *rsa.PrivateKey
 	availWindow   time.Duration
@@ -101,8 +105,7 @@ func VerifySign(opts ...SignOption) gin.HandlerFunc {
 			c.Next()
 			return
 		}
-		method := strings.ToUpper(c.Request.Method)
-		target := c.Request.RequestURI
+
 		timestamp := c.GetHeader("Timestamp")
 		secret := c.GetHeader("Secret")
 		if timestamp == "" || secret == "" {
@@ -128,14 +131,19 @@ func VerifySign(opts ...SignOption) gin.HandlerFunc {
 			cfg.errorFallback(c, err)
 			return
 		}
-		// 是否加密body
-		var origBody []byte
-		cipherBody := string(body)
-		encrypt := c.GetHeader("Encrypt")
-		if encrypt == "1" && len(body) > 0 {
-			origBody, err = signature.Decrypt(randomKey, cipherBody)
-		} else {
-			origBody, err = base64.StdEncoding.DecodeString(cipherBody)
+		var origBody = body
+		var cipherBody string
+
+		if len(body) > 0 {
+			// 是否加密body
+			encrypt := c.GetHeader("Encrypt")
+			if encrypt == "1" {
+				cipherBody = *(*string)(unsafe.Pointer(&body))
+				origBody, err = signature.Decrypt(randomKey, cipherBody)
+			} else {
+				cipherBody = base64.StdEncoding.EncodeToString(body)
+				origBody = body
+			}
 		}
 		if err != nil {
 			cfg.errorFallback(c, err)
@@ -143,6 +151,7 @@ func VerifySign(opts ...SignOption) gin.HandlerFunc {
 		}
 		c.Request.Body = io.NopCloser(bytes.NewBuffer(origBody))
 
+		method, target := strings.ToUpper(c.Request.Method), c.Request.RequestURI
 		str := timestamp + method + target + cipherBody
 		calcSign := signature.Signature(randomKey, str)
 		sign := c.GetHeader("Sign")
@@ -155,7 +164,7 @@ func VerifySign(opts ...SignOption) gin.HandlerFunc {
 			return
 		}
 		if cfg.availWindow > 0 && time.Now().Sub(time.UnixMilli(milliTimestamp)) > cfg.availWindow {
-			cfg.errorFallback(c, errors.New("请求已过期"))
+			cfg.errorFallback(c, errors.New("该请求已过期"))
 			return
 		}
 		c.Next()
