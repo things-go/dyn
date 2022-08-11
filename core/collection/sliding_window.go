@@ -83,7 +83,6 @@ func (s *SlidingWindow) Reduce(fn func(b *Bucket)) {
 	}
 }
 
-//
 func (s *SlidingWindow) span() int {
 	offset := int((time.Since(initTime) - s.lastTime) / s.interval)
 	if offset >= 0 && offset < s.size {

@@ -32,7 +32,7 @@ import (
 // SignOption 签名选项
 type SignOption func(*SignConfig)
 
-//  签名配置
+// SignConfig 签名配置
 type SignConfig struct {
 	privKey       *rsa.PrivateKey
 	availWindow   time.Duration

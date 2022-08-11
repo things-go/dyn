@@ -62,21 +62,23 @@ func Logger() *zap.Logger { return defaultLogger.Logger() }
 // and the second as the field value.
 //
 // For example,
-//   sugaredLogger.With(
-//     "hello", "world",
-//     "failure", errors.New("oh no"),
-//     Stack(),
-//     "count", 42,
-//     "user", User{Name: "alice"},
-//  )
+//
+//	 sugaredLogger.With(
+//	   "hello", "world",
+//	   "failure", errors.New("oh no"),
+//	   "count", 42,
+//	   "user", User{Name: "alice"},
+//	)
+//
 // is the equivalent of
-//   unsugared.With(
-//     String("hello", "world"),
-//     String("failure", "oh no"),
-//     Stack(),
-//     Int("count", 42),
-//     Object("user", User{Name: "alice"}),
-//   )
+//
+//	unsugared.With(
+//	  String("hello", "world"),
+//	  String("failure", "oh no"),
+//	  Stack(),
+//	  Int("count", 42),
+//	  Object("user", User{Name: "alice"}),
+//	)
 //
 // Note that the keys in key-value pairs should be strings. In development,
 // passing a non-string key panics. In production, the logger is more
@@ -139,7 +141,8 @@ func Fatalf(template string, args ...any) { defaultLogger.Fatalf(template, args.
 // pairs are treated as they are in With.
 //
 // When debug-level logging is disabled, this is much faster than
-//  s.With(keysAndValues).Debug(msg)
+//
+//	s.With(keysAndValues).Debug(msg)
 func Debugw(msg string, keysAndValues ...any) { defaultLogger.Debugw(msg, keysAndValues...) }
 
 // Infow logs a message with some additional context. The variadic key-value

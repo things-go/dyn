@@ -247,7 +247,8 @@ func (l *Log) Fatalf(template string, args ...any) {
 // pairs are treated as they are in With.
 //
 // When debug-level logging is disabled, this is much faster than
-//  s.With(keysAndValues).Debug(msg)
+//
+//	s.With(keysAndValues).Debug(msg)
 func (l *Log) Debugw(msg string, keysAndValues ...any) {
 	if !l.level.Enabled(DebugLevel) {
 		return
