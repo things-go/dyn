@@ -50,6 +50,15 @@ end
 `
 )
 
+const (
+	// 成功
+	innerPeriodFailureLimitCodeSuccess = 0
+	// 错误次数还在限制范围内
+	innerPeriodFailureLimitCodeInLimitFailureTimes = 1
+	// 超过失败最大次数限制
+	innerPeriodFailureLimitCodeOverMaxFailureTimes = 2
+)
+
 // A PeriodFailureLimit is used to limit requests when failure during a period of time.
 type PeriodFailureLimit struct {
 	// a period seconds of time
@@ -62,9 +71,9 @@ type PeriodFailureLimit struct {
 	isAlign   bool
 }
 
-// NewPeriodLimit returns a PeriodLimit with given parameters.
-func NewPeriodFailureLimit(periodSecond, quota int, keyPrefix string,
-	store *redis.Client, opts ...PeriodLimitOption) *PeriodFailureLimit {
+// NewPeriodFailureLimit returns a PeriodFailureLimit with given parameters.
+func NewPeriodFailureLimit(periodSecond, quota int, keyPrefix string, store *redis.Client,
+	opts ...PeriodLimitOption) *PeriodFailureLimit {
 	if !strings.HasSuffix(keyPrefix, ":") {
 		keyPrefix += ":"
 	}
@@ -124,11 +133,11 @@ func (p *PeriodFailureLimit) Check(ctx context.Context, key string, success bool
 		return ErrUnknownCode
 	}
 	switch code {
-	case 0:
+	case innerPeriodFailureLimitCodeSuccess:
 		return nil
-	case 1:
+	case innerPeriodFailureLimitCodeInLimitFailureTimes:
 		return ErrInLimitFailureTimes
-	case 2:
+	case innerPeriodFailureLimitCodeOverMaxFailureTimes:
 		return ErrOverMaxFailureTimes
 	default:
 		return ErrUnknownCode
@@ -160,7 +169,7 @@ func (p *PeriodFailureLimit) TTL(ctx context.Context, key string) (time.Duration
 	return p.store.TTL(ctx, p.keyPrefix+key).Result()
 }
 
-// GetInt get count
+// GetInt get current failure count
 func (p *PeriodFailureLimit) GetInt(ctx context.Context, key string) (int, bool, error) {
 	v, err := p.store.Get(ctx, p.keyPrefix+key).Int()
 	if err != nil {

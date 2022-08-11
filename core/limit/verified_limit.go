@@ -79,6 +79,18 @@ var (
 	ErrCodeVerification    = errors.New("limit: code verified failed")
 )
 
+const (
+	innerVerifiedLimitSuccess = 0
+	// inner lua send code value
+	innerVerifiedLimitOfSendCodeReachMaxSendPerDay  = 1
+	innerVerifiedLimitOfSendCodeResendTooFrequently = 2
+	// inner lua verify code value
+	innerVerifiedLimitOfVerifyCodeRequired            = 1
+	innerVerifiedLimitOfVerifyCodeExpired             = 2
+	innerVerifiedLimitOfVerifyCodeReachMaxError       = 3
+	innerVerifiedLimitOfVerifyCodeVerificationFailure = 4
+)
+
 // VerifiedProvider the provider
 type VerifiedProvider interface {
 	Name() string
@@ -188,11 +200,11 @@ func (v *VerifiedLimit) SendCode(target, code string) error {
 		return ErrUnknownCode
 	}
 	switch sts {
-	case 0:
+	case innerVerifiedLimitSuccess:
 		err = v.p.SendCode(target, code)
-	case 1:
+	case innerVerifiedLimitOfSendCodeReachMaxSendPerDay:
 		err = ErrMaxSendPerDay
-	case 2:
+	case innerVerifiedLimitOfSendCodeResendTooFrequently:
 		err = ErrResendTooFrequently
 	default:
 		err = ErrUnknownCode
@@ -220,15 +232,15 @@ func (v *VerifiedLimit) VerifyCode(target, code string) error {
 		err = ErrUnknownCode
 	}
 	switch sts {
-	case 0:
+	case innerVerifiedLimitSuccess:
 		return nil
-	case 1:
+	case innerVerifiedLimitOfVerifyCodeRequired:
 		err = ErrCodeRequired
-	case 2:
+	case innerVerifiedLimitOfVerifyCodeExpired:
 		err = ErrCodeExpired
-	case 3:
+	case innerVerifiedLimitOfVerifyCodeReachMaxError:
 		err = ErrCodeMaxError
-	case 4:
+	case innerVerifiedLimitOfVerifyCodeVerificationFailure:
 		err = ErrCodeVerification
 	default:
 		err = ErrUnknownCode

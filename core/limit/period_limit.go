@@ -42,6 +42,10 @@ const (
 	HitQuota
 	// OverQuota means passed the quota.
 	OverQuota
+
+	innerPeriodLimitAllowed   = 0
+	innerPeriodLimitHitQuota  = 1
+	innerPeriodLimitOverQuota = 2
 )
 
 // IsAllowed means allowed state.
@@ -102,11 +106,11 @@ func (p *PeriodLimit) Take(ctx context.Context, key string) (PeriodLimitState, e
 	}
 
 	switch code {
-	case 0:
+	case innerPeriodLimitAllowed:
 		return Allowed, nil
-	case 1:
+	case innerPeriodLimitHitQuota:
 		return HitQuota, nil
-	case 2:
+	case innerPeriodLimitOverQuota:
 		return OverQuota, nil
 	default:
 		return Unknown, ErrUnknownCode
@@ -138,7 +142,7 @@ func (p *PeriodLimit) TTL(ctx context.Context, key string) (time.Duration, error
 	return p.store.TTL(ctx, p.keyPrefix+key).Result()
 }
 
-// GetInt get count
+// GetInt get current count
 func (p *PeriodLimit) GetInt(ctx context.Context, key string) (int, bool, error) {
 	v, err := p.store.Get(ctx, p.keyPrefix+key).Int()
 	if err != nil {
