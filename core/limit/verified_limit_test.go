@@ -210,7 +210,7 @@ func TestVerifyCode_CodeMaxError(t *testing.T) {
 
 	l := NewVerified(new(TestProvider),
 		redis.NewClient(&redis.Options{Addr: mr.Addr()}),
-		WithVerifiedMaxErrorCount(3),
+		WithVerifiedMaxErrorQuota(3),
 	)
 	err = l.SendCode(target, code)
 	require.Nil(t, err)
@@ -220,7 +220,7 @@ func TestVerifyCode_CodeMaxError(t *testing.T) {
 		assert.Error(t, err, ErrCodeVerification)
 	}
 	err = l.VerifyCode(target, badCode)
-	assert.Error(t, err, ErrCodeMaxError)
+	assert.Error(t, err, ErrCodeMaxErrorQuota)
 }
 
 func TestVerifyCode_Concurrency_CodeMaxError(t *testing.T) {
@@ -233,7 +233,7 @@ func TestVerifyCode_Concurrency_CodeMaxError(t *testing.T) {
 
 	l := NewVerified(new(TestProvider),
 		redis.NewClient(&redis.Options{Addr: mr.Addr()}),
-		WithVerifiedMaxErrorCount(3),
+		WithVerifiedMaxErrorQuota(3),
 	)
 
 	err = l.SendCode(target, code)
@@ -247,7 +247,7 @@ func TestVerifyCode_Concurrency_CodeMaxError(t *testing.T) {
 
 			err := l.VerifyCode(target, badCode)
 			if err != nil {
-				if errors.Is(err, ErrCodeMaxError) {
+				if errors.Is(err, ErrCodeMaxErrorQuota) {
 					atomic.AddUint32(&failedMaxError, 1)
 				} else {
 					atomic.AddUint32(&failedVerify, 1)

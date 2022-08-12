@@ -43,6 +43,7 @@ const (
 	// PeriodLimitStsOverQuota means passed the quota.
 	PeriodLimitStsOverQuota
 
+	// inner lua code
 	innerPeriodLimitAllowed   = 0
 	innerPeriodLimitHitQuota  = 1
 	innerPeriodLimitOverQuota = 2

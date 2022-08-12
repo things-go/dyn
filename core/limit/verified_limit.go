@@ -42,7 +42,7 @@ return 0 -- 成功
 	verifiedLimitVerifyCodeScript = `
 local key = KEYS[1] -- key
 local code = ARGV[1] -- 验证码
-local maxErrorCount = tonumber(ARGV[2]) -- 验证码最大验证失败次数
+local maxErrorQuota = tonumber(ARGV[2]) -- 验证码最大验证失败次数
 local availWindowTime = tonumber(ARGV[3]) -- 验证码有效窗口时间, 单位秒
 local now = tonumber(ARGV[4]) -- 当前时间, 单位秒
 
@@ -56,7 +56,7 @@ local currentCode = redis.call('HGET', key, "code")
 if lastedAt + availWindowTime < now then
     return 2  -- 验证码已过期
 end
-if errCnt >= maxErrorCount then
+if errCnt >= maxErrorQuota then
     return 3  -- 验证码错误次数超过限制
 end
 if currentCode == code then
@@ -75,11 +75,34 @@ var (
 	ErrResendTooFrequently = errors.New("limit: resend too frequently")
 	ErrCodeRequired        = errors.New("limit: code is required")
 	ErrCodeExpired         = errors.New("limit: code is expired")
-	ErrCodeMaxError        = errors.New("limit: reach the maximum error times")
+	ErrCodeMaxErrorQuota   = errors.New("limit: over the maximum error quota")
 	ErrCodeVerification    = errors.New("limit: code verified failed")
 )
 
+// type VerifiedLimitState int
+
 const (
+	// // VerifiedLimitStsUnknown means not initialized state.
+	// VerifiedLimitStsUnknown VerifiedLimitState = -1
+	// // VerifiedLimitStsSuccess means success.
+	// VerifiedLimitStsSuccess VerifiedLimitState = 0
+	//
+	// // send code state value
+	// // VerifiedLimitStsSendCodeOverMaxSendPerDay means passed the max send times per day.
+	// VerifiedLimitStsSendCodeOverMaxSendPerDay VerifiedLimitState = 1
+	// // VerifiedLimitStsSendCodeResendTooFrequently means resend to frequently.
+	// VerifiedLimitStsSendCodeResendTooFrequently VerifiedLimitState = 2
+	//
+	// // VerifiedLimitStsVerifyCodeRequired means need code required, it is empty in store.
+	// VerifiedLimitStsVerifyCodeRequired VerifiedLimitState = 1
+	// // VerifiedLimitStsVerifyCodeExpired means code has expired.
+	// VerifiedLimitStsVerifyCodeExpired VerifiedLimitState = 2
+	// // VerifiedLimitStsVerifyCodeOverMaxErrorQuota means passed the max error quota.
+	// VerifiedLimitStsVerifyCodeOverMaxErrorQuota VerifiedLimitState = 3
+	// // VerifiedLimitStsVerifyCodeVerificationFailure means verification failure.
+	// VerifiedLimitStsVerifyCodeVerificationFailure VerifiedLimitState = 4
+
+	// inner lua send/verify code statue value
 	innerVerifiedLimitSuccess = 0
 	// inner lua send code value
 	innerVerifiedLimitOfSendCodeReachMaxSendPerDay  = 1
@@ -103,7 +126,7 @@ type VerifiedLimit struct {
 	store             *redis.Client    // store client
 	keyPrefix         string           // store 存验证码key的前缀, 默认 verified:
 	keyExpires        time.Duration    // store 存验证码key的过期时间, 默认: 24 小时
-	maxErrorCount     int              // 最大验证失败次数, 默认: 3
+	maxErrorQuota     int              // 最大验证失败次数, 默认: 3
 	maxSendPerDay     int              // 验证码一天最大发送次数, 默认: 10
 	availWindowSec    int              // 验证码有效窗口时间, 默认180, 单位: 秒
 	resendIntervalSec int              // 重发验证码间隔时间, 默认60, 单位: 秒
@@ -131,10 +154,10 @@ func WithVerifiedKeyExpires(expires time.Duration) Option {
 	}
 }
 
-// WithVerifiedMaxErrorCount 验证码最大验证失败次数, 默认: 3
-func WithVerifiedMaxErrorCount(cnt int) Option {
+// WithVerifiedMaxErrorQuota 验证码最大验证失败次数, 默认: 3
+func WithVerifiedMaxErrorQuota(cnt int) Option {
 	return func(v *VerifiedLimit) {
-		v.maxErrorCount = cnt
+		v.maxErrorQuota = cnt
 	}
 }
 
@@ -164,7 +187,7 @@ func NewVerified(p VerifiedProvider, store *redis.Client, opts ...Option) *Verif
 	v := &VerifiedLimit{
 		p,
 		store,
-		"verified:",
+		"limit:verified:",
 		time.Hour * 24,
 		3,
 		10,
@@ -218,7 +241,7 @@ func (v *VerifiedLimit) VerifyCode(target, code string) error {
 		[]string{v.keyPrefix + target},
 		[]string{
 			code,
-			strconv.Itoa(v.maxErrorCount),
+			strconv.Itoa(v.maxErrorQuota),
 			strconv.Itoa(v.availWindowSec),
 			strconv.FormatInt(time.Now().Unix(), 10),
 		},
@@ -239,7 +262,7 @@ func (v *VerifiedLimit) VerifyCode(target, code string) error {
 	case innerVerifiedLimitOfVerifyCodeExpired:
 		err = ErrCodeExpired
 	case innerVerifiedLimitOfVerifyCodeReachMaxError:
-		err = ErrCodeMaxError
+		err = ErrCodeMaxErrorQuota
 	case innerVerifiedLimitOfVerifyCodeVerificationFailure:
 		err = ErrCodeVerification
 	default:

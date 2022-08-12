@@ -57,6 +57,7 @@ const (
 	// PeriodFailureLimitStsOverQuota means over the quota.
 	PeriodFailureLimitStsOverQuota
 
+	// inner lua code
 	// innerPeriodFailureLimitCodeSuccess means success.
 	innerPeriodFailureLimitCodeSuccess = 0
 	// innerPeriodFailureLimitCodeInQuota means within the quota.
