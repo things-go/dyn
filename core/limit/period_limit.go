@@ -34,14 +34,14 @@ end`
 type PeriodLimitState int
 
 const (
-	// Unknown means not initialized state.
-	Unknown PeriodLimitState = iota
-	// Allowed means allowed state.
-	Allowed
-	// HitQuota means this request exactly hit the quota.
-	HitQuota
-	// OverQuota means passed the quota.
-	OverQuota
+	// PeriodLimitStsUnknown means not initialized state.
+	PeriodLimitStsUnknown PeriodLimitState = iota - 1
+	// PeriodLimitStsAllowed means allowed.
+	PeriodLimitStsAllowed
+	// PeriodLimitStsHitQuota means hit the quota.
+	PeriodLimitStsHitQuota
+	// PeriodLimitStsOverQuota means passed the quota.
+	PeriodLimitStsOverQuota
 
 	innerPeriodLimitAllowed   = 0
 	innerPeriodLimitHitQuota  = 1
@@ -49,13 +49,13 @@ const (
 )
 
 // IsAllowed means allowed state.
-func (p PeriodLimitState) IsAllowed() bool { return p == Allowed }
+func (p PeriodLimitState) IsAllowed() bool { return p == PeriodLimitStsAllowed }
 
 // IsHitQuota means this request exactly hit the quota.
-func (p PeriodLimitState) IsHitQuota() bool { return p == HitQuota }
+func (p PeriodLimitState) IsHitQuota() bool { return p == PeriodLimitStsHitQuota }
 
 // IsOverQuota means passed the quota.
-func (p PeriodLimitState) IsOverQuota() bool { return p == OverQuota }
+func (p PeriodLimitState) IsOverQuota() bool { return p == PeriodLimitStsOverQuota }
 
 // A PeriodLimit is used to limit requests during a period of time.
 type PeriodLimit struct {
@@ -97,23 +97,23 @@ func (p *PeriodLimit) Take(ctx context.Context, key string) (PeriodLimitState, e
 		[]string{strconv.Itoa(p.quota), strconv.Itoa(p.calcExpireSeconds())},
 	).Result()
 	if err != nil {
-		return Unknown, err
+		return PeriodLimitStsUnknown, err
 	}
 
 	code, ok := result.(int64)
 	if !ok {
-		return Unknown, ErrUnknownCode
+		return PeriodLimitStsUnknown, ErrUnknownCode
 	}
 
 	switch code {
 	case innerPeriodLimitAllowed:
-		return Allowed, nil
+		return PeriodLimitStsAllowed, nil
 	case innerPeriodLimitHitQuota:
-		return HitQuota, nil
+		return PeriodLimitStsHitQuota, nil
 	case innerPeriodLimitOverQuota:
-		return OverQuota, nil
+		return PeriodLimitStsOverQuota, nil
 	default:
-		return Unknown, ErrUnknownCode
+		return PeriodLimitStsUnknown, ErrUnknownCode
 	}
 }
 

@@ -2,17 +2,11 @@ package limit
 
 import (
 	"context"
-	"errors"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/go-redis/redis/v8"
-)
-
-var (
-	ErrInLimitFailureTimes = errors.New("limit: in limit failure times")
-	ErrOverMaxFailureTimes = errors.New("limit: over the max failure times")
 )
 
 const (
@@ -50,14 +44,35 @@ end
 `
 )
 
+// PeriodFailureLimitState period failure limit state.
+type PeriodFailureLimitState int
+
 const (
-	// 成功
+	// PeriodFailureLimitStsUnknown means not initialized state.
+	PeriodFailureLimitStsUnknown PeriodFailureLimitState = iota - 1
+	// PeriodFailureLimitStsSuccess means success.
+	PeriodFailureLimitStsSuccess
+	// PeriodFailureLimitStsInQuota means within the quota.
+	PeriodFailureLimitStsInQuota
+	// PeriodFailureLimitStsOverQuota means over the quota.
+	PeriodFailureLimitStsOverQuota
+
+	// innerPeriodFailureLimitCodeSuccess means success.
 	innerPeriodFailureLimitCodeSuccess = 0
-	// 错误次数还在限制范围内
-	innerPeriodFailureLimitCodeInLimitFailureTimes = 1
-	// 超过失败最大次数限制
-	innerPeriodFailureLimitCodeOverMaxFailureTimes = 2
+	// innerPeriodFailureLimitCodeInQuota means within the quota.
+	innerPeriodFailureLimitCodeInQuota = 1
+	// innerPeriodFailureLimitCodeOverQuota means passed the quota.
+	innerPeriodFailureLimitCodeOverQuota = 2
 )
+
+// IsSuccess means success state.
+func (p PeriodFailureLimitState) IsSuccess() bool { return p == PeriodFailureLimitStsSuccess }
+
+// IsWithinQuota means within the quota.
+func (p PeriodFailureLimitState) IsWithinQuota() bool { return p == PeriodFailureLimitStsInQuota }
+
+// IsOverQuota means passed the quota.
+func (p PeriodFailureLimitState) IsOverQuota() bool { return p == PeriodFailureLimitStsOverQuota }
 
 // A PeriodFailureLimit is used to limit requests when failure during a period of time.
 type PeriodFailureLimit struct {
@@ -89,29 +104,16 @@ func NewPeriodFailureLimit(periodSecond, quota int, keyPrefix string, store *red
 	return limiter
 }
 
-func (p *PeriodFailureLimit) align() {
-	p.isAlign = true
-}
+func (p *PeriodFailureLimit) align() { p.isAlign = true }
 
-// CheckErr requests a permit.
-// return result:
-// nil: 表示成功
-// ErrUnknownCode: lua脚本错误
-// ErrInLimitFailureTimes: 表示还在最大失败次数范围内
-// ErrOverMaxFailureTimes: 表示超过了最大失败验证次数
-// NOTE: success 为 false, 只会出现 ErrInLimitFailureTimes 或 ErrOverMaxFailureTimes
-func (p *PeriodFailureLimit) CheckErr(ctx context.Context, key string, err error) error {
+// CheckErr requests a permit state.
+// same as Check
+func (p *PeriodFailureLimit) CheckErr(ctx context.Context, key string, err error) (PeriodFailureLimitState, error) {
 	return p.Check(ctx, key, err == nil)
 }
 
 // Check requests a permit.
-// return result:
-// nil: 表示成功
-// ErrUnknownCode: lua脚本错误
-// ErrInLimitFailureTimes: 表示还在最大失败次数范围内
-// ErrOverMaxFailureTimes: 表示超过了最大失败验证次数
-// NOTE: success 为 false, 只会出现 ErrInLimitFailureTimes 或 ErrOverMaxFailureTimes
-func (p *PeriodFailureLimit) Check(ctx context.Context, key string, success bool) error {
+func (p *PeriodFailureLimit) Check(ctx context.Context, key string, success bool) (PeriodFailureLimitState, error) {
 	s := "0"
 	if success {
 		s = "1"
@@ -126,21 +128,21 @@ func (p *PeriodFailureLimit) Check(ctx context.Context, key string, success bool
 		},
 	).Result()
 	if err != nil {
-		return err
+		return PeriodFailureLimitStsUnknown, err
 	}
 	code, ok := result.(int64)
 	if !ok {
-		return ErrUnknownCode
+		return PeriodFailureLimitStsUnknown, ErrUnknownCode
 	}
 	switch code {
 	case innerPeriodFailureLimitCodeSuccess:
-		return nil
-	case innerPeriodFailureLimitCodeInLimitFailureTimes:
-		return ErrInLimitFailureTimes
-	case innerPeriodFailureLimitCodeOverMaxFailureTimes:
-		return ErrOverMaxFailureTimes
+		return PeriodFailureLimitStsSuccess, nil
+	case innerPeriodFailureLimitCodeInQuota:
+		return PeriodFailureLimitStsInQuota, nil
+	case innerPeriodFailureLimitCodeOverQuota:
+		return PeriodFailureLimitStsOverQuota, nil
 	default:
-		return ErrUnknownCode
+		return PeriodFailureLimitStsUnknown, ErrUnknownCode
 	}
 }
 
