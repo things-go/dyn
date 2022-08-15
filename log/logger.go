@@ -93,6 +93,16 @@ func (l *Log) WithValuer(fs ...Valuer) *Log {
 	}
 }
 
+// WithNewValuer return log with new Valuer function without default Valuer.
+func (l *Log) WithNewValuer(fs ...Valuer) *Log {
+	return &Log{
+		l.log,
+		l.level,
+		fs,
+		l.ctx,
+	}
+}
+
 // WithContext return log with inject context.
 func (l *Log) WithContext(ctx context.Context) *Log {
 	return &Log{

@@ -42,6 +42,11 @@ func WithValuer(vs ...Valuer) *Log {
 	return defaultLogger.WithValuer(vs...)
 }
 
+// WithNewValuer return log with new Valuer function without default Valuer.
+func WithNewValuer() *Log {
+	return defaultLogger.WithNewValuer()
+}
+
 // WithContext return log with inject context.
 func WithContext(ctx context.Context) *Log {
 	return defaultLogger.WithContext(ctx)
