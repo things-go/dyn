@@ -19,15 +19,20 @@ import (
 	"github.com/things-go/dyn/core/signature"
 )
 
-// 客户端签名加密过程
-// 随机生成一个randomKey
+// 签名加/解密过程
+// 随机生成一个 randomKey
 // 如果body不为空并且需要加密 cipherBody = Base64(AesCBCEncrypt(randomKey,body)), 消息体传密文
-// 如果body不为空并且不需要加密 cipherBody = body 保留原文, 消息体传原文
-// 拼接str = timestamp+method+url+cipherBody
+// 如果body不为空并且不需要加密 cipherBody = Base64(body), 消息体传原文
+// 拼接签名串 str = timestamp + method + url + cipherBody
 // sign = Base64(HMAC(randomKey,str))
 // secret = Base64(RsaEncrypt(randomKey, pubkey))
-
 // 服务端验签解密过程则是上述的逆过程
+//
+// 请求头:
+//  Timestamp: 时间戳, 单位ms
+//  Secret: randomKey的密文, 即上述 secret
+//  Encrypt: 是否加密消息体, 1: 表示加密, 0: 表示不加密
+//  Sign: 签名, 即上述 sign
 
 // SignOption 签名选项
 type SignOption func(*SignConfig)
@@ -92,7 +97,7 @@ func VerifySign(opts ...SignOption) gin.HandlerFunc {
 		errorFallback: func(c *gin.Context, err error) {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"code":    http.StatusForbidden,
-				"message": "非法请求",
+				"message": "无效请求",
 				"detail":  err.Error(),
 			})
 		},
@@ -106,15 +111,19 @@ func VerifySign(opts ...SignOption) gin.HandlerFunc {
 			return
 		}
 
-		timestamp := c.GetHeader("Timestamp")
-		secret := c.GetHeader("Secret")
+		timestamp := c.GetHeader("Timestamp") // 时间戳
+		secret := c.GetHeader("Secret")       // 密钥
 		if timestamp == "" || secret == "" {
-			cfg.errorFallback(c, errors.New("无效timestamp, secret格式"))
+			cfg.errorFallback(c, errors.New("无效的timestamp, secret"))
 			return
 		}
 		milliTimestamp, err := strconv.ParseInt(timestamp, 10, 64)
 		if err != nil {
-			cfg.errorFallback(c, errors.New("无效timestamp格式"))
+			cfg.errorFallback(c, errors.New("无效的timestamp"))
+			return
+		}
+		if cfg.availWindow > 0 && time.Now().Sub(time.UnixMilli(milliTimestamp)) > cfg.availWindow {
+			cfg.errorFallback(c, errors.New("该请求已过期失效"))
 			return
 		}
 
@@ -135,8 +144,8 @@ func VerifySign(opts ...SignOption) gin.HandlerFunc {
 		var cipherBody string
 
 		if len(body) > 0 {
-			// 是否加密body
-			encrypt := c.GetHeader("Encrypt")
+
+			encrypt := c.GetHeader("Encrypt") // 是否加密body
 			if encrypt == "1" {
 				cipherBody = *(*string)(unsafe.Pointer(&body))
 				origBody, err = signature.Decrypt(randomKey, cipherBody)
@@ -149,10 +158,10 @@ func VerifySign(opts ...SignOption) gin.HandlerFunc {
 			cfg.errorFallback(c, err)
 			return
 		}
+		c.Request.Body.Close()
 		c.Request.Body = io.NopCloser(bytes.NewBuffer(origBody))
 
-		method, target := strings.ToUpper(c.Request.Method), c.Request.RequestURI
-		str := timestamp + method + target + cipherBody
+		str := timestamp + strings.ToUpper(c.Request.Method) + c.Request.RequestURI + cipherBody
 		calcSign := signature.Signature(randomKey, str)
 		sign := c.GetHeader("Sign")
 
@@ -160,11 +169,7 @@ func VerifySign(opts ...SignOption) gin.HandlerFunc {
 		// log.Printf("客户端上传的sign: %s\r\n", sign)
 		// log.Printf("计算得到的sign: %s\r\n", calcSign)
 		if calcSign != sign {
-			cfg.errorFallback(c, errors.New("无效签名"))
-			return
-		}
-		if cfg.availWindow > 0 && time.Now().Sub(time.UnixMilli(milliTimestamp)) > cfg.availWindow {
-			cfg.errorFallback(c, errors.New("该请求已过期"))
+			cfg.errorFallback(c, errors.New("无效的签名"))
 			return
 		}
 		c.Next()
