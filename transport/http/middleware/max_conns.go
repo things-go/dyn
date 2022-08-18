@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/things-go/dyn/core/limit"
+	"github.com/things-go/core/limit"
 	"github.com/things-go/dyn/log"
 )
 

@@ -3,11 +3,11 @@ dyn project toolkit for gin
 
 [![GoDoc](https://godoc.org/github.com/things-go/dyn?status.svg)](https://godoc.org/github.com/things-go/dyn)
 [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-blue?logo=go&logoColor=white)](https://pkg.go.dev/github.com/things-go/dyn?tab=doc)
-[![codecov](https://codecov.io/gh/things-go/ginp/branch/main/graph/badge.svg)](https://codecov.io/gh/things-go/ginp)
+[![codecov](https://codecov.io/gh/things-go/dyn/branch/main/graph/badge.svg)](https://codecov.io/gh/things-go/dyn)
 [![Tests](https://github.com/things-go/dyn/actions/workflows/ci.yml/badge.svg)](https://github.com/things-go/dyn/actions/workflows/ci.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/things-go/dyn)](https://goreportcard.com/report/github.com/things-go/dyn)
-[![Licence](https://img.shields.io/github/license/things-go/ginp)](https://raw.githubusercontent.com/things-go/ginp/main/LICENSE)
-[![Tag](https://img.shields.io/github/v/tag/things-go/ginp)](https://github.com/things-go/dyn/tags)
+[![Licence](https://img.shields.io/github/license/things-go/dyn)](https://raw.githubusercontent.com/things-go/dyn/main/LICENSE)
+[![Tag](https://img.shields.io/github/v/tag/things-go/dyn)](https://github.com/things-go/dyn/tags)
 
 ## Usage
 
