@@ -4,7 +4,7 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/things-go/dyn/core/metadata"
+	"github.com/things-go/core/metadata"
 )
 
 const TokenUniqueId = "dyn:auth:uniqueId" // nolint: revive

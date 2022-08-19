@@ -4,20 +4,17 @@ go 1.18
 
 require (
 	github.com/gin-gonic/gin v1.8.1
-	github.com/go-playground/form/v4 v4.2.0
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/shopspring/decimal v1.3.1
-	github.com/spf13/cast v1.5.0
 	github.com/stretchr/testify v1.8.0
-	github.com/things-go/core v0.0.1-rc1
+	github.com/things-go/core v0.0.1-rc2
 	go.uber.org/multierr v1.8.0
 	go.uber.org/zap v1.22.0
-	google.golang.org/genproto v0.0.0-20220711200234-e2551ce405a2
+	google.golang.org/genproto v0.0.0-20220817144833-d7fd3f11b9b1
 	google.golang.org/grpc v1.48.0
 	google.golang.org/protobuf v1.28.1
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -30,6 +27,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/goccy/go-json v0.9.8 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
@@ -46,4 +44,5 @@ require (
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
