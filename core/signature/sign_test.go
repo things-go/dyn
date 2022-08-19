@@ -42,10 +42,10 @@ func TestSignSha256Hex(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got := SignSHA256Hex(mp, "a74db8b7-3b97-4653-8e80-ae90ba0e81b3")
+	got := SignHexSha256(mp, "a74db8b7-3b97-4653-8e80-ae90ba0e81b3")
 	want := "01a85d60c6a67d7ab58408e99109779f075825275f470104018a939b1a196917"
 	if got != want {
-		t.Errorf("SignSHA256Hex() = %v, want %v", got, want)
+		t.Errorf("SignHexSha256() = %v, want %v", got, want)
 	}
 }
 
@@ -56,12 +56,12 @@ var testMp = map[string]any{
 }
 
 func TestSignSha256(t *testing.T) {
-	t.Log(SignHmacSHA256(testMp, "11"))
+	t.Log(SignHmacSha256(testMp, "11"))
 }
 
 func BenchmarkSign(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		SignSHA256Hex(testMp, "123456")
+		SignHexSha256(testMp, "123456")
 	}
 }
 

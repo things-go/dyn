@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// ConcatMapWithSort 拼接对象, 按key排序
+// ConcatMapWithSort 拼接对象, 按key排序, 忽略空值.
 // 格式: k1=v1&k2=v2 (其中sep1='=', sep2='&')
 func ConcatMapWithSort(mp map[string]string, sep1, sep2 string) string {
 	if len(mp) == 0 {
@@ -41,7 +41,7 @@ func ConcatMapWithSort(mp map[string]string, sep1, sep2 string) string {
 	return bs.String()
 }
 
-// ConcatMap 拼接对象,按key排序
+// ConcatMap 拼接对象,按key排序, 忽略空值.
 // hasBrace 前后是否带有大括号
 // 格式: hasBrace=false, k1=v1&k2=v2
 // 格式: hasBrace=true, {k1=v1&k2=v2}

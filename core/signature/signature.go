@@ -4,10 +4,8 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/hmac"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/sha256"
 	"encoding/base64"
 	"errors"
 	"unsafe"
@@ -21,13 +19,6 @@ var (
 	ErrInvalidIvSize          = errors.New("iv length must equal block size")
 	ErrUnPaddingOutOfRange    = errors.New("unPadding out of range")
 )
-
-// Signature hmac sha256的base64
-func Signature(key, str string) string {
-	h := hmac.New(sha256.New, []byte(key))
-	h.Write([]byte(str))
-	return base64.StdEncoding.EncodeToString(h.Sum(nil))
-}
 
 // RsaEncrypt rsa PKCS #1 v1.5. and base64 encoded.
 func RsaEncrypt(pub *rsa.PublicKey, rawText string) (string, error) {
@@ -51,9 +42,9 @@ func RsaDecrypt(pri *rsa.PrivateKey, ciphertext string) (string, error) {
 	return *(*string)(unsafe.Pointer(&bb)), nil
 }
 
-// Encrypt aes cbc, iv + ciphertext base64 encoded.
-// key must 16, 24, 32
-func Encrypt(key string, rawText []byte) (string, error) {
+// AesCbcEncrypt aes cbc, iv + ciphertext  with base64 encoded.
+// key must one of 16, 24, 32
+func AesCbcEncrypt(key string, rawText []byte) (string, error) {
 	bsKey := []byte(key)
 	cip, err := aes.NewCipher(bsKey)
 	if err != nil {
@@ -75,9 +66,9 @@ func Encrypt(key string, rawText []byte) (string, error) {
 	return base64.StdEncoding.EncodeToString(cipherText), nil
 }
 
-// Decrypt aes cbc,  base64 decoded iv + ciphertext.
+// AesCbcDecrypt aes cbc,  base64 decoded iv + ciphertext.
 // key must 16, 24, 32
-func Decrypt(key, cipherText string) ([]byte, error) {
+func AesCbcDecrypt(key, cipherText string) ([]byte, error) {
 	body, err := base64.StdEncoding.DecodeString(cipherText)
 	if err != nil {
 		return nil, err

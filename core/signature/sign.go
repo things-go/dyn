@@ -11,14 +11,14 @@ import (
 
 type H map[string]any
 
-func SignSHA256Hex(mp map[string]any, secret string) string {
+func SignHexSha256(mp map[string]any, secret string) string {
 	return Sign(mp, secret, func(src string) string {
 		bs := sha256.Sum256([]byte(src))
 		return hex.EncodeToString(bs[:])
 	})
 }
 
-func SignHmacSHA256(mp map[string]any, secret string) string {
+func SignHmacSha256(mp map[string]any, secret string) string {
 	return Sign(mp, secret, func(src string) string {
 		bs := hmac.New(sha256.New, []byte(src)).Sum(nil)
 		return base64.StdEncoding.EncodeToString(bs)
@@ -47,10 +47,10 @@ func VerifyIat(iat string, timeout time.Duration) bool {
 
 func IatSign(mp map[string]any) (iat, sign string) {
 	iat = Iat()
-	return iat, SignHmacSHA256(mp, iat)
+	return iat, SignHmacSha256(mp, iat)
 }
 
 // VerifySign 验证签发时间是否在有效期内, 并验证签名是否正确
 func VerifyIatSign(iat, targetSign string, iatTimout time.Duration, mp map[string]any) bool {
-	return VerifyIat(iat, iatTimout) && targetSign == SignHmacSHA256(mp, iat)
+	return VerifyIat(iat, iatTimout) && targetSign == SignHmacSha256(mp, iat)
 }

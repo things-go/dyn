@@ -18,10 +18,10 @@ func TestEncryptDecrypt(t *testing.T) {
 		_, err := io.ReadFull(rand.Reader, key)
 		require.NoError(t, err)
 
-		cipherText, err := Encrypt(string(key), plainText)
+		cipherText, err := AesCbcEncrypt(string(key), plainText)
 		require.NoError(t, err)
 
-		got, err := Decrypt(string(key), cipherText)
+		got, err := AesCbcDecrypt(string(key), cipherText)
 		require.NoError(t, err)
 		require.Equal(t, plainText, got)
 	}
