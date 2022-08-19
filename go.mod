@@ -11,10 +11,9 @@ require (
 	github.com/shopspring/decimal v1.3.1
 	github.com/spf13/cast v1.5.0
 	github.com/stretchr/testify v1.8.0
-	github.com/things-go/core v0.0.0-20220818100237-8cd72163e6c0
+	github.com/things-go/core v0.0.1-rc1
 	go.uber.org/multierr v1.8.0
 	go.uber.org/zap v1.22.0
-	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
 	google.golang.org/genproto v0.0.0-20220711200234-e2551ce405a2
 	google.golang.org/grpc v1.48.0
 	google.golang.org/protobuf v1.28.1
@@ -40,6 +39,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
+	golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8 // indirect
 	golang.org/x/net v0.0.0-20220708220712-1185a9018129 // indirect
 	golang.org/x/sys v0.0.0-20220712014510-0a85c31ab51e // indirect
 	golang.org/x/text v0.3.7 // indirect
