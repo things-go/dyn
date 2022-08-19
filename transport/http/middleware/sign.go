@@ -144,7 +144,6 @@ func VerifySign(opts ...SignOption) gin.HandlerFunc {
 		var cipherBody string
 
 		if len(body) > 0 {
-
 			encrypt := c.GetHeader("AesCbcEncrypt") // 是否加密body
 			if encrypt == "1" {
 				cipherBody = *(*string)(unsafe.Pointer(&body))
