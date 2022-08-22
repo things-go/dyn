@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/things-go/dyn/binding"
+	"github.com/things-go/clip/binding"
 	"github.com/things-go/dyn/errors"
 )
 
