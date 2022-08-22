@@ -9,7 +9,7 @@ require (
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/shopspring/decimal v1.3.1
 	github.com/stretchr/testify v1.8.0
-	github.com/things-go/core v0.0.1-rc2
+	github.com/things-go/clip v0.0.1-rc3
 	go.uber.org/multierr v1.8.0
 	go.uber.org/zap v1.22.0
 	google.golang.org/genproto v0.0.0-20220817144833-d7fd3f11b9b1

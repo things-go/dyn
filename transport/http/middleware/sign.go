@@ -16,7 +16,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 
-	"github.com/things-go/core/signature"
+	"github.com/things-go/clip/signature"
 )
 
 // 签名加/解密过程

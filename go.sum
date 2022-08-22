@@ -124,8 +124,8 @@ github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/stretchr/testify v1.7.2/go.mod h1:R6va5+xMeoiuVRoj+gSkQ7d3FALtqAAGI1FQKckRals=
 github.com/stretchr/testify v1.8.0 h1:pSgiaMZlXftHpm5L7V1+rVB+AZJydKsMxsQBIJw4PKk=
 github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
-github.com/things-go/core v0.0.1-rc2 h1:4cYon8pG7RPsuDbX/q3Tq61jGs604X1SfBV8/s4ZctU=
-github.com/things-go/core v0.0.1-rc2/go.mod h1:Cceo6Cn7LWCdUAL0KpYzJnDdyyglzW45wY1ARfqqFKU=
+github.com/things-go/clip v0.0.1-rc3 h1:25pldf0N2ue6v42J5qm62TixhYu0imANglztcy6WjFs=
+github.com/things-go/clip v0.0.1-rc3/go.mod h1:iDRf7PQ7F2wMkXD3wforzB9aUQfWOq1E6CcCLGMBvsE=
 github.com/ugorji/go v1.2.7/go.mod h1:nF9osbDWLy6bDVv/Rtoh6QgnvNDpmCalQV5urGCCS6M=
 github.com/ugorji/go/codec v1.2.7 h1:YPXUKf7fYbp/y8xloBqZOw2qaVggbfwMlI8WM3wZUJ0=
 github.com/ugorji/go/codec v1.2.7/go.mod h1:WGN1fab3R1fzQlVQTkfxVtIBhWDRqOviHU95kRgeqEY=

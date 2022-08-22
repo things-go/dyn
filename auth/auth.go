@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/things-go/core/metadata"
+	"github.com/things-go/clip/metadata"
 )
 
 type Provider interface {

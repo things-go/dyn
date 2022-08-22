@@ -8,7 +8,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 
-	"github.com/things-go/core/metadata"
+	"github.com/things-go/clip/metadata"
 )
 
 type Claims struct {
