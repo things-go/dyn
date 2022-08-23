@@ -1,12 +1,12 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/things-go/clip/limit"
-	"github.com/things-go/dyn/log"
 )
 
 // MaxConns returns a middleware that limit the concurrent connections.
@@ -21,7 +21,7 @@ func MaxConns(n int) gin.HandlerFunc {
 		if latch.TryBorrow() {
 			defer func() {
 				if err := latch.Return(); err != nil {
-					log.WithContext(c.Request.Context()).Error(err)
+					log.Println(err)
 				}
 			}()
 			c.Next()
