@@ -11,6 +11,7 @@ import (
 	"github.com/things-go/clip/metadata"
 )
 
+// Claims jwt claims
 type Claims struct {
 	Type     string            `json:"type,omitempty"`
 	Scopes   []string          `json:"scopes,omitempty"`
@@ -29,21 +30,17 @@ type JwtConfig struct {
 	// Public key for asymmetric algorithms
 	// Required, RS256, RS384 or RS512.
 	PrivKey, PubKey string
-	Issuer          string
 }
 
 type JwtProvider struct {
 	signingMethod jwt.SigningMethod
 	encodeKey     any
 	decodeKey     any
-	issuer        string
 }
 
 func NewJwtProvider(c JwtConfig) (Provider, error) {
 	var err error
-	mw := &JwtProvider{
-		issuer: c.Issuer,
-	}
+	mw := &JwtProvider{}
 
 	usingAlgo := false
 	switch c.Algorithm {
@@ -86,7 +83,7 @@ func (sf *JwtProvider) generateToken(id string, acc *Account, timeout time.Durat
 		Scopes:   acc.Scopes,
 		Metadata: acc.Metadata,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    sf.issuer,
+			Issuer:    acc.Issuer,
 			Subject:   acc.Subject,
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
 			NotBefore: jwt.NewNumericDate(now),
@@ -124,9 +121,6 @@ func (sf *JwtProvider) ParseToken(tokenString string) (*Account, error) {
 	if !ok || claims == nil {
 		return nil, jwt.ErrTokenInvalidClaims
 	}
-	if claims.Issuer != sf.issuer {
-		return nil, jwt.ErrTokenInvalidIssuer
-	}
 	if claims.Subject == "" {
 		return nil, ErrInvalidToken
 	}
@@ -137,6 +131,7 @@ func (sf *JwtProvider) ParseToken(tokenString string) (*Account, error) {
 	return &Account{
 		Subject:  cc.Subject,
 		Type:     cc.Type,
+		Issuer:   cc.Issuer,
 		Scopes:   cc.Scopes,
 		Metadata: cc.Metadata,
 	}, nil
