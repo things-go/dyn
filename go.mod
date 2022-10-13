@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/gin-gonic/gin v1.8.1
-	github.com/things-go/clip v0.0.5
+	github.com/things-go/clip v0.1.0
 	google.golang.org/genproto v0.0.0-20220929141241-1ce7b20da813
 	google.golang.org/grpc v1.50.0
 	google.golang.org/protobuf v1.28.1
