@@ -4,9 +4,9 @@ go 1.18
 
 require (
 	github.com/gin-gonic/gin v1.8.1
-	github.com/things-go/clip v0.0.5
-	google.golang.org/genproto v0.0.0-20220929141241-1ce7b20da813
-	google.golang.org/grpc v1.50.1
+	github.com/things-go/clip v0.1.4
+	google.golang.org/genproto v0.0.0-20221014213838-99cd37c6964a
+	google.golang.org/grpc v1.50.0
 	google.golang.org/protobuf v1.28.1
 )
 
@@ -28,9 +28,9 @@ require (
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
-	golang.org/x/crypto v0.0.0-20220926161630-eccd6366d1be // indirect
+	golang.org/x/crypto v0.0.0-20221012134737-56aed061732a // indirect
 	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
-	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/sys v0.0.0-20221013171732-95e765b1cc43 // indirect
+	golang.org/x/text v0.3.8 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
