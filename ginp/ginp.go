@@ -21,9 +21,6 @@ func Response(c *gin.Context, data ...any) {
 
 func Abort(c *gin.Context, err error) {
 	e := errors.FromError(err)
-	if !gin.IsDebugging() {
-		e.Detail = ""
-	}
 
 	status := 599
 	switch {
