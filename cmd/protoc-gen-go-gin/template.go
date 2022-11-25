@@ -14,9 +14,7 @@ var httpTemplate = `
 {{$allowFromAPI := .AllowFromAPI}}
 type {{$svrType}}HTTPServer interface {
 {{- range .MethodSets}}
-{{- if .Comment}}
 	{{.Comment}}
-{{- end }}
 {{- if eq $rpcMode "rpcx"}}
 	{{.Name}}(context.Context, *{{.Request}}, *{{.Reply}}) error
 {{- else}}
@@ -135,9 +133,7 @@ func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gi
 {{- if $allowFromAPI}}
 type From{{$svrType}}HTTPServer interface {
 {{- range .MethodSets}}
-{{- if .Comment}}
 	{{.Comment}}
-{{- end }}
 {{- if eq $rpcMode "rpcx"}}
 	{{.Name}}(context.Context, *{{.Request}}) (*{{.Reply}}, error)
 {{- else}}
