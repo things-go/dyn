@@ -3,7 +3,7 @@ projDir=$(dirname $scriptDir) # 项目路径
 
 protoDir="example"
 outDir=${projDir}/example # 生成代码路径
-thirdPartyDir=${projDir}/third_party
+thirdPartyDir=${projDir}/example/third_party
 
 protoc \
   -I ${projDir}/${protoDir} \
