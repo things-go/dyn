@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/types/pluginpb"
 )
 
-const version = "v0.0.2"
+const version = "v0.1.2"
 
 var showVersion = flag.Bool("version", false, "print the version and exit")
 var errorsPackage = flag.String("epk", "github.com/things-go/dyn/errors", "errors core package in your project")
