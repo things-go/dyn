@@ -239,7 +239,7 @@ func buildMethodDesc(g *protogen.GeneratedFile, m *protogen.Method, method, path
 		comment = strings.TrimLeft(comment, "//") // nolint
 		comment = "// " + m.GoName + comment
 	} else {
-		comment = "// " + m.GoName + "..."
+		comment = "// " + m.GoName + " ..."
 	}
 	return &methodDesc{
 		Name:    m.GoName,
