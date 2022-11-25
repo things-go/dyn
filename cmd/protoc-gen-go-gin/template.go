@@ -14,15 +14,21 @@ var httpTemplate = `
 {{$allowFromAPI := .AllowFromAPI}}
 type {{$svrType}}HTTPServer interface {
 {{- range .MethodSets}}
+{{- if .Comment}}
+	{{.Comment}}
+{{- end }}
 {{- if eq $rpcMode "rpcx"}}
 	{{.Name}}(context.Context, *{{.Request}}, *{{.Reply}}) error
 {{- else}}
 	{{.Name}}(context.Context, *{{.Request}}) (*{{.Reply}}, error)
 {{- end}}
 {{- end}}
+	// Validate the request.
     Validate(context.Context, any) error
+	// ErrorEncoder encode error response.
 	ErrorEncoder(c *gin.Context, err error, isBadRequest bool)
 {{- if $useCustomResp}}
+	// ResponseEncoder encode response.
 	ResponseEncoder(c *gin.Context, v any)
 {{- end}}
 }
@@ -100,6 +106,9 @@ func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gi
 			srv.ErrorEncoder(c, err, true)
 			return
 		}
+		{{- if .Comment}}
+			{{.Comment}}
+		{{- end }}
 		{{- if eq $rpcMode "rpcx"}}
 		err = srv.{{.Name}}(c.Request.Context(), &req, &reply)
 		{{- else}}
@@ -129,6 +138,9 @@ func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gi
 {{- if $allowFromAPI}}
 type From{{$svrType}}HTTPServer interface {
 {{- range .MethodSets}}
+{{- if .Comment}}
+	{{.Comment}}
+{{- end }}
 {{- if eq $rpcMode "rpcx"}}
 	{{.Name}}(context.Context, *{{.Request}}) (*{{.Reply}}, error)
 {{- else}}
@@ -180,6 +192,8 @@ func (f *From{{$svrType}}) {{.Name}}(ctx context.Context, req *{{.Request}}) (*{
 {{- end}}
 `
 
+var ginHttpTemplate = template.Must(template.New("gin").Parse(strings.TrimSpace(httpTemplate)))
+
 type serviceDesc struct {
 	ServiceType string // Greeter
 	ServiceName string // helloworld.Greeter
@@ -198,6 +212,7 @@ type methodDesc struct {
 	Num     int    // 方法号
 	Request string // 请求结构
 	Reply   string // 回复结构
+	Comment string // 方法注释
 	// http_rule
 	Path         string // 路径
 	Method       string // 方法
@@ -213,11 +228,7 @@ func (s *serviceDesc) execute() string {
 		s.MethodSets[m.Name] = m
 	}
 	buf := new(bytes.Buffer)
-	tmpl, err := template.New("gin").Parse(strings.TrimSpace(httpTemplate))
-	if err != nil {
-		panic(err)
-	}
-	if err := tmpl.Execute(buf, s); err != nil {
+	if err := ginHttpTemplate.Execute(buf, s); err != nil {
 		panic(err)
 	}
 	return strings.Trim(buf.String(), "\r\n")

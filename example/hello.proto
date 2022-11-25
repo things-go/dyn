@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package helloworld;
+
+option go_package = "github.com/things-go/examples";
+option java_multiple_files = true;
+option java_package = "io.grpc.things-go.examples";
+option java_outer_classname = "HelloWorldProto";
+
+import "google/api/annotations.proto";
+
+// The greeting service definition.
+service Greeter {
+  // Sends a hello
+  rpc SayHello (HelloRequest) returns (HelloReply) {// I am a trailing comment
+    option (google.api.http) = {
+      post: "/v1/hello",
+      body: "*"
+    };
+  }
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+  string message = 1;
+}
