@@ -1,11 +1,13 @@
 package ginp
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/things-go/dyn/errors"
+	dhttp "github.com/things-go/dyn/transport/http"
 )
 
 func Response(c *gin.Context, data ...any) {
@@ -30,4 +32,17 @@ func Abort(c *gin.Context, err error) {
 		status = int(e.Code)
 	}
 	c.AbortWithStatusJSON(status, e)
+}
+
+type Implemented struct{}
+
+func (*Implemented) Validate(ctx context.Context, v any) error {
+	return dhttp.Validate(ctx, v)
+}
+
+func (*Implemented) ErrorEncoder(c *gin.Context, err error, isBadRequest bool) {
+	if isBadRequest {
+		err = errors.ErrBadRequest(err.Error())
+	}
+	Abort(c, err)
 }
