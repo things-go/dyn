@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package helloworld;
+
+option go_package = "github.com/things-go/examples";
+option java_multiple_files = true;
+option java_package = "io.grpc.things-go.examples";
+option java_outer_classname = "HelloWorldProto";
+
+import "enumerate/enumerate.proto";
+
+// Foo 状态值
+enum FooStatus {
+  option (things_go.enumerate.enabled) = true;
+
+  // 空
+  FOO_STATUS_NONE = 0[(things_go.enumerate.mapping) = "00"];
+  // 打开
+  FOO_STATUS_UP = 1;
+  // 关闭
+  FOO_STATUS_DOWN = 2[(things_go.enumerate.mapping) = "22"];
+  // 左
+  FOO_STATUS_LEFT = 3[(things_go.enumerate.mapping) = "33"];
+  // 右
+  FOO_STATUS_RIGHT = 4[(things_go.enumerate.mapping) = "44"];
+}
