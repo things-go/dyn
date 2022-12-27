@@ -104,9 +104,12 @@ func intoEnums(protoEnums []*protogen.Enum) []*Enum {
 			eValueMp[v.Desc.Index()] = mappingValue
 		}
 		b, _ := json.Marshal(eValueMp)
+		bb := strings.ReplaceAll(string(b), `"`, "")
+		bb = strings.Replace(bb, "{", "[", 1)
+		bb = strings.Replace(bb, "}", "]", 1)
 		enums = append(enums, &Enum{
 			Name:    string(pe.Desc.Name()),
-			Comment: strings.ReplaceAll(string(pe.Comments.Leading), "\n", "") + ", " + string(b),
+			Comment: strings.ReplaceAll(string(pe.Comments.Leading), "\n", "") + ", " + bb,
 			Values:  eValues,
 		})
 	}
