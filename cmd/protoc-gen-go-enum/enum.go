@@ -94,9 +94,10 @@ func intoEnums(protoEnums []*protogen.Enum) []*Enum {
 		for _, v := range pe.Values {
 			mpv := proto.GetExtension(v.Desc.Options(), enumerate.E_Mapping)
 			mappingValue, _ := mpv.(string)
+
 			eValues = append(eValues, &EnumValue{
-				Index:      v.Desc.Index(),
 				Value:      string(v.Desc.Name()),
+				Number:     int(v.Desc.Number()),
 				CamelValue: infra.CamelCase(string(v.Desc.Name())),
 				Mapping:    mappingValue,
 				Comment:    strings.TrimRight(string(v.Comments.Leading), "\n"),

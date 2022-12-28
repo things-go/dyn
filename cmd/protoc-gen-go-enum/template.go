@@ -10,7 +10,7 @@ import (
 )
 
 type EnumValue struct {
-	Index      int
+	Number     int
 	Value      string
 	CamelValue string
 	Mapping    string

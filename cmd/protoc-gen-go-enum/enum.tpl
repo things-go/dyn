@@ -14,7 +14,7 @@ package {{.Package}}
 // __{{$e.Name}}Mapping {{$e.Name}} mapping
 var __{{$e.Name}}Mapping = map[int]string{
 {{- range $ee := $e.Values}}
-	{{$ee.Index}}: "{{$ee.Mapping}}",
+	{{$ee.Number}}: "{{$ee.Mapping}}",
 {{- end}}
 }
 // Get{{$e.Name}}Desc get mapping description
