@@ -87,16 +87,17 @@ func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gi
 		var err error
 		var req {{.Request}}
 		{{- if eq $rpcMode "rpcx"}}
-		var reply {{.Reply}}
-		{{- else}}
+        var reply = new({{.Reply}})
+        {{- else}}
 		var reply *{{.Reply}}
-		{{- end}}
+        {{- end}}
+
 		if err = shouldBind(&req); err != nil {
 			srv.ErrorEncoder(c, err, true)
 			return
 		}
 		{{- if eq $rpcMode "rpcx"}}
-		err = srv.{{.Name}}(c.Request.Context(), &req, &reply)
+		err = srv.{{.Name}}(c.Request.Context(), &req, reply)
 		{{- else}}
 		reply, err = srv.{{.Name}}(c.Request.Context(), &req)
 		{{- end}}
