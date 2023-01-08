@@ -105,18 +105,10 @@ func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gi
 			srv.ErrorEncoder(c, err, false)
 			return
 		}
-		{{- if eq $rpcMode "rpcx"}}
 		{{- if $useCustomResp}}
 		srv.ResponseEncoder(c, reply{{.ResponseBody}})
 		{{- else}}
 		c.JSON(200, reply{{.ResponseBody}})
-		{{- end}}
-		{{- else}}
-		{{- if $useCustomResp}}
-		srv.ResponseEncoder(c, reply{{.ResponseBody}})
-		{{- else}}
-		c.JSON(200, reply{{.ResponseBody}})
-		{{- end}}
 		{{- end}}
 	}
 }
