@@ -59,9 +59,9 @@ func Register{{$svrType}}HTTPServer(g *gin.RouterGroup, srv {{$svrType}}HTTPServ
 {{range .Methods}}
 func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		shouldBind := func(req any) error {
+		shouldBind := func(req *{{.Request}}) error {
 			{{- if .HasBody}}
-			if err := c.ShouldBind(req); err != nil {
+			if err := c.ShouldBind(req{{.Body}}); err != nil {
 				return err
 			}
 			{{- if not (eq .Body "")}}
@@ -71,7 +71,7 @@ func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gi
 			{{- end}}
 			{{- else}}
 			{{- if not (eq .Method "PATCH")}}
-			if err := c.ShouldBindQuery(req); err != nil {
+			if err := c.ShouldBindQuery(req{{.Body}}); err != nil {
 				return err
 			}
 			{{- end}}
@@ -106,15 +106,15 @@ func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gi
 		}
 		{{- if eq $rpcMode "rpcx"}}
 		{{- if $useCustomResp}}
-		srv.ResponseEncoder(c, &reply)
+		srv.ResponseEncoder(c, reply{{.ResponseBody}})
 		{{- else}}
-		c.JSON(200, &reply)
+		c.JSON(200, reply{{.ResponseBody}})
 		{{- end}}
 		{{- else}}
 		{{- if $useCustomResp}}
-		srv.ResponseEncoder(c, reply)
+		srv.ResponseEncoder(c, reply{{.ResponseBody}})
 		{{- else}}
-		c.JSON(200, reply)
+		c.JSON(200, reply{{.ResponseBody}})
 		{{- end}}
 		{{- end}}
 	}
