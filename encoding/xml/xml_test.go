@@ -98,7 +98,6 @@ func TestCodec_Unmarshal(t *testing.T) {
 
 func TestCodec_NilUnmarshal(t *testing.T) {
 	codec := Codec{}
-	
 	tests := []struct {
 		want     interface{}
 		InputXML string
