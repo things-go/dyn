@@ -13,8 +13,10 @@ type {{$svrType}}HTTPServer interface {
 	{{.Name}}(context.Context, *{{.Request}}) (*{{.Reply}}, error)
 {{- end}}
 {{- end}}
+{{- if not $useEncoding}}
 	// Validate the request.
     Validate(context.Context, any) error
+{{- end}}
 	// ErrorEncoder encode error response.
 	ErrorEncoder(c *gin.Context, err error, isBadRequest bool)
 {{- if $useCustomResp}}
@@ -36,7 +38,9 @@ func (*Unimplemented{{$svrType}}HTTPServer) {{.Name}}(context.Context, *{{.Reque
 }
 {{- end}}
 {{- end}}
+{{- if not $useEncoding}}
 func (*Unimplemented{{$svrType}}HTTPServer) Validate(context.Context, any) error { return nil }
+{{- end}}
 func (*Unimplemented{{$svrType}}HTTPServer) ErrorEncoder(c *gin.Context, err error, isBadRequest bool) {
 	var code = 500
 	if isBadRequest {
@@ -86,6 +90,7 @@ func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gi
 				return err
 			}
 			{{- end}}
+			return http.Validate(c.Request.Context(), req)
 		    {{- else}}
 			{{- if .HasBody}}
 			if err := c.ShouldBind(req{{.Body}}); err != nil {
@@ -108,8 +113,8 @@ func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gi
 				return err
 			}
 			{{- end}}
-			{{- end}}
 			return srv.Validate(c.Request.Context(), req)
+			{{- end}}
 		}
 
 		var err error
@@ -152,7 +157,9 @@ type From{{$svrType}}HTTPServer interface {
 	{{.Name}}(context.Context, *{{.Request}}, *{{.Reply}}) error
 {{- end}}
 {{- end}}
+{{- if not $useEncoding}}
     Validate(context.Context, any) error
+{{- end}}
 	ErrorEncoder(c *gin.Context, err error, isBadRequest bool)
 {{- if $useCustomResp}}
 	ResponseEncoder(c *gin.Context, v any)

@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/things-go/dyn/errors"
-	dhttp "github.com/things-go/dyn/transport/http"
+	transportHttp "github.com/things-go/dyn/transport/http"
 )
 
 func Response(c *gin.Context, data ...any) {
@@ -37,7 +37,7 @@ func Abort(c *gin.Context, err error) {
 type Implemented struct{}
 
 func (*Implemented) Validate(ctx context.Context, v any) error {
-	return dhttp.Validate(ctx, v)
+	return transportHttp.Validate(ctx, v)
 }
 
 func (*Implemented) ErrorEncoder(c *gin.Context, err error, isBadRequest bool) {
