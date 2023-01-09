@@ -19,9 +19,10 @@ import (
 const deprecationComment = "// Deprecated: Do not use."
 
 var (
-	errorsPackage  = protogen.GoImportPath("errors")
-	contextPackage = protogen.GoImportPath("context")
-	ginPackage     = protogen.GoImportPath("github.com/gin-gonic/gin")
+	errorsPackage        = protogen.GoImportPath("errors")
+	contextPackage       = protogen.GoImportPath("context")
+	ginPackage           = protogen.GoImportPath("github.com/gin-gonic/gin")
+	transportHttpPackage = protogen.GoImportPath("github.com/things-go/dyn/transport/http")
 )
 
 var methodSets = make(map[string]int)
@@ -70,6 +71,9 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 	g.P("var _ = ", errorsPackage.Ident("New"))
 	g.P("var _ = ", contextPackage.Ident("TODO"))
 	g.P("var _ = ", ginPackage.Ident("New"))
+	if *useEncoding {
+		g.P("var _ = ", transportHttpPackage.Ident("Bind"))
+	}
 	g.P()
 
 	for _, service := range file.Services {
@@ -91,6 +95,7 @@ func genService(gen *protogen.Plugin, file *protogen.File,
 		UseCustomResponse: *useCustomResponse,
 		RpcMode:           *rpcMode,
 		AllowFromAPI:      *allowFromAPI,
+		UseEncoding:       *useEncoding,
 	}
 	for _, method := range service.Methods {
 		if method.Desc.IsStreamingClient() || method.Desc.IsStreamingServer() {

@@ -11,9 +11,9 @@ import (
 // Codec is a Codec implementation with yaml.
 type Codec struct{}
 
-// ContentType always Returns "application/x-yaml".
+// ContentType always Returns "application/x-yaml; charset=utf-8".
 func (*Codec) ContentType(_ interface{}) string {
-	return "application/x-yaml"
+	return "application/x-yaml; charset=utf-8"
 }
 func (*Codec) Marshal(v interface{}) ([]byte, error) {
 	return yaml.Marshal(v)

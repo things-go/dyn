@@ -20,7 +20,7 @@ type NestedOrder struct {
 func TestCodec_ContentType(t *testing.T) {
 	codec := Codec{}
 
-	want := "application/xml"
+	want := "application/xml; charset=utf-8"
 	if got := codec.ContentType(struct{}{}); got != want {
 		t.Errorf("m.ContentType(_) failed, got = %q; want %q; ", got, want)
 	}

@@ -2,8 +2,12 @@ package encoding
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
+	"io"
 	"mime/multipart"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"reflect"
 	"testing"
@@ -13,8 +17,166 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
+	"github.com/things-go/dyn/encoding/codec"
 	"github.com/things-go/dyn/encoding/internal/examplepb"
+	"github.com/things-go/dyn/encoding/json"
+	"github.com/things-go/dyn/encoding/msgpack"
 )
+
+var marshalers = []dummyMarshaler{0, 1}
+
+func TestEncoding_Register(t *testing.T) {
+	t.Run("empty MIME type", func(t *testing.T) {
+		registry := New()
+
+		err := registry.Register("", &json.Codec{})
+		require.Error(t, err)
+	})
+	t.Run("<nil> marshaller not allow", func(t *testing.T) {
+		registry := New()
+
+		err := registry.Register(MIMEURI, nil)
+		require.Error(t, err)
+	})
+	t.Run("remove MIME type", func(t *testing.T) {
+		registry := New()
+
+		got := registry.Get(MIMEMSGPACK2)
+		_, ok := got.(*msgpack.Codec)
+		require.True(t, ok, "should be got MIME wildcard marshaler")
+
+		err := registry.Delete(MIMEMSGPACK2)
+		require.NoError(t, err)
+
+		got = registry.Get(MIMEMSGPACK2)
+		_, ok = got.(*HTTPBodyCodec)
+		require.True(t, ok, "should be got MIME wildcard marshaler")
+	})
+	t.Run("remove not allow MIME type", func(t *testing.T) {
+		registry := New()
+
+		err := registry.Delete(MIMEURI)
+		require.Error(t, err)
+		err = registry.Delete(MIMEQuery)
+		require.Error(t, err)
+		err = registry.Delete(MIMEURI)
+		require.Error(t, err)
+	})
+}
+
+func TestEncoding_MarshalerForRequest_Wildcard(t *testing.T) {
+	var registry = New()
+
+	r, err := http.NewRequest("GET", "http://example.com", nil)
+	if err != nil {
+		t.Fatalf(`http.NewRequest("GET", "http://example.com", nil) failed with %v; want success`, err)
+	}
+
+	r.Header.Set("Accept", "application/unknown")
+	r.Header.Set("Content-Type", "application/unknown")
+	_, in := registry.InboundForRequest(r)
+	if _, ok := in.(*HTTPBodyCodec); !ok {
+		t.Errorf("in = %#v; want a HTTPBodyCodec", in)
+	}
+	out := registry.OutboundForRequest(r)
+	if _, ok := out.(*HTTPBodyCodec); !ok {
+		t.Errorf("out = %#v; want a HTTPBodyCodec", in)
+	}
+}
+
+func TestEncoding_MarshalerForRequest_NotWildcard(t *testing.T) {
+	var registry = New()
+
+	err := registry.Register("application/x-0", &marshalers[0])
+	require.NoError(t, err)
+	err = registry.Register("application/x-1", &marshalers[1])
+	require.NoError(t, err)
+
+	tests := []struct {
+		name        string
+		contentType string
+		accept      string
+		wantIn      codec.Marshaler
+		wantOut     codec.Marshaler
+	}{
+		// You can specify a marshaler for a specific MIME type.
+		// The output marshaler follows the input one unless specified.
+		{
+			name:        "",
+			contentType: "application/x-0",
+			accept:      "application/x-0",
+			wantIn:      &marshalers[0],
+			wantOut:     &marshalers[0],
+		},
+		// You can also separately specify an output marshaler
+		{
+			name:        "",
+			contentType: "application/x-0",
+			accept:      "application/x-1",
+			wantIn:      &marshalers[0],
+			wantOut:     &marshalers[1],
+		},
+		{
+			name:        "",
+			contentType: "application/x-1; charset=UTF-8",
+			accept:      "application/x-1",
+			wantIn:      &marshalers[1],
+			wantOut:     &marshalers[1],
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			r, err := http.NewRequest("GET", "http://example.com", nil)
+			if err != nil {
+				t.Fatalf(`http.NewRequest("GET", "http://example.com", nil) failed with %v; want success`, err)
+			}
+			r.Header.Set("Accept", test.accept)
+			r.Header.Set("Content-Type", test.contentType)
+			_, in := registry.InboundForRequest(r)
+			if got, want := in, test.wantIn; got != want {
+				t.Errorf("in = %#v; want %#v", got, want)
+			}
+			out := registry.OutboundForRequest(r)
+			if got, want := out, test.wantOut; got != want {
+				t.Errorf("out = %#v; want %#v", got, want)
+			}
+		})
+	}
+}
+
+type dummyMarshaler int
+
+func (dummyMarshaler) ContentType(_ interface{}) string { return "" }
+func (dummyMarshaler) Marshal(interface{}) ([]byte, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (dummyMarshaler) Unmarshal([]byte, interface{}) error {
+	return errors.New("not implemented")
+}
+
+func (dummyMarshaler) NewDecoder(r io.Reader) codec.Decoder {
+	return dummyDecoder{}
+}
+func (dummyMarshaler) NewEncoder(w io.Writer) codec.Encoder {
+	return dummyEncoder{}
+}
+
+func (m dummyMarshaler) GoString() string {
+	return fmt.Sprintf("dummyMarshaler(%d)", m)
+}
+
+type dummyDecoder struct{}
+
+func (dummyDecoder) Decode(interface{}) error {
+	return errors.New("not implemented")
+}
+
+type dummyEncoder struct{}
+
+func (dummyEncoder) Encode(interface{}) error {
+	return errors.New("not implemented")
+}
 
 type TestMode struct {
 	Id   string `json:"id" yaml:"id" xml:"id" toml:"id" msgpack:"id"`
@@ -46,7 +208,8 @@ var protoMessage = &examplepb.ABitOfEverything{
 	},
 }
 
-func TestBind(t *testing.T) {
+func TestEncoding_Bind(t *testing.T) {
+	registry := New()
 	tests := []struct {
 		name    string
 		genReq  func() (*http.Request, error)
@@ -56,7 +219,7 @@ func TestBind(t *testing.T) {
 		{
 			"default: marshaler",
 			func() (*http.Request, error) {
-				marshaler := GetMarshaler(MIMEWildcard)
+				marshaler := registry.Get(MIMEWildcard)
 
 				b, err := marshaler.Marshal(&examplepb.Complex{
 					Id:     11,
@@ -155,7 +318,7 @@ func TestBind(t *testing.T) {
 			func() (*http.Request, error) {
 				buf := &bytes.Buffer{}
 
-				m := GetMarshaler("application/x-protobuf")
+				m := registry.Get("application/x-protobuf")
 				err := m.NewEncoder(buf).Encode(protoMessage)
 				if err != nil {
 					return nil, err
@@ -223,7 +386,7 @@ func TestBind(t *testing.T) {
 			func() (*http.Request, error) {
 				buf := &bytes.Buffer{}
 
-				m := GetMarshaler("application/x-msgpack")
+				m := registry.Get("application/x-msgpack")
 				err := m.NewEncoder(buf).Encode(&TestMode{
 					Id:   "foo",
 					Name: "bar",
@@ -253,7 +416,7 @@ func TestBind(t *testing.T) {
 				t.Errorf("genReq() error = %v", err)
 			}
 			got := alloc(reflect.TypeOf(tt.want))
-			if err = Bind(req, got.Interface()); (err != nil) != tt.wantErr {
+			if err = registry.Bind(req, got.Interface()); (err != nil) != tt.wantErr {
 				t.Errorf("Bind() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if _, ok := tt.want.(proto.Message); ok {
@@ -267,7 +430,9 @@ func TestBind(t *testing.T) {
 	}
 }
 
-func TestBindQuery(t *testing.T) {
+func TestEncoding_BindQuery(t *testing.T) {
+	registry := New()
+
 	tests := []struct {
 		name    string
 		genReq  func() (*http.Request, error)
@@ -313,7 +478,7 @@ func TestBindQuery(t *testing.T) {
 				t.Errorf("genReq() error = %v", err)
 			}
 			got := alloc(reflect.TypeOf(tt.want))
-			if err = BindQuery(req, got.Interface()); (err != nil) != tt.wantErr {
+			if err = registry.BindQuery(req, got.Interface()); (err != nil) != tt.wantErr {
 				t.Errorf("BindQuery() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if _, ok := tt.want.(proto.Message); ok {
@@ -327,7 +492,9 @@ func TestBindQuery(t *testing.T) {
 	}
 }
 
-func TestBindUri(t *testing.T) {
+func TestEncoding_BindUri(t *testing.T) {
+	registry := New()
+
 	tests := []struct {
 		name    string
 		genReq  func() (*http.Request, error)
@@ -407,7 +574,7 @@ func TestBindUri(t *testing.T) {
 				t.Errorf("genReq() error = %v", err)
 			}
 			got := alloc(reflect.TypeOf(tt.want))
-			if err = BindUri(req, got.Interface()); (err != nil) != tt.wantErr {
+			if err = registry.BindUri(req, got.Interface()); (err != nil) != tt.wantErr {
 				t.Errorf("BindQuery() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if _, ok := tt.want.(proto.Message); ok {
@@ -427,4 +594,69 @@ func alloc(t reflect.Type) reflect.Value {
 		return reflect.ValueOf(new(interface{}))
 	}
 	return reflect.New(t.Elem())
+}
+
+func TestEncoding_Render(t *testing.T) {
+	type args struct {
+		w      http.ResponseWriter
+		genReq func() (*http.Request, error)
+		v      any
+	}
+	tests := []struct {
+		name     string
+		encoding *Encoding
+		args     args
+		want     string
+		wantErr  bool
+	}{
+		{
+			"<nil> payload",
+			New(),
+			args{
+				w: httptest.NewRecorder(),
+				genReq: func() (*http.Request, error) {
+					return http.NewRequest(http.MethodGet, "http://example.com", nil)
+				},
+				v: nil,
+			},
+			"",
+			false,
+		},
+		{
+			"<nil> payload",
+			New(),
+			args{
+				w: httptest.NewRecorder(),
+				genReq: func() (*http.Request, error) {
+					req, err := http.NewRequest(http.MethodPost, "http://example.com", nil)
+					if err != nil {
+						return nil, err
+					}
+					req.Header.Set("Accept", "application/json; charset=utf-8")
+					return req, nil
+				},
+				v: TestMode{
+					Id:   "foo",
+					Name: "bar",
+				},
+			},
+			`{"id":"foo","name":"bar"}`,
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req, err := tt.args.genReq()
+			if err != nil {
+				t.Errorf("genReq() error = %v", err)
+			}
+			if err = tt.encoding.Render(tt.args.w, req, tt.args.v); (err != nil) != tt.wantErr {
+				t.Errorf("Render() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			w := tt.args.w.(*httptest.ResponseRecorder)
+			if got := w.Body.String(); got != tt.want {
+				t.Errorf("Render() result got = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

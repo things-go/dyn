@@ -23,7 +23,7 @@ func TestCodec_ContentType(t *testing.T) {
 		ContentType: expected,
 	}
 	res := m.ContentType(nil)
-	if res != "application/json" {
+	if res != "application/json; charset=utf-8" {
 		t.Errorf("content type not equal (%q, %q)", res, expected)
 	}
 	res = m.ContentType(message)

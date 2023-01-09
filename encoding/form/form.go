@@ -33,7 +33,7 @@ func New(tagName string) *Codec {
 }
 
 func (*Codec) ContentType(_ interface{}) string {
-	return "application/x-www-form-urlencoded"
+	return "application/x-www-form-urlencoded; charset=utf-8"
 }
 func (c *Codec) Marshal(v any) ([]byte, error) {
 	vs, err := c.Encode(v)

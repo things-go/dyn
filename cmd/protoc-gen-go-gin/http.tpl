@@ -3,6 +3,7 @@
 {{$useCustomResp := .UseCustomResponse}}
 {{$rpcMode := .RpcMode}}
 {{$allowFromAPI := .AllowFromAPI}}
+{{$useEncoding := .UseEncoding}}
 type {{$svrType}}HTTPServer interface {
 {{- range .MethodSets}}
 	{{.Comment}}
@@ -59,7 +60,33 @@ func Register{{$svrType}}HTTPServer(g *gin.RouterGroup, srv {{$svrType}}HTTPServ
 {{range .Methods}}
 func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		{{- if and $useEncoding .HasVars}}
+		c.Request = http.RequestWithUri(c.Request, c.Params)
+		{{- end}}
 		shouldBind := func(req *{{.Request}}) error {
+		    {{- if $useEncoding}}
+		    {{- if .HasBody}}
+			if err := http.Bind(c, req{{.Body}}); err != nil {
+				return err
+			}
+			{{- if not (eq .Body "")}}
+			if err := http.BindQuery(c, req); err != nil {
+				return err
+			}
+			{{- end}}
+			{{- else}}
+			{{- if not (eq .Method "PATCH")}}
+			if err := http.BindQuery(c, req{{.Body}}); err != nil {
+				return err
+			}
+			{{- end}}
+			{{- end}}
+			{{- if .HasVars}}
+			if err := http.BindUri(c, req); err != nil {
+				return err
+			}
+			{{- end}}
+		    {{- else}}
 			{{- if .HasBody}}
 			if err := c.ShouldBind(req{{.Body}}); err != nil {
 				return err
@@ -80,6 +107,7 @@ func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gi
 			if err := c.ShouldBindUri(req); err != nil {
 				return err
 			}
+			{{- end}}
 			{{- end}}
 			return srv.Validate(c.Request.Context(), req)
 		}
@@ -104,7 +132,11 @@ func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gi
 		{{- if $useCustomResp}}
 		srv.ResponseEncoder(c, reply{{.ResponseBody}})
 		{{- else}}
+		{{- if $useEncoding}}
+		http.Render(c, 200, reply{{.ResponseBody}})
+		{{- else}}
 		c.JSON(200, reply{{.ResponseBody}})
+		{{- end}}
 		{{- end}}
 	}
 }
