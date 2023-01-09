@@ -10,7 +10,6 @@ import (
 
 	"github.com/things-go/dyn/encoding/codec"
 	"github.com/things-go/dyn/encoding/form"
-	"github.com/things-go/dyn/encoding/json"
 	"github.com/things-go/dyn/encoding/jsonpb"
 	"github.com/things-go/dyn/encoding/msgpack"
 	"github.com/things-go/dyn/encoding/proto"
@@ -62,6 +61,7 @@ func New() *Encoding {
 			MIMEWildcard: &HTTPBodyCodec{
 				Marshaler: &jsonpb.Codec{
 					MarshalOptions: protojson.MarshalOptions{
+						UseProtoNames:  true,
 						UseEnumNumbers: true,
 					},
 					UnmarshalOptions: protojson.UnmarshalOptions{
@@ -74,14 +74,22 @@ func New() *Encoding {
 
 			MIMEPOSTForm:          form.New("json"),
 			MIMEMultipartPOSTForm: &form.MultipartCodec{Codec: form.New("json")},
-			MIMEJSON:              &json.Codec{},
-			MIMEXML:               &xml.Codec{},
-			MIMEXML2:              &xml.Codec{},
-			MIMEPROTOBUF:          &proto.Codec{},
-			MIMEMSGPACK:           &msgpack.Codec{},
-			MIMEMSGPACK2:          &msgpack.Codec{},
-			MIMEYAML:              &yaml.Codec{},
-			MIMETOML:              &toml.Codec{},
+			MIMEJSON: &jsonpb.Codec{
+				MarshalOptions: protojson.MarshalOptions{
+					UseProtoNames:  true,
+					UseEnumNumbers: true,
+				},
+				UnmarshalOptions: protojson.UnmarshalOptions{
+					DiscardUnknown: true,
+				},
+			},
+			MIMEXML:      &xml.Codec{},
+			MIMEXML2:     &xml.Codec{},
+			MIMEPROTOBUF: &proto.Codec{},
+			MIMEMSGPACK:  &msgpack.Codec{},
+			MIMEMSGPACK2: &msgpack.Codec{},
+			MIMEYAML:     &yaml.Codec{},
+			MIMETOML:     &toml.Codec{},
 		},
 	}
 }
