@@ -26,7 +26,7 @@ type Codec struct {
 }
 
 func (*Codec) ContentType(_ interface{}) string {
-	return "application/json"
+	return "application/json; charset=utf-8"
 }
 
 func (j *Codec) Marshal(v interface{}) ([]byte, error) {

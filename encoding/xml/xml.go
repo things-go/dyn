@@ -10,9 +10,9 @@ import (
 // Codec is a Codec implementation with xml.
 type Codec struct{}
 
-// ContentType always Returns "application/xml".
+// ContentType always Returns "application/xml; charset=utf-8".
 func (*Codec) ContentType(_ interface{}) string {
-	return "application/xml"
+	return "application/xml; charset=utf-8"
 }
 func (*Codec) Marshal(v interface{}) ([]byte, error) {
 	return xml.Marshal(v)

@@ -13,7 +13,7 @@ type Codec struct{}
 
 // ContentType always Returns "application/yaml".
 func (*Codec) ContentType(_ interface{}) string {
-	return "application/toml"
+	return "application/toml; charset=utf-8"
 }
 func (*Codec) Marshal(v interface{}) ([]byte, error) {
 	return toml.Marshal(v)

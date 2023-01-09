@@ -14,24 +14,39 @@ import (
 //
 // The NewEncoder and NewDecoder types return *json.Encoder and
 // *json.Decoder respectively.
-type Codec struct{}
+type Codec struct {
+	// UseNumber causes the Decoder to unmarshal a number into an interface{} as a
+	// Number instead of as a float64.
+	UseNumber bool
+	// DisallowUnknownFields causes the Decoder to return an error when the destination
+	// is a struct and the input contains object keys which do not match any
+	// non-ignored, exported fields in the destination.
+	DisallowUnknownFields bool
+}
 
 // ContentType always Returns "application/json".
 func (*Codec) ContentType(_ interface{}) string {
-	return "application/json"
+	return "application/json; charset=utf-8"
 }
-func (j *Codec) Marshal(v interface{}) ([]byte, error) {
+func (*Codec) Marshal(v interface{}) ([]byte, error) {
 	return json.Marshal(v)
 }
-func (j *Codec) Unmarshal(data []byte, v interface{}) error {
+func (*Codec) Unmarshal(data []byte, v interface{}) error {
 	return json.Unmarshal(data, v)
 }
-func (j *Codec) NewDecoder(r io.Reader) codec.Decoder {
-	return json.NewDecoder(r)
+func (c *Codec) NewDecoder(r io.Reader) codec.Decoder {
+	decoder := json.NewDecoder(r)
+	if c.UseNumber {
+		decoder.UseNumber()
+	}
+	if c.DisallowUnknownFields {
+		decoder.DisallowUnknownFields()
+	}
+	return decoder
 }
-func (j *Codec) NewEncoder(w io.Writer) codec.Encoder {
+func (c *Codec) NewEncoder(w io.Writer) codec.Encoder {
 	return json.NewEncoder(w)
 }
-func (j *Codec) Delimiter() []byte {
+func (c *Codec) Delimiter() []byte {
 	return []byte("\n")
 }

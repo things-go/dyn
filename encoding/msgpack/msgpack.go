@@ -12,9 +12,9 @@ import (
 // Codec is a Codec implementation with xml.
 type Codec struct{}
 
-// ContentType always Returns "application/x-msgpack".
+// ContentType always Returns "application/x-msgpack; charset=utf-8".
 func (*Codec) ContentType(_ interface{}) string {
-	return "application/x-msgpack"
+	return "application/x-msgpack; charset=utf-8"
 }
 func (c *Codec) Marshal(v interface{}) ([]byte, error) {
 	b := &bytes.Buffer{}

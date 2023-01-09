@@ -11,7 +11,7 @@ import (
 func TestCodec_ContentType(t *testing.T) {
 	codec := Codec{}
 
-	want := "application/toml"
+	want := "application/toml; charset=utf-8"
 	if got := codec.ContentType(struct{}{}); got != want {
 		t.Errorf("m.ContentType(_) failed, got = %q; want %q; ", got, want)
 	}

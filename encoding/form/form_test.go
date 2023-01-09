@@ -40,8 +40,8 @@ func TestNew(t *testing.T) {
 func TestFormCodec(t *testing.T) {
 	codec := New("json")
 
-	t.Run("name", func(t *testing.T) {
-		require.Equal(t, "application/x-www-form-urlencoded", codec.ContentType(struct{}{}))
+	t.Run("Content Type", func(t *testing.T) {
+		require.Equal(t, "application/x-www-form-urlencoded; charset=utf-8", codec.ContentType(struct{}{}))
 	})
 
 	t.Run("Marshal", func(t *testing.T) {

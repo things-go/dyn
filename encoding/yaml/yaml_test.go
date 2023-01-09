@@ -10,7 +10,7 @@ import (
 func TestCodec_ContentType(t *testing.T) {
 	var m Codec
 
-	want := "application/x-yaml"
+	want := "application/x-yaml; charset=utf-8"
 	if got := m.ContentType(struct{}{}); got != want {
 		t.Errorf("m.ContentType(_) failed, got = %q; want %q; ", got, want)
 	}
