@@ -93,10 +93,10 @@ func (i *Implemented) BindUri(c *gin.Context, v any) error {
 func (i *Implemented) RequestWithUri(req *http.Request, params gin.Params) *http.Request {
 	return transportHttp.RequestWithUri(req, params)
 }
-func (i *Implemented) Render(c *gin.Context, statusCode int, v any) {
-	c.Writer.WriteHeader(statusCode)
+func (i *Implemented) Render(c *gin.Context, v any) {
+	c.Writer.WriteHeader(http.StatusOK)
 	err := i.Encoding.Render(c.Writer, c.Request, v)
 	if err != nil {
-		c.String(500, "Render failed cause by %v", err)
+		c.String(http.StatusInternalServerError, "Render failed cause by %v", err)
 	}
 }
