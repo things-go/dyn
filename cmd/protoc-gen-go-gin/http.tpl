@@ -62,7 +62,7 @@ func (*Unimplemented{{$svrType}}HTTPServer) ErrorEncoder(c *gin.Context, err err
 }
 {{- if $useEncoding}}
 func (*Unimplemented{{$svrType}}HTTPServer) Bind(c *gin.Context, v any) error {
-    return c.Bind(v)
+    return c.ShouldBind(v)
 }
 func (*Unimplemented{{$svrType}}HTTPServer) BindQuery(c *gin.Context, v any) error {
     return c.ShouldBindQuery(v)

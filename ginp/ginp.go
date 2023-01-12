@@ -82,18 +82,31 @@ func (*Implemented) ErrorEncoder(c *gin.Context, err error, isBadRequest bool) {
 }
 
 func (i *Implemented) Bind(c *gin.Context, v any) error {
+	if i.Encoding == nil {
+		return c.ShouldBind(v)
+	}
 	return i.Encoding.Bind(c.Request, v)
 }
 func (i *Implemented) BindQuery(c *gin.Context, v any) error {
+	if i.Encoding == nil {
+		return c.ShouldBindQuery(v)
+	}
 	return i.Encoding.BindQuery(c.Request, v)
 }
 func (i *Implemented) BindUri(c *gin.Context, v any) error {
+	if i.Encoding == nil {
+		return c.ShouldBindUri(v)
+	}
 	return i.Encoding.BindUri(c.Request, v)
 }
 func (i *Implemented) RequestWithUri(req *http.Request, params gin.Params) *http.Request {
 	return transportHttp.RequestWithUri(req, params)
 }
 func (i *Implemented) Render(c *gin.Context, v any) {
+	if i.Encoding == nil {
+		c.JSON(http.StatusOK, v)
+		return
+	}
 	c.Writer.WriteHeader(http.StatusOK)
 	err := i.Encoding.Render(c.Writer, c.Request, v)
 	if err != nil {
