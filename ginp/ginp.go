@@ -6,10 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/things-go/dyn/encoding"
-	"github.com/things-go/dyn/encoding/jsonpb"
 	"github.com/things-go/dyn/errors"
 	transportHttp "github.com/things-go/dyn/transport/http"
 )
@@ -45,23 +43,8 @@ type Implemented struct {
 }
 
 func NewDefaultImplemented() *Implemented {
-	e := encoding.New()
-	err := e.Register(encoding.MIMEJSON, &Codec{
-		Marshaler: &jsonpb.Codec{
-			MarshalOptions: protojson.MarshalOptions{
-				UseProtoNames:  true,
-				UseEnumNumbers: true,
-			},
-			UnmarshalOptions: protojson.UnmarshalOptions{
-				DiscardUnknown: true,
-			},
-		},
-	})
-	if err != nil {
-		panic(err)
-	}
 	return &Implemented{
-		Encoding:              e,
+		Encoding:              encoding.New(),
 		Validation:            transportHttp.Validator(),
 		DisableBindValidation: false,
 	}
