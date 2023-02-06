@@ -10,7 +10,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.6
 	github.com/spf13/cast v1.5.0
 	github.com/stretchr/testify v1.8.1
-	github.com/ugorji/go/codec v1.2.8
+	github.com/ugorji/go/codec v1.2.9
 	google.golang.org/genproto v0.0.0-20230106154932-a12b697841d9
 	google.golang.org/grpc v1.52.3
 	google.golang.org/protobuf v1.28.1
