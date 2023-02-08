@@ -11,8 +11,8 @@ require (
 	github.com/spf13/cast v1.5.0
 	github.com/stretchr/testify v1.8.1
 	github.com/ugorji/go/codec v1.2.9
-	google.golang.org/genproto v0.0.0-20230106154932-a12b697841d9
-	google.golang.org/grpc v1.52.3
+	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f
+	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/yaml.v3 v3.0.1
 )
