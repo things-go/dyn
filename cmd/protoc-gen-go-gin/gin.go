@@ -239,17 +239,9 @@ func buildMethodDesc(g *protogen.GeneratedFile, m *protogen.Method, method, path
 			}
 		}
 	}
-	comment := ""
-	if str := m.Comments.Leading.String(); str != "" {
-		comment += str
-	}
-	if str := m.Comments.Trailing.String(); str != "" {
-		comment += str
-	}
+	comment := m.Comments.Leading.String() + m.Comments.Trailing.String()
 	if comment != "" {
-		comment = strings.TrimRight(comment, "\n")
-		comment = strings.TrimLeft(comment, "//") // nolint
-		comment = "// " + m.GoName + comment
+		comment = "// " + m.GoName + strings.TrimPrefix(strings.TrimSuffix(comment, "\n"), "//")
 	} else {
 		comment = "// " + m.GoName + " ..."
 	}
