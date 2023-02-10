@@ -271,7 +271,7 @@ func transformPathParams(path string) string {
 func buildPathVars(_ *protogen.Method, path string) (res []string) {
 	for _, v := range strings.Split(path, "/") {
 		if strings.HasPrefix(v, "{") && strings.HasSuffix(v, "}") {
-			res = append(res, strings.TrimRight(strings.TrimLeft(v, "{"), "}"))
+			res = append(res, strings.TrimSuffix(strings.TrimPrefix(v, "{"), "}"))
 		}
 	}
 	return
