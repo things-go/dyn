@@ -10,17 +10,17 @@ import (
 )
 
 type EnumValue struct {
-	Number     int
-	Value      string
-	CamelValue string
-	Mapping    string
-	Comment    string
+	Number     int    // 编号
+	Value      string // 值
+	CamelValue string // 驼峰值
+	Mapping    string // 映射值
+	Comment    string // 注释
 }
 
 type Enum struct {
-	Name    string
-	Comment string
-	Values  []*EnumValue
+	Name    string       // 名称
+	Comment string       // 注释
+	Values  []*EnumValue // 枚举项
 }
 
 //go:embed enum.tpl
