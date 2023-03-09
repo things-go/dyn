@@ -13,7 +13,7 @@ require (
 	github.com/ugorji/go/codec v1.2.10
 	google.golang.org/genproto v0.0.0-20230227214838-9b19f0bdc514
 	google.golang.org/grpc v1.53.0
-	google.golang.org/protobuf v1.28.1
+	google.golang.org/protobuf v1.29.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
