@@ -7,9 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 
-	"github.com/things-go/dyn/encoding"
 	"github.com/things-go/dyn/errors"
 	transportHttp "github.com/things-go/dyn/transport/http"
+	"github.com/things-go/encoding"
 )
 
 func Response(c *gin.Context, data ...any) {

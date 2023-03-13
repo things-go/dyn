@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/things-go/dyn/encoding"
+	"github.com/things-go/encoding"
 )
 
 func RequestWithUri(req *http.Request, params gin.Params) *http.Request {

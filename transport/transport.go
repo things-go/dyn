@@ -25,10 +25,22 @@ type Transporter interface {
 
 // Header is the storage medium used by a Header.
 type Header interface {
+	Len() int
+	// Len returns the number of items in header.
 	Get(key string) string
+	// Get returns the value associated with the passed key.
 	Add(key, value string)
+	// Add adds the key, value pair to the header.
 	Set(key string, value string)
+	// Append adds the values to key k, not overwriting what was already stored at
+	// that key.
+	Append(key string, vals ...string)
+	// Delete removes the values for a given key k which is converted to lowercase
+	// before removing it from header.
+	Delete(key string)
+	// Keys lists the keys stored in this carrier.
 	Keys() []string
+	// Clone returns a copy of h or nil if h is nil.
 	Clone() Header
 }
 

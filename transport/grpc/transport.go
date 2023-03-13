@@ -47,6 +47,9 @@ func (tr *Transport) ResponseHeader() transport.Header {
 
 type header metadata.MD
 
+// Len returns the number of items in header.
+func (h header) Len() int { return metadata.MD(h).Len() }
+
 // Get returns the value associated with the passed key.
 func (h header) Get(key string) string {
 	vals := metadata.MD(h).Get(key)
@@ -61,6 +64,18 @@ func (h header) Add(key, value string) { metadata.MD(h).Append(key, value) }
 
 // Set stores the key-value pair.
 func (h header) Set(key string, value string) { metadata.MD(h).Set(key, value) }
+
+// Append adds the values to key k, not overwriting what was already stored at
+// that key.
+//
+// k is converted to lowercase before storing in header.
+func (h header) Append(key string, vals ...string) {
+	metadata.MD(h).Append(key, vals...)
+}
+
+// Delete removes the values for a given key k which is converted to lowercase
+// before removing it from header.
+func (h header) Delete(key string) { metadata.MD(h).Delete(key) }
 
 // Keys lists the keys stored in this carrier.
 func (h header) Keys() []string {

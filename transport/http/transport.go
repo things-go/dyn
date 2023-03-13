@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+	"net/textproto"
 
 	"github.com/gin-gonic/gin"
 
@@ -59,6 +60,9 @@ func (tr *Transport) GinContext() *gin.Context { return tr.ginContext }
 
 type header http.Header
 
+// Len returns the number of items in header.
+func (h header) Len() int { return len(h) }
+
 // Get returns the value associated with the passed key.
 func (h header) Get(key string) string { return http.Header(h).Get(key) }
 
@@ -67,6 +71,22 @@ func (h header) Add(key, value string) { http.Header(h).Add(key, value) }
 
 // Set stores the key-value pair.
 func (h header) Set(key string, value string) { http.Header(h).Set(key, value) }
+
+// Append adds the values to key k, not overwriting what was already stored at
+// that key.
+//
+// k is converted to lowercase before storing in header.
+func (h header) Append(key string, vals ...string) {
+	if len(vals) == 0 {
+		return
+	}
+	key = textproto.CanonicalMIMEHeaderKey(key)
+	h[key] = append(h[key], vals...)
+}
+
+// Delete removes the values for a given key k which is converted to lowercase
+// before removing it from header.
+func (h header) Delete(key string) { textproto.MIMEHeader(h).Del(key) }
 
 // Keys lists the keys stored in this carrier.
 func (h header) Keys() []string {
