@@ -8,7 +8,6 @@ option java_package = "io.grpc.things-go.examples";
 option java_outer_classname = "HelloWorldProto";
 
 import "google/api/annotations.proto";
-import "enumerate/enumerate.proto";
 
 // The greeting service definition.
 service Greeter {
@@ -29,14 +28,4 @@ message HelloRequest {
 // The response message containing the greetings
 message HelloReply {
   string message = 1;
-}
-
-// hello 状态值
-enum HelloStatus {
-  // 空
-  NONE = 0[(things_go.enumerate.mapping) = "0x"];;
-  // 打开
-  OPEN = 1[(things_go.enumerate.mapping) = "1x"];;
-  // 关闭
-  CLOSED = 2[(things_go.enumerate.mapping) = "2x"];;
 }

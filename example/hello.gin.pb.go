@@ -33,6 +33,7 @@ type UnimplementedGreeterHTTPServer struct{}
 func (*UnimplementedGreeterHTTPServer) SayHello(context.Context, *HelloRequest) (*HelloReply, error) {
 	return nil, errors.New("method SayHello not implemented")
 }
+
 func (*UnimplementedGreeterHTTPServer) Validate(context.Context, any) error { return nil }
 func (*UnimplementedGreeterHTTPServer) ErrorEncoder(c *gin.Context, err error, isBadRequest bool) {
 	var code = 500
@@ -49,7 +50,7 @@ func RegisterGreeterHTTPServer(g *gin.RouterGroup, srv GreeterHTTPServer) {
 
 func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		shouldBind := func(req any) error {
+		shouldBind := func(req *HelloRequest) error {
 			if err := c.ShouldBind(req); err != nil {
 				return err
 			}
@@ -59,6 +60,7 @@ func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) gin.HandlerFunc {
 		var err error
 		var req HelloRequest
 		var reply *HelloReply
+
 		if err = shouldBind(&req); err != nil {
 			srv.ErrorEncoder(c, err, true)
 			return
