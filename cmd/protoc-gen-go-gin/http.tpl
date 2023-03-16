@@ -1,17 +1,11 @@
 {{$svrType := .ServiceType}}
 {{$svrName := .ServiceName}}
 {{$useCustomResp := .UseCustomResponse}}
-{{$rpcMode := .RpcMode}}
-{{$allowFromAPI := .AllowFromAPI}}
 {{$useEncoding := .UseEncoding}}
 type {{$svrType}}HTTPServer interface {
 {{- range .MethodSets}}
 	{{.Comment}}
-{{- if eq $rpcMode "rpcx"}}
-	{{.Name}}(context.Context, *{{.Request}}, *{{.Reply}}) error
-{{- else}}
 	{{.Name}}(context.Context, *{{.Request}}) (*{{.Reply}}, error)
-{{- end}}
 {{- end}}
 	// Validate the request.
     Validate(context.Context, any) error
@@ -102,17 +96,13 @@ func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gi
 
 		var err error
 		var req {{.Request}}
-        var reply *{{.Reply}} {{- if eq $rpcMode "rpcx"}}= new({{.Reply}}){{- end}}
+        var reply *{{.Reply}}
 
 		if err = shouldBind(&req); err != nil {
 			srv.ErrorEncoder(c, err, true)
 			return
 		}
-		{{- if eq $rpcMode "rpcx"}}
-		err = srv.{{.Name}}(c.Request.Context(), &req, reply)
-		{{- else}}
 		reply, err = srv.{{.Name}}(c.Request.Context(), &req)
-		{{- end}}
 		if err != nil {
 			srv.ErrorEncoder(c, err, false)
 			return
@@ -125,73 +115,3 @@ func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gi
 	}
 }
 {{end}}
-
-{{- if $allowFromAPI}}
-type From{{$svrType}}HTTPServer interface {
-{{- range .MethodSets}}
-	{{.Comment}}
-{{- if eq $rpcMode "rpcx"}}
-	{{.Name}}(context.Context, *{{.Request}}) (*{{.Reply}}, error)
-{{- else}}
-	{{.Name}}(context.Context, *{{.Request}}, *{{.Reply}}) error
-{{- end}}
-{{- end}}
-    Validate(context.Context, any) error
-	ErrorEncoder(c *gin.Context, err error, isBadRequest bool)
-{{- if $useEncoding}}
-    // Bind checks the Method and Content-Type to select codec.Marshaler automatically,
-    // Depending on the "Content-Type" header different bind are used.
-    Bind(c *gin.Context, v any) error
-    // BindQuery binds the passed struct pointer using the query codec.Marshaler.
-    BindQuery(c *gin.Context, v any) error
-    // BindUri binds the passed struct pointer using the uri codec.Marshaler.
-    // NOTE: before use this, you should set uri params in the request context with RequestWithUri.
-    BindUri(c *gin.Context, v any) error
-    // RequestWithUri sets the URL params for the given request.
-    RequestWithUri(req *http.Request, params gin.Params) *http.Request
-    // Render encode response.
-    Render(c *gin.Context, v any)
-{{- else}}
-{{- if $useCustomResp}}
-	// Render encode response.
-	Render(c *gin.Context, v any)
-{{- end}}
-{{- end}}
-}
-
-type From{{$svrType}} struct {
-	From{{$svrType}}HTTPServer
-}
-
-func NewFrom{{$svrType}}HTTPServer(from From{{$svrType}}HTTPServer) {{$svrType}}HTTPServer {
-	return &From{{$svrType}}{from}
-}
-
-{{- range .MethodSets}}
-{{- if eq $rpcMode "rpcx"}}
-func (f *From{{$svrType}}) {{.Name}}(ctx context.Context, req *{{.Request}}, reply *{{.Reply}}) error {
-	result, err := f.From{{$svrType}}HTTPServer.{{.Name}}(ctx, req)
-	if err != nil {
-		return err
-	}
-	if result == nil {
-		*reply = {{.Reply}}{}
-	} else {
-		*reply = *result
-	}
-	return nil
-}
-{{- else}}
-func (f *From{{$svrType}}) {{.Name}}(ctx context.Context, req *{{.Request}}) (*{{.Reply}}, error) {
-	var err error
-	var reply {{.Reply}}
-
-	err = f.From{{$svrType}}HTTPServer.{{.Name}}(ctx, req, &reply)
-	if err != nil {
-		return nil, err
-	}
-	return &reply, nil
-}
-{{- end}}
-{{- end}}
-{{- end}}

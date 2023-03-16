@@ -20,8 +20,6 @@ type serviceDesc struct {
 	MethodSets  map[string]*methodDesc // unique because additional_bindings
 
 	UseCustomResponse bool
-	RpcMode           string
-	AllowFromAPI      bool
 	UseEncoding       bool
 }
 

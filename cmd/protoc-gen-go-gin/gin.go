@@ -93,8 +93,6 @@ func genService(gen *protogen.Plugin, file *protogen.File,
 		ServiceName:       string(service.Desc.FullName()),
 		Metadata:          file.Desc.Path(),
 		UseCustomResponse: *useCustomResponse,
-		RpcMode:           *rpcMode,
-		AllowFromAPI:      *allowFromAPI,
 		UseEncoding:       *useEncoding,
 	}
 	for _, method := range service.Methods {
