@@ -16,7 +16,6 @@ protoc \
   --go_opt paths=source_relative \
   --go-gin_out ${outDir} \
   --go-gin_opt paths=source_relative \
-  --go-gin_opt rpc_mode=official \
   --go-grpc_out ${outDir} \
   --go-grpc_opt paths=source_relative \
   hello.proto

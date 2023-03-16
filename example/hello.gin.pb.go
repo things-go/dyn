@@ -28,21 +28,6 @@ type GreeterHTTPServer interface {
 	ErrorEncoder(c *gin.Context, err error, isBadRequest bool)
 }
 
-type UnimplementedGreeterHTTPServer struct{}
-
-func (*UnimplementedGreeterHTTPServer) SayHello(context.Context, *HelloRequest) (*HelloReply, error) {
-	return nil, errors.New("method SayHello not implemented")
-}
-
-func (*UnimplementedGreeterHTTPServer) Validate(context.Context, any) error { return nil }
-func (*UnimplementedGreeterHTTPServer) ErrorEncoder(c *gin.Context, err error, isBadRequest bool) {
-	var code = 500
-	if isBadRequest {
-		code = 400
-	}
-	c.String(code, err.Error())
-}
-
 func RegisterGreeterHTTPServer(g *gin.RouterGroup, srv GreeterHTTPServer) {
 	r := g.Group("")
 	r.POST("/v1/hello", _Greeter_SayHello0_HTTP_Handler(srv))
