@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/things-go/dyn/errors"
+	"github.com/things-go/dyn/genproto/errors"
 )
 
 func Response(c *gin.Context, data ...any) {

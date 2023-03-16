@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/pluginpb"
 
-	"github.com/things-go/dyn/errors"
+	"github.com/things-go/dyn/genproto/errors"
 	"github.com/things-go/dyn/internal/infra"
 )
 

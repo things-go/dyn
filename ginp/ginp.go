@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 
-	"github.com/things-go/dyn/errors"
+	"github.com/things-go/dyn/genproto/errors"
 	transportHttp "github.com/things-go/dyn/transport/http"
 	"github.com/things-go/encoding"
 )
