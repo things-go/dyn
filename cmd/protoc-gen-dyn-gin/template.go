@@ -19,7 +19,7 @@ type serviceDesc struct {
 	Methods     []*methodDesc
 	MethodSets  map[string]*methodDesc // unique because additional_bindings
 
-	// UseEncoding bool
+	UseEncoding bool
 }
 
 type methodDesc struct {

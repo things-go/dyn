@@ -37,7 +37,7 @@ func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		carrier := http.FromConvey(c.Request.Context())
 		shouldBind := func(req *HelloRequest) error {
-			if err := carrier.Bind(c, req); err != nil {
+			if err := c.ShouldBind(req); err != nil {
 				return err
 			}
 			return carrier.Validate(c.Request.Context(), req)

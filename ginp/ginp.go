@@ -33,7 +33,7 @@ func WithValidation(v *validator.Validate) Option {
 	}
 }
 
-func NewImplemented(opts ...Option) *Conveyor {
+func NewConveyor(opts ...Option) *Conveyor {
 	i := &Conveyor{
 		encoding: encoding.New(),
 		validation: func() *validator.Validate {

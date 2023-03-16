@@ -94,6 +94,7 @@ func genService(gen *protogen.Plugin, file *protogen.File,
 		ServiceType: service.GoName,
 		ServiceName: string(service.Desc.FullName()),
 		Metadata:    file.Desc.Path(),
+		UseEncoding: *useEncoding,
 	}
 	for _, method := range service.Methods {
 		if method.Desc.IsStreamingClient() || method.Desc.IsStreamingServer() {
@@ -241,7 +242,7 @@ func buildMethodDesc(g *protogen.GeneratedFile, m *protogen.Method, method, path
 	if comment != "" {
 		comment = "// " + m.GoName + strings.TrimPrefix(strings.TrimSuffix(comment, "\n"), "//")
 	} else {
-		comment = "// " + m.GoName + " ..."
+		comment = "// " + m.GoName
 	}
 	return &methodDesc{
 		Name:    m.GoName,
