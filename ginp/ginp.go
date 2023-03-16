@@ -12,87 +12,81 @@ import (
 	"github.com/things-go/encoding"
 )
 
-func Response(c *gin.Context, data ...any) {
-	var obj any
+var _ transportHttp.Convey = (*Conveyor)(nil)
 
-	if len(data) > 0 {
-		obj = data[0]
-	} else {
-		obj = struct{}{}
-	}
-	c.JSON(http.StatusOK, obj)
+type Conveyor struct {
+	encoding   *encoding.Encoding
+	validation *validator.Validate
 }
 
-func Abort(c *gin.Context, err error) {
-	e := errors.FromError(err)
+type Option func(*Conveyor)
 
-	status := 599
-	switch {
-	case e.Code == -1:
-		status = http.StatusInternalServerError
-	case e.Code < 1000:
-		status = int(e.Code)
-	}
-	c.AbortWithStatusJSON(status, e)
-}
-
-type Implemented struct {
-	Encoding              *encoding.Encoding
-	Validation            *validator.Validate
-	DisableBindValidation bool
-}
-
-func NewDefaultImplemented() *Implemented {
-	return &Implemented{
-		Encoding:              encoding.New(),
-		Validation:            transportHttp.Validator(),
-		DisableBindValidation: false,
+func WithEncoding(e *encoding.Encoding) Option {
+	return func(i *Conveyor) {
+		i.encoding = e
 	}
 }
 
-func (i *Implemented) Validate(ctx context.Context, v any) error {
-	if i.DisableBindValidation {
-		return nil
+func WithValidation(v *validator.Validate) Option {
+	return func(i *Conveyor) {
+		i.validation = v
 	}
-	return i.Validation.StructCtx(ctx, v)
 }
 
-func (*Implemented) ErrorEncoder(c *gin.Context, err error, isBadRequest bool) {
-	if isBadRequest {
-		err = errors.ErrBadRequest(err.Error())
+func NewImplemented(opts ...Option) *Conveyor {
+	i := &Conveyor{
+		encoding: encoding.New(),
+		validation: func() *validator.Validate {
+			v := validator.New()
+			v.SetTagName("binding")
+			return v
+		}(),
 	}
+	for _, opt := range opts {
+		opt(i)
+	}
+	return i
+}
+func (i *Conveyor) WithValueUri(req *http.Request, params gin.Params) *http.Request {
+	return transportHttp.WithValueUri(req, params)
+}
+func (i *Conveyor) Bind(c *gin.Context, v any) error {
+	return i.encoding.Bind(c.Request, v)
+}
+func (i *Conveyor) BindQuery(c *gin.Context, v any) error {
+	return i.encoding.BindQuery(c.Request, v)
+}
+func (i *Conveyor) BindUri(c *gin.Context, v any) error {
+	return i.encoding.BindUri(c.Request, v)
+}
+func (*Conveyor) ErrorBadRequest(c *gin.Context, err error) {
+	Abort(c, errors.ErrBadRequest(err.Error()))
+}
+func (*Conveyor) Error(c *gin.Context, err error) {
 	Abort(c, err)
 }
-
-func (i *Implemented) Bind(c *gin.Context, v any) error {
-	if i.Encoding == nil {
-		return c.ShouldBind(v)
-	}
-	return i.Encoding.Bind(c.Request, v)
-}
-func (i *Implemented) BindQuery(c *gin.Context, v any) error {
-	if i.Encoding == nil {
-		return c.ShouldBindQuery(v)
-	}
-	return i.Encoding.BindQuery(c.Request, v)
-}
-func (i *Implemented) BindUri(c *gin.Context, v any) error {
-	if i.Encoding == nil {
-		return c.ShouldBindUri(v)
-	}
-	return i.Encoding.BindUri(c.Request, v)
-}
-func (i *Implemented) RequestWithUri(req *http.Request, params gin.Params) *http.Request {
-	return transportHttp.RequestWithUri(req, params)
-}
-func (i *Implemented) Render(c *gin.Context, v any) {
-	if i.Encoding == nil {
-		c.JSON(http.StatusOK, v)
-		return
-	}
+func (i *Conveyor) Render(c *gin.Context, v any) {
 	c.Writer.WriteHeader(http.StatusOK)
-	err := i.Encoding.Render(c.Writer, c.Request, v)
+	err := i.encoding.Render(c.Writer, c.Request, v)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Render failed cause by %v", err)
 	}
+}
+func (i *Conveyor) Validator() *validator.Validate {
+	return i.validation
+}
+func (i *Conveyor) Validate(ctx context.Context, v any) error {
+	return i.validation.StructCtx(ctx, v)
+}
+func (i *Conveyor) StructCtx(ctx context.Context, v any) error {
+	return i.validation.StructCtx(ctx, v)
+}
+func (i *Conveyor) Struct(v any) error {
+	return i.validation.Struct(v)
+}
+func (i *Conveyor) VarCtx(ctx context.Context, v any, tag string) error {
+	return i.validation.VarCtx(ctx, v, tag)
+}
+func (i *Conveyor) Var(v any, tag string) error {
+	return i.validation.Var(v, tag)
 }

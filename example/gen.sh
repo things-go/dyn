@@ -14,8 +14,8 @@ protoc \
   -I ${projDir} \
   --go_out=${outDir} \
   --go_opt paths=source_relative \
-  --go-gin_out ${outDir} \
-  --go-gin_opt paths=source_relative \
+  --dyn-gin_out ${outDir} \
+  --dyn-gin_opt paths=source_relative \
   --go-grpc_out ${outDir} \
   --go-grpc_opt paths=source_relative \
   hello.proto

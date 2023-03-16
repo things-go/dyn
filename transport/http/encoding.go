@@ -9,7 +9,7 @@ import (
 	"github.com/things-go/encoding"
 )
 
-func RequestWithUri(req *http.Request, params gin.Params) *http.Request {
+func WithValueUri(req *http.Request, params gin.Params) *http.Request {
 	vars := make(url.Values, len(params))
 	for _, p := range params {
 		vars.Set(p.Key, p.Value)
