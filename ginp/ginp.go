@@ -22,19 +22,19 @@ type Conveyor struct {
 type Option func(*Conveyor)
 
 func WithEncoding(e *encoding.Encoding) Option {
-	return func(i *Conveyor) {
-		i.encoding = e
+	return func(cy *Conveyor) {
+		cy.encoding = e
 	}
 }
 
 func WithValidation(v *validator.Validate) Option {
-	return func(i *Conveyor) {
-		i.validation = v
+	return func(cy *Conveyor) {
+		cy.validation = v
 	}
 }
 
 func NewConveyor(opts ...Option) *Conveyor {
-	i := &Conveyor{
+	cy := &Conveyor{
 		encoding: encoding.New(),
 		validation: func() *validator.Validate {
 			v := validator.New()
@@ -43,21 +43,21 @@ func NewConveyor(opts ...Option) *Conveyor {
 		}(),
 	}
 	for _, opt := range opts {
-		opt(i)
+		opt(cy)
 	}
-	return i
+	return cy
 }
-func (i *Conveyor) WithValueUri(req *http.Request, params gin.Params) *http.Request {
+func (cy *Conveyor) WithValueUri(req *http.Request, params gin.Params) *http.Request {
 	return transportHttp.WithValueUri(req, params)
 }
-func (i *Conveyor) Bind(c *gin.Context, v any) error {
-	return i.encoding.Bind(c.Request, v)
+func (cy *Conveyor) Bind(c *gin.Context, v any) error {
+	return cy.encoding.Bind(c.Request, v)
 }
-func (i *Conveyor) BindQuery(c *gin.Context, v any) error {
-	return i.encoding.BindQuery(c.Request, v)
+func (cy *Conveyor) BindQuery(c *gin.Context, v any) error {
+	return cy.encoding.BindQuery(c.Request, v)
 }
-func (i *Conveyor) BindUri(c *gin.Context, v any) error {
-	return i.encoding.BindUri(c.Request, v)
+func (cy *Conveyor) BindUri(c *gin.Context, v any) error {
+	return cy.encoding.BindUri(c.Request, v)
 }
 func (*Conveyor) ErrorBadRequest(c *gin.Context, err error) {
 	Abort(c, errors.ErrBadRequest(err.Error()))
@@ -65,28 +65,28 @@ func (*Conveyor) ErrorBadRequest(c *gin.Context, err error) {
 func (*Conveyor) Error(c *gin.Context, err error) {
 	Abort(c, err)
 }
-func (i *Conveyor) Render(c *gin.Context, v any) {
+func (cy *Conveyor) Render(c *gin.Context, v any) {
 	c.Writer.WriteHeader(http.StatusOK)
-	err := i.encoding.Render(c.Writer, c.Request, v)
+	err := cy.encoding.Render(c.Writer, c.Request, v)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Render failed cause by %v", err)
 	}
 }
-func (i *Conveyor) Validator() *validator.Validate {
-	return i.validation
+func (cy *Conveyor) Validator() *validator.Validate {
+	return cy.validation
 }
-func (i *Conveyor) Validate(ctx context.Context, v any) error {
-	return i.validation.StructCtx(ctx, v)
+func (cy *Conveyor) Validate(ctx context.Context, v any) error {
+	return cy.validation.StructCtx(ctx, v)
 }
-func (i *Conveyor) StructCtx(ctx context.Context, v any) error {
-	return i.validation.StructCtx(ctx, v)
+func (cy *Conveyor) StructCtx(ctx context.Context, v any) error {
+	return cy.validation.StructCtx(ctx, v)
 }
-func (i *Conveyor) Struct(v any) error {
-	return i.validation.Struct(v)
+func (cy *Conveyor) Struct(v any) error {
+	return cy.validation.Struct(v)
 }
-func (i *Conveyor) VarCtx(ctx context.Context, v any, tag string) error {
-	return i.validation.VarCtx(ctx, v, tag)
+func (cy *Conveyor) VarCtx(ctx context.Context, v any, tag string) error {
+	return cy.validation.VarCtx(ctx, v, tag)
 }
-func (i *Conveyor) Var(v any, tag string) error {
-	return i.validation.Var(v, tag)
+func (cy *Conveyor) Var(v any, tag string) error {
+	return cy.validation.Var(v, tag)
 }

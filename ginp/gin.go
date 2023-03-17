@@ -26,42 +26,42 @@ func NewConveyorGin() *ConveyorGin {
 		}(),
 	}
 }
-func (i *ConveyorGin) WithValueUri(req *http.Request, params gin.Params) *http.Request {
+func (*ConveyorGin) WithValueUri(req *http.Request, params gin.Params) *http.Request {
 	return transportHttp.WithValueUri(req, params)
 }
-func (i *ConveyorGin) Bind(c *gin.Context, v any) error {
-	return c.ShouldBind(v)
+func (*ConveyorGin) Bind(cg *gin.Context, v any) error {
+	return cg.ShouldBind(v)
 }
-func (i *ConveyorGin) BindQuery(c *gin.Context, v any) error {
-	return c.ShouldBindQuery(v)
+func (*ConveyorGin) BindQuery(cg *gin.Context, v any) error {
+	return cg.ShouldBindQuery(v)
 }
-func (i *ConveyorGin) BindUri(c *gin.Context, v any) error {
-	return c.ShouldBindUri(v)
+func (*ConveyorGin) BindUri(cg *gin.Context, v any) error {
+	return cg.ShouldBindUri(v)
 }
-func (*ConveyorGin) ErrorBadRequest(c *gin.Context, err error) {
-	Abort(c, errors.ErrBadRequest(err.Error()))
+func (*ConveyorGin) ErrorBadRequest(cg *gin.Context, err error) {
+	Abort(cg, errors.ErrBadRequest(err.Error()))
 }
-func (*ConveyorGin) Error(c *gin.Context, err error) {
-	Abort(c, err)
+func (*ConveyorGin) Error(cg *gin.Context, err error) {
+	Abort(cg, err)
 }
-func (i *ConveyorGin) Render(c *gin.Context, v any) {
-	c.JSON(http.StatusOK, v)
+func (*ConveyorGin) Render(cg *gin.Context, v any) {
+	Response(cg, v)
 }
-func (i *ConveyorGin) Validator() *validator.Validate {
-	return i.validation
+func (cg *ConveyorGin) Validator() *validator.Validate {
+	return cg.validation
 }
-func (i *ConveyorGin) Validate(ctx context.Context, v any) error {
-	return i.validation.StructCtx(ctx, v)
+func (cg *ConveyorGin) Validate(ctx context.Context, v any) error {
+	return cg.validation.StructCtx(ctx, v)
 }
-func (i *ConveyorGin) StructCtx(ctx context.Context, v any) error {
-	return i.validation.StructCtx(ctx, v)
+func (cg *ConveyorGin) StructCtx(ctx context.Context, v any) error {
+	return cg.validation.StructCtx(ctx, v)
 }
-func (i *ConveyorGin) Struct(v any) error {
-	return i.validation.Struct(v)
+func (cg *ConveyorGin) Struct(v any) error {
+	return cg.validation.Struct(v)
 }
-func (i *ConveyorGin) VarCtx(ctx context.Context, v any, tag string) error {
-	return i.validation.VarCtx(ctx, v, tag)
+func (cg *ConveyorGin) VarCtx(ctx context.Context, v any, tag string) error {
+	return cg.validation.VarCtx(ctx, v, tag)
 }
-func (i *ConveyorGin) Var(v any, tag string) error {
-	return i.validation.Var(v, tag)
+func (cg *ConveyorGin) Var(v any, tag string) error {
+	return cg.validation.Var(v, tag)
 }
