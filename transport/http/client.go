@@ -6,10 +6,10 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/things-go/encoding"
+	"golang.org/x/exp/slices"
 	"golang.org/x/oauth2"
 )
 
@@ -119,32 +119,30 @@ func (c *Client) Invoke(ctx context.Context, method, path string, in, out any) e
 	return c.codec.InboundForResponse(resp.RawResponse).NewDecoder(resp.RawResponse.Body).Decode(out)
 }
 
+var noBodyMethods = []string{
+	http.MethodGet,
+	http.MethodHead,
+	http.MethodDelete,
+	http.MethodConnect,
+	http.MethodOptions,
+	http.MethodTrace,
+}
+
 func (c *Client) Execute(ctx context.Context, method, path string, req, resp any, opts ...CallOption) error {
+	var r any
+
 	settings := DefaultCallOption(path)
 	for _, opt := range opts {
 		opt(&settings)
 	}
 
-	HasVars := testHasPathVars(path)
-	hasBody := testHasRequestBody(method)
-	url := settings.Path
-	if HasVars {
-		url = c.EncodeURL(settings.Path, req, !hasBody)
-	} else if !hasBody {
-		query, err := c.EncodeQuery(req)
-		if err != nil {
-			return err
-		}
-		if query != "" {
-			url += "?" + query
-		}
-	}
-	ctx = WithValueCallOption(ctx, settings)
-	var qx any
+	hasBody := !slices.Contains(noBodyMethods, method)
 	if hasBody {
-		qx = req
+		r = req
 	}
-	return c.Invoke(ctx, method, url, qx, &resp)
+	url := c.EncodeURL(settings.Path, req, !hasBody)
+	ctx = WithValueCallOption(ctx, settings)
+	return c.Invoke(ctx, method, url, r, &resp)
 }
 
 // Get method does GET HTTP request. It's defined in section 4.3.1 of RFC7231.
@@ -196,26 +194,4 @@ func (c *Client) EncodeQuery(v any) (string, error) {
 		return "", err
 	}
 	return vv.Encode(), nil
-}
-
-func testHasRequestBody(method string) bool {
-	switch method {
-	case http.MethodGet,
-		http.MethodHead,
-		http.MethodDelete,
-		http.MethodConnect,
-		http.MethodOptions,
-		http.MethodTrace:
-		return false
-	}
-	return true
-}
-
-func testHasPathVars(path string) bool {
-	for _, v := range strings.Split(path, "/") {
-		if strings.HasPrefix(v, "{") && strings.HasSuffix(v, "}") {
-			return true
-		}
-	}
-	return false
 }

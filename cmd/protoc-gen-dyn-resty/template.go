@@ -9,7 +9,7 @@ import (
 //go:embed resty.tpl
 var Static embed.FS
 
-var ginHttpTemplate = template.Must(template.New("components").ParseFS(Static, "resty.tpl")).
+var httpTemplate = template.Must(template.New("components").ParseFS(Static, "resty.tpl")).
 	Lookup("resty.tpl")
 
 type serviceDesc struct {
@@ -41,5 +41,5 @@ func (s *serviceDesc) execute(w io.Writer) error {
 	for _, m := range s.Methods {
 		s.MethodSets[m.Name] = m
 	}
-	return ginHttpTemplate.Execute(w, s)
+	return httpTemplate.Execute(w, s)
 }
