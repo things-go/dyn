@@ -5,6 +5,8 @@ import (
 	"context"
 	"errors"
 	"io"
+	"net/http"
+	"strings"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/things-go/encoding"
@@ -67,8 +69,9 @@ func NewClient(opts ...ClientOption) *Client {
 	return c
 }
 
-func (c *Client) DerefResty() *resty.Client { return c.cc }
+func (c *Client) Deref() *resty.Client { return c.cc }
 
+// Invoke do not use this function. use execute instead.
 func (c *Client) Invoke(ctx context.Context, method, path string, in, out any) error {
 	if c.validate != nil {
 		err := c.validate(in)
@@ -116,6 +119,69 @@ func (c *Client) Invoke(ctx context.Context, method, path string, in, out any) e
 	return c.codec.InboundForResponse(resp.RawResponse).NewDecoder(resp.RawResponse.Body).Decode(out)
 }
 
+func (c *Client) Execute(ctx context.Context, method, path string, req, resp any, opts ...CallOption) error {
+	settings := DefaultCallOption(path)
+	for _, opt := range opts {
+		opt(&settings)
+	}
+
+	HasVars := testHasPathVars(path)
+	hasBody := testHasRequestBody(method)
+	url := settings.Path
+	if HasVars {
+		url = c.EncodeURL(settings.Path, req, !hasBody)
+	} else if !hasBody {
+		query, err := c.EncodeQuery(req)
+		if err != nil {
+			return err
+		}
+		if query != "" {
+			url += "?" + query
+		}
+	}
+	ctx = WithValueCallOption(ctx, settings)
+	var qx any
+	if hasBody {
+		qx = req
+	}
+	return c.Invoke(ctx, method, url, qx, &resp)
+}
+
+// Get method does GET HTTP request. It's defined in section 4.3.1 of RFC7231.
+func (c *Client) Get(ctx context.Context, path string, req, resp any, opts ...CallOption) error {
+	return c.Execute(ctx, http.MethodGet, path, req, resp, opts...)
+}
+
+// Head method does HEAD HTTP request. It's defined in section 4.3.2 of RFC7231.
+func (c *Client) Head(ctx context.Context, path string, req, resp any, opts ...CallOption) error {
+	return c.Execute(ctx, http.MethodHead, path, req, resp, opts...)
+}
+
+// Post method does POST HTTP request. It's defined in section 4.3.3 of RFC7231.
+func (c *Client) Post(ctx context.Context, path string, req, resp any, opts ...CallOption) error {
+	return c.Execute(ctx, http.MethodPost, path, req, resp, opts...)
+}
+
+// Put method does PUT HTTP request. It's defined in section 4.3.4 of RFC7231.
+func (c *Client) Put(ctx context.Context, path string, req, resp any, opts ...CallOption) error {
+	return c.Execute(ctx, http.MethodPut, path, req, resp, opts...)
+}
+
+// Delete method does DELETE HTTP request. It's defined in section 4.3.5 of RFC7231.
+func (c *Client) Delete(ctx context.Context, path string, req, resp any, opts ...CallOption) error {
+	return c.Execute(ctx, http.MethodDelete, path, req, resp, opts...)
+}
+
+// Options method does OPTIONS HTTP request. It's defined in section 4.3.7 of RFC7231.
+func (c *Client) Options(ctx context.Context, path string, req, resp any, opts ...CallOption) error {
+	return c.Execute(ctx, http.MethodOptions, path, req, resp, opts...)
+}
+
+// Patch method does PATCH HTTP request. It's defined in section 2 of RFC5789.
+func (c *Client) Patch(ctx context.Context, path string, req, resp any, opts ...CallOption) error {
+	return c.Execute(ctx, http.MethodPatch, path, req, resp, opts...)
+}
+
 // EncodeURL encode msg to url path.
 // pathTemplate is a template of url path like http://helloworld.dev/{name}/sub/{sub.name}.
 func (c *Client) EncodeURL(pathTemplate string, msg any, needQuery bool) string {
@@ -130,4 +196,26 @@ func (c *Client) EncodeQuery(v any) (string, error) {
 		return "", err
 	}
 	return vv.Encode(), nil
+}
+
+func testHasRequestBody(method string) bool {
+	switch method {
+	case http.MethodGet,
+		http.MethodHead,
+		http.MethodDelete,
+		http.MethodConnect,
+		http.MethodOptions,
+		http.MethodTrace:
+		return false
+	}
+	return true
+}
+
+func testHasPathVars(path string) bool {
+	for _, v := range strings.Split(path, "/") {
+		if strings.HasPrefix(v, "{") && strings.HasSuffix(v, "}") {
+			return true
+		}
+	}
+	return false
 }
