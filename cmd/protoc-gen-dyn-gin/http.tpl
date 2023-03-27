@@ -20,7 +20,7 @@ func Register{{$svrType}}HTTPServer(g *gin.RouterGroup, srv {{$svrType}}HTTPServ
 {{range .Methods}}
 func _{{$svrType}}_{{.Name}}{{.Num}}_HTTP_Handler(srv {{$svrType}}HTTPServer) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		carrier := http.FromConvey(c.Request.Context())
+		carrier := http.FromCarrier(c.Request.Context())
 		{{- if and $useEncoding .HasVars}}
 		c.Request = carrier.RequestWithUri(c.Request, c.Params)
 		{{- end}}

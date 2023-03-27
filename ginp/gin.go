@@ -11,14 +11,14 @@ import (
 	transportHttp "github.com/things-go/dyn/transport/http"
 )
 
-var _ transportHttp.Convey = (*ConveyorGin)(nil)
+var _ transportHttp.Carrier = (*GinCarry)(nil)
 
-type ConveyorGin struct {
+type GinCarry struct {
 	validation *validator.Validate
 }
 
-func NewConveyorGin() *ConveyorGin {
-	return &ConveyorGin{
+func NewCarryForGin() *GinCarry {
+	return &GinCarry{
 		validation: func() *validator.Validate {
 			v := validator.New()
 			v.SetTagName("binding")
@@ -26,42 +26,42 @@ func NewConveyorGin() *ConveyorGin {
 		}(),
 	}
 }
-func (*ConveyorGin) WithValueUri(req *http.Request, params gin.Params) *http.Request {
+func (*GinCarry) WithValueUri(req *http.Request, params gin.Params) *http.Request {
 	return transportHttp.WithValueUri(req, params)
 }
-func (*ConveyorGin) Bind(cg *gin.Context, v any) error {
+func (*GinCarry) Bind(cg *gin.Context, v any) error {
 	return cg.ShouldBind(v)
 }
-func (*ConveyorGin) BindQuery(cg *gin.Context, v any) error {
+func (*GinCarry) BindQuery(cg *gin.Context, v any) error {
 	return cg.ShouldBindQuery(v)
 }
-func (*ConveyorGin) BindUri(cg *gin.Context, v any) error {
+func (*GinCarry) BindUri(cg *gin.Context, v any) error {
 	return cg.ShouldBindUri(v)
 }
-func (*ConveyorGin) ErrorBadRequest(cg *gin.Context, err error) {
+func (*GinCarry) ErrorBadRequest(cg *gin.Context, err error) {
 	Abort(cg, errors.ErrBadRequest(err.Error()))
 }
-func (*ConveyorGin) Error(cg *gin.Context, err error) {
+func (*GinCarry) Error(cg *gin.Context, err error) {
 	Abort(cg, err)
 }
-func (*ConveyorGin) Render(cg *gin.Context, v any) {
+func (*GinCarry) Render(cg *gin.Context, v any) {
 	Response(cg, v)
 }
-func (cg *ConveyorGin) Validator() *validator.Validate {
+func (cg *GinCarry) Validator() *validator.Validate {
 	return cg.validation
 }
-func (cg *ConveyorGin) Validate(ctx context.Context, v any) error {
+func (cg *GinCarry) Validate(ctx context.Context, v any) error {
 	return cg.validation.StructCtx(ctx, v)
 }
-func (cg *ConveyorGin) StructCtx(ctx context.Context, v any) error {
+func (cg *GinCarry) StructCtx(ctx context.Context, v any) error {
 	return cg.validation.StructCtx(ctx, v)
 }
-func (cg *ConveyorGin) Struct(v any) error {
+func (cg *GinCarry) Struct(v any) error {
 	return cg.validation.Struct(v)
 }
-func (cg *ConveyorGin) VarCtx(ctx context.Context, v any, tag string) error {
+func (cg *GinCarry) VarCtx(ctx context.Context, v any, tag string) error {
 	return cg.validation.VarCtx(ctx, v, tag)
 }
-func (cg *ConveyorGin) Var(v any, tag string) error {
+func (cg *GinCarry) Var(v any, tag string) error {
 	return cg.validation.Var(v, tag)
 }

@@ -8,10 +8,10 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type ctxConveyKey struct{}
+type ctxCarrierKey struct{}
 
-// Convey is an HTTP Convey.
-type Convey interface {
+// Carrier is an HTTP Carrier.
+type Carrier interface {
 	// WithValueUri sets the URL params for the given request.
 	WithValueUri(*http.Request, gin.Params) *http.Request
 	// Bind checks the Method and Content-Type to select codec.Marshaler automatically,
@@ -48,23 +48,23 @@ type Convey interface {
 	Var(any, string) error
 }
 
-func WithValueConvey(ctx context.Context, c Convey) context.Context {
-	return context.WithValue(ctx, ctxConveyKey{}, c)
+func WithValueCarrier(ctx context.Context, c Carrier) context.Context {
+	return context.WithValue(ctx, ctxCarrierKey{}, c)
 }
 
 // FromTransporter returns the Transporter value stored in ctx, if any.
-func FromConvey(ctx context.Context) Convey {
-	c, ok := ctx.Value(ctxConveyKey{}).(Convey)
+func FromCarrier(ctx context.Context) Carrier {
+	c, ok := ctx.Value(ctxCarrierKey{}).(Carrier)
 	if !ok {
 		panic("convey: must be set Convey into context but it is not!!!")
 	}
 	return c
 }
 
-// ConveyInterceptor convey middleware
-func ConveyInterceptor(convey Convey) gin.HandlerFunc {
+// CarrierInterceptor carrier middleware
+func CarrierInterceptor(carrier Carrier) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Request = c.Request.WithContext(WithValueConvey(c.Request.Context(), convey))
+		c.Request = c.Request.WithContext(WithValueCarrier(c.Request.Context(), carrier))
 		c.Next()
 	}
 }

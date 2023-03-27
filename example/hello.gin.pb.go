@@ -18,7 +18,7 @@ import (
 var _ = errors.New
 var _ = context.TODO
 var _ = gin.New
-var _ = http.FromConvey
+var _ = http.FromCarrier
 
 type GreeterHTTPServer interface {
 	// SayHello Sends a hello
@@ -35,7 +35,7 @@ func RegisterGreeterHTTPServer(g *gin.RouterGroup, srv GreeterHTTPServer) {
 
 func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		carrier := http.FromConvey(c.Request.Context())
+		carrier := http.FromCarrier(c.Request.Context())
 		shouldBind := func(req *HelloRequest) error {
 			if err := c.ShouldBind(req); err != nil {
 				return err

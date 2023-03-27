@@ -12,29 +12,29 @@ import (
 	"github.com/things-go/encoding"
 )
 
-var _ transportHttp.Convey = (*Conveyor)(nil)
+var _ transportHttp.Carrier = (*Carry)(nil)
 
-type Conveyor struct {
+type Carry struct {
 	encoding   *encoding.Encoding
 	validation *validator.Validate
 }
 
-type Option func(*Conveyor)
+type Option func(*Carry)
 
 func WithEncoding(e *encoding.Encoding) Option {
-	return func(cy *Conveyor) {
+	return func(cy *Carry) {
 		cy.encoding = e
 	}
 }
 
 func WithValidation(v *validator.Validate) Option {
-	return func(cy *Conveyor) {
+	return func(cy *Carry) {
 		cy.validation = v
 	}
 }
 
-func NewConveyor(opts ...Option) *Conveyor {
-	cy := &Conveyor{
+func NewCarry(opts ...Option) *Carry {
+	cy := &Carry{
 		encoding: encoding.New(),
 		validation: func() *validator.Validate {
 			v := validator.New()
@@ -47,46 +47,46 @@ func NewConveyor(opts ...Option) *Conveyor {
 	}
 	return cy
 }
-func (cy *Conveyor) WithValueUri(req *http.Request, params gin.Params) *http.Request {
+func (cy *Carry) WithValueUri(req *http.Request, params gin.Params) *http.Request {
 	return transportHttp.WithValueUri(req, params)
 }
-func (cy *Conveyor) Bind(c *gin.Context, v any) error {
+func (cy *Carry) Bind(c *gin.Context, v any) error {
 	return cy.encoding.Bind(c.Request, v)
 }
-func (cy *Conveyor) BindQuery(c *gin.Context, v any) error {
+func (cy *Carry) BindQuery(c *gin.Context, v any) error {
 	return cy.encoding.BindQuery(c.Request, v)
 }
-func (cy *Conveyor) BindUri(c *gin.Context, v any) error {
+func (cy *Carry) BindUri(c *gin.Context, v any) error {
 	return cy.encoding.BindUri(c.Request, v)
 }
-func (*Conveyor) ErrorBadRequest(c *gin.Context, err error) {
+func (*Carry) ErrorBadRequest(c *gin.Context, err error) {
 	Abort(c, errors.ErrBadRequest(err.Error()))
 }
-func (*Conveyor) Error(c *gin.Context, err error) {
+func (*Carry) Error(c *gin.Context, err error) {
 	Abort(c, err)
 }
-func (cy *Conveyor) Render(c *gin.Context, v any) {
+func (cy *Carry) Render(c *gin.Context, v any) {
 	c.Writer.WriteHeader(http.StatusOK)
 	err := cy.encoding.Render(c.Writer, c.Request, v)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Render failed cause by %v", err)
 	}
 }
-func (cy *Conveyor) Validator() *validator.Validate {
+func (cy *Carry) Validator() *validator.Validate {
 	return cy.validation
 }
-func (cy *Conveyor) Validate(ctx context.Context, v any) error {
+func (cy *Carry) Validate(ctx context.Context, v any) error {
 	return cy.validation.StructCtx(ctx, v)
 }
-func (cy *Conveyor) StructCtx(ctx context.Context, v any) error {
+func (cy *Carry) StructCtx(ctx context.Context, v any) error {
 	return cy.validation.StructCtx(ctx, v)
 }
-func (cy *Conveyor) Struct(v any) error {
+func (cy *Carry) Struct(v any) error {
 	return cy.validation.Struct(v)
 }
-func (cy *Conveyor) VarCtx(ctx context.Context, v any, tag string) error {
+func (cy *Carry) VarCtx(ctx context.Context, v any, tag string) error {
 	return cy.validation.VarCtx(ctx, v, tag)
 }
-func (cy *Conveyor) Var(v any, tag string) error {
+func (cy *Carry) Var(v any, tag string) error {
 	return cy.validation.Var(v, tag)
 }
