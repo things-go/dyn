@@ -31,8 +31,6 @@ type Carrier interface {
 
 	// validator shortcut
 
-	// Validator return default Validator
-	Validator() *validator.Validate
 	// Validate the request.
 	Validate(context.Context, any) error
 	// StructCtx validates a structs exposed fields, and automatically validates nested structs, unless otherwise specified
@@ -46,6 +44,8 @@ type Carrier interface {
 	// Var validates a structs exposed fields, and automatically validates nested structs, unless otherwise specified
 	// and also allows passing of context.Context for contextual validation information.
 	Var(any, string) error
+	// Validator return default Validator
+	Validator() *validator.Validate
 }
 
 func WithValueCarrier(ctx context.Context, c Carrier) context.Context {
@@ -56,7 +56,7 @@ func WithValueCarrier(ctx context.Context, c Carrier) context.Context {
 func FromCarrier(ctx context.Context) Carrier {
 	c, ok := ctx.Value(ctxCarrierKey{}).(Carrier)
 	if !ok {
-		panic("convey: must be set Convey into context but it is not!!!")
+		panic("carrier: must be set Carrier into context but it is not!!!")
 	}
 	return c
 }
