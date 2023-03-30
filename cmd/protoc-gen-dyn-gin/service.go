@@ -130,6 +130,7 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 			g.P("}")
 		}
 		g.P("}")
+		g.P()
 	}
 
 	return nil
