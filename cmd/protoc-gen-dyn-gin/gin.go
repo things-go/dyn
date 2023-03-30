@@ -23,7 +23,7 @@ var (
 	contextPackage       = protogen.GoImportPath("context")
 	ginPackage           = protogen.GoImportPath("github.com/gin-gonic/gin")
 	transportHttpPackage = protogen.GoImportPath("github.com/things-go/dyn/transport/http")
-	// netHttpPackage = protogen.GoImportPath("net/http")
+	// netHttpPackage       = protogen.GoImportPath("net/http")
 )
 
 var methodSets = make(map[string]int)
@@ -72,10 +72,8 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 	g.P("var _ = ", errorsPackage.Ident("New"))
 	g.P("var _ = ", contextPackage.Ident("TODO"))
 	g.P("var _ = ", ginPackage.Ident("New"))
+	// g.P("var _ = ", netHttpPackage.Ident("HandleFunc"))
 	g.P("var _ = ", transportHttpPackage.Ident("FromCarrier"))
-	// if *useEncoding {
-	// 	g.P("var _ = ", netHttpPackage.Ident("HandleFunc"))
-	// }
 	g.P()
 
 	for _, service := range file.Services {
@@ -83,8 +81,7 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 	}
 }
 
-func genService(gen *protogen.Plugin, file *protogen.File,
-	g *protogen.GeneratedFile, service *protogen.Service, omitempty bool) {
+func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, service *protogen.Service, omitempty bool) {
 	if service.Desc.Options().(*descriptorpb.ServiceOptions).GetDeprecated() {
 		g.P("//")
 		g.P(deprecationComment)
@@ -114,7 +111,7 @@ func genService(gen *protogen.Plugin, file *protogen.File,
 	if len(sd.Methods) == 0 {
 		return
 	}
-	err := sd.execute(g)
+	err := executeServiceDesc(g, sd)
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr,
 			"\u001B[31mWARN\u001B[m: execute template failed.\n")
