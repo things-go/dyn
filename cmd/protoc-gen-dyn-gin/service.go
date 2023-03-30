@@ -1,6 +1,7 @@
 package main
 
 import (
+	"golang.org/x/exp/slices"
 	"google.golang.org/protobuf/compiler/protogen"
 )
 
@@ -9,6 +10,7 @@ type serviceDesc struct {
 	ServiceName string // helloworld.Greeter
 	Metadata    string // api/v1/helloworld.proto
 	Methods     []*methodDesc
+	MethodSets  map[string]*methodDesc // unique because additional_bindings
 
 	UseEncoding bool
 }
@@ -30,13 +32,21 @@ type methodDesc struct {
 }
 
 func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
+	methodNames := make([]string, 0, len(s.Methods))
+	s.MethodSets = make(map[string]*methodDesc)
+	for _, m := range s.Methods {
+		if _, ok := s.MethodSets[m.Name]; !ok {
+			methodNames = append(methodNames, m.Name)
+		}
+		s.MethodSets[m.Name] = m
+	}
+	slices.Sort(methodNames)
+
 	// http interface defined
 	g.P("type ", s.ServiceType, "HTTPServer", " interface {")
-	for _, m := range s.Methods {
+	for _, name := range methodNames {
+		m := s.MethodSets[name]
 		g.P(m.Comment)
-		if m.Num != 0 { // unique because additional_bindings, ignore
-			continue
-		}
 		g.P(serverSignature(g, m))
 	}
 	g.P("}")
