@@ -9,7 +9,6 @@ type serviceDesc struct {
 	ServiceName string // helloworld.Greeter
 	Metadata    string // api/v1/helloworld.proto
 	Methods     []*methodDesc
-	MethodSets  map[string]*methodDesc // unique because additional_bindings
 
 	UseEncoding bool
 }
@@ -31,15 +30,13 @@ type methodDesc struct {
 }
 
 func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
-	s.MethodSets = make(map[string]*methodDesc)
-	for _, m := range s.Methods {
-		s.MethodSets[m.Name] = m
-	}
-
 	// http interface defined
 	g.P("type ", s.ServiceType, "HTTPServer", " interface {")
-	for _, m := range s.MethodSets {
+	for _, m := range s.Methods {
 		g.P(m.Comment)
+		if m.Num != 0 { // unique because additional_bindings, ignore
+			continue
+		}
 		g.P(serverSignature(g, m))
 	}
 	g.P("}")
