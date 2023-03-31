@@ -13,6 +13,15 @@ import (
 	"golang.org/x/oauth2"
 )
 
+var noBodyMethods = []string{
+	http.MethodGet,
+	http.MethodHead,
+	http.MethodDelete,
+	http.MethodConnect,
+	http.MethodOptions,
+	http.MethodTrace,
+}
+
 type Client struct {
 	cc    *resty.Client
 	codec *encoding.Encoding
@@ -71,7 +80,7 @@ func NewClient(opts ...ClientOption) *Client {
 
 func (c *Client) Deref() *resty.Client { return c.cc }
 
-// Invoke do not use this function. use execute instead.
+// Invoke do not use this function. use Execute instead.
 func (c *Client) Invoke(ctx context.Context, method, path string, in, out any) error {
 	if c.validate != nil {
 		err := c.validate(in)
@@ -117,15 +126,6 @@ func (c *Client) Invoke(ctx context.Context, method, path string, in, out any) e
 	}
 	defer resp.RawResponse.Body.Close()
 	return c.codec.InboundForResponse(resp.RawResponse).NewDecoder(resp.RawResponse.Body).Decode(out)
-}
-
-var noBodyMethods = []string{
-	http.MethodGet,
-	http.MethodHead,
-	http.MethodDelete,
-	http.MethodConnect,
-	http.MethodOptions,
-	http.MethodTrace,
 }
 
 func (c *Client) Execute(ctx context.Context, method, path string, req, resp any, opts ...CallOption) error {

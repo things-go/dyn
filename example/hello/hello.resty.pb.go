@@ -20,7 +20,7 @@ var _ = http.NewClient
 type GreeterHTTPClient interface {
 	// SayHello Sends a hello
 	// I am a trailing comment
-	SayHello(ctx context.Context, req *HelloRequest, opts ...http.CallOption) (*HelloReply, error)
+	SayHello(context.Context, *HelloRequest, ...http.CallOption) (*HelloReply, error)
 }
 
 type GreeterHTTPClientImpl struct {

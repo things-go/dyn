@@ -31,22 +31,22 @@ type methodDesc struct {
 
 func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 	// http interface defined
-	g.P("type ", s.ServiceType, "HTTPClient", " interface {")
+	g.P("type ", clientInterfaceName(s.ServiceType), " interface {")
 	for _, m := range s.Methods {
 		g.P(m.Comment)
-		g.P(clientSignature(g, m))
+		g.P(clientMethodName(g, m, true))
 	}
 	g.P("}")
 	g.P()
 
 	// http client implement.
-	g.P("type ", s.ServiceType, "HTTPClientImpl struct {")
+	g.P("type ", clientImplStructName(s.ServiceType), " struct {")
 	g.P("cc *", g.QualifiedGoIdent(transportHttpPackage.Ident("Client")))
 	g.P("}")
 	g.P()
 	// http client factory method.
-	g.P("func New", s.ServiceType, "HTTPClient(c *", g.QualifiedGoIdent(transportHttpPackage.Ident("Client")), ") ", s.ServiceType, "HTTPClient {")
-	g.P("return &", s.ServiceType, "HTTPClientImpl{")
+	g.P("func New", s.ServiceType, "HTTPClient(c *", g.QualifiedGoIdent(transportHttpPackage.Ident("Client")), ") ", clientInterfaceName(s.ServiceType), " {")
+	g.P("return &", clientImplStructName(s.ServiceType), " {")
 	g.P("cc: c,")
 	g.P("}")
 	g.P("}")
@@ -54,7 +54,7 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 
 	// http client implement methods.
 	for _, m := range s.Methods {
-		g.P("func (c *", s.ServiceType, "HTTPClientImpl)", clientSignature(g, m), " {")
+		g.P("func (c *", clientImplStructName(s.ServiceType), ")", clientMethodName(g, m, false), " {")
 		g.P("var err error")
 		g.P("var resp ", m.Reply)
 		g.P()
@@ -99,13 +99,31 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 	return nil
 }
 
-func clientSignature(g *protogen.GeneratedFile, m *methodDesc) string {
+func clientInterfaceName(serviceType string) string {
+	return serviceType + "HTTPClient"
+}
+
+func clientImplStructName(serviceType string) string {
+	return serviceType + "HTTPClientImpl"
+}
+
+func clientMethodName(g *protogen.GeneratedFile, m *methodDesc, isDeclaration bool) string {
+	ctxParam := ""
+	reqParam := ""
+	optsParam := ""
+	if !isDeclaration {
+		ctxParam = "ctx"
+		reqParam = "req"
+		optsParam = "opts"
+	}
+
 	num := ""
 	if m.Num != 0 { // unique because additional_bindings
 		num = "_" + strconv.Itoa(m.Num)
 	}
 
-	return m.Name + num + "(ctx " + g.QualifiedGoIdent(contextPackage.Ident("Context")) +
-		", req *" + m.Request + ", opts ..." + g.QualifiedGoIdent(transportHttpPackage.Ident("CallOption")) +
+	return m.Name + num + "(" + ctxParam + " " + g.QualifiedGoIdent(contextPackage.Ident("Context")) +
+		", " + reqParam + " *" + m.Request + ", " +
+		optsParam + " ..." + g.QualifiedGoIdent(transportHttpPackage.Ident("CallOption")) +
 		") (*" + m.Reply + ", error)"
 }

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	"google.golang.org/protobuf/compiler/protogen"
 )
 
@@ -32,7 +34,7 @@ type methodDesc struct {
 func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 	methodSets := make(map[string]struct{})
 	// http interface defined
-	g.P("type ", s.ServiceType, "HTTPServer", " interface {")
+	g.P("type ", serverInterfaceName(s.ServiceType), " interface {")
 	for _, m := range s.Methods {
 		_, ok := methodSets[m.Name]
 		if ok { // unique because additional_bindings
@@ -40,23 +42,23 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 		}
 		methodSets[m.Name] = struct{}{}
 		g.P(m.Comment)
-		g.P(serverSignature(g, m))
+		g.P(serverMethodName(g, m))
 	}
 	g.P("}")
 	g.P()
 	// register http server handler
-	g.P("func Register", s.ServiceType, "HTTPServer(g *", g.QualifiedGoIdent(ginPackage.Ident("RouterGroup")), ", srv ", s.ServiceType, "HTTPServer) {")
+	g.P("func Register", s.ServiceType, "HTTPServer(g *", g.QualifiedGoIdent(ginPackage.Ident("RouterGroup")), ", srv ", serverInterfaceName(s.ServiceType), ") {")
 	g.P(`r := g.Group("")`)
 	g.P("{")
 	for _, m := range s.Methods {
-		g.P("r.", m.Method, `("`, m.Path, `", _`, s.ServiceType, "_", m.Name, m.Num, "_HTTP_Handler(srv))")
+		g.P("r.", m.Method, `("`, m.Path, `", `, serverHandlerMethodName(s.ServiceType, m), "(srv))")
 	}
 	g.P("}")
 	g.P("}")
 	g.P()
 	// handler
 	for _, m := range s.Methods {
-		g.P("func _", s.ServiceType, "_", m.Name, m.Num, "_HTTP_Handler(srv ", s.ServiceType, "HTTPServer", ") ", g.QualifiedGoIdent(ginPackage.Ident("HandlerFunc")), " {")
+		g.P("func ", serverHandlerMethodName(s.ServiceType, m), "(srv ", s.ServiceType, "HTTPServer", ") ", g.QualifiedGoIdent(ginPackage.Ident("HandlerFunc")), " {")
 		{ // gin.HandleFunc closure
 			g.P("return func(c *", g.QualifiedGoIdent(ginPackage.Ident("Context")), ") {")
 			g.P("carrier := ", g.QualifiedGoIdent(transportHttpPackage.Ident("FromCarrier")), "(c.Request.Context())")
@@ -139,6 +141,14 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 	return nil
 }
 
-func serverSignature(g *protogen.GeneratedFile, m *methodDesc) string {
+func serverInterfaceName(serverType string) string {
+	return serverType + "HTTPServer"
+}
+
+func serverMethodName(g *protogen.GeneratedFile, m *methodDesc) string {
 	return m.Name + "(" + g.QualifiedGoIdent(contextPackage.Ident("Context")) + ", *" + m.Request + ") (*" + m.Reply + ", error)"
+}
+
+func serverHandlerMethodName(serverType string, m *methodDesc) string {
+	return "_" + serverType + "_" + m.Name + strconv.Itoa(m.Num) + "_HTTP_Handler"
 }
