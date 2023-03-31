@@ -54,6 +54,7 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 
 	// http client implement methods.
 	for _, m := range s.Methods {
+		g.P(m.Comment)
 		g.P("func (c *", clientImplStructName(s.ServiceType), ")", clientMethodName(g, m, false), " {")
 		g.P("var err error")
 		g.P("var resp ", m.Reply)
