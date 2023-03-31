@@ -64,7 +64,7 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 		g.P("}")
 
 		if m.HasVars {
-			g.P("path := c.cc.EncodeURL(settings.Path, req, {{not .HasBody}})")
+			g.P("path := c.cc.EncodeURL(settings.Path, req, ", strconv.FormatBool(!m.HasBody), ")")
 		} else {
 			if m.HasBody {
 				g.P("path := settings.Path")
