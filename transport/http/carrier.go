@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 )
 
 type ctxCarrierKey struct{}
@@ -28,24 +27,8 @@ type Carrier interface {
 	Error(c *gin.Context, err error)
 	// Render encode response.
 	Render(*gin.Context, any)
-
-	// validator shortcut
-
 	// Validate the request.
 	Validate(context.Context, any) error
-	// StructCtx validates a structs exposed fields, and automatically validates nested structs, unless otherwise specified
-	// and also allows passing of context.Context for contextual validation information.
-	StructCtx(context.Context, any) error
-	// Struct validates a structs exposed fields, and automatically validates nested structs, unless otherwise specified.
-	Struct(any) error
-	// VarCtx validates a single variable using tag style validation and allows passing of contextual
-	// validation information via context.Context.
-	VarCtx(context.Context, any, string) error
-	// Var validates a structs exposed fields, and automatically validates nested structs, unless otherwise specified
-	// and also allows passing of context.Context for contextual validation information.
-	Var(any, string) error
-	// Validator return default Validator
-	Validator() *validator.Validate
 }
 
 func WithValueCarrier(ctx context.Context, c Carrier) context.Context {
