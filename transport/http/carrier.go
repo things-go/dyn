@@ -31,11 +31,13 @@ type Carrier interface {
 	Validate(context.Context, any) error
 }
 
+// WithValueCarrier returns the value associated with ctxCarrierKey is
+// Carrier.
 func WithValueCarrier(ctx context.Context, c Carrier) context.Context {
 	return context.WithValue(ctx, ctxCarrierKey{}, c)
 }
 
-// FromTransporter returns the Transporter value stored in ctx, if any.
+// FromCarrier returns the Carrier value stored in ctx, if not exist cause panic.
 func FromCarrier(ctx context.Context) Carrier {
 	c, ok := ctx.Value(ctxCarrierKey{}).(Carrier)
 	if !ok {
@@ -44,7 +46,7 @@ func FromCarrier(ctx context.Context) Carrier {
 	return c
 }
 
-// CarrierInterceptor carrier middleware
+// CarrierInterceptor carrier middleware.
 func CarrierInterceptor(carrier Carrier) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Request = c.Request.WithContext(WithValueCarrier(c.Request.Context(), carrier))
