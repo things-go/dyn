@@ -63,7 +63,7 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 			g.P("return func(c *", g.QualifiedGoIdent(ginPackage.Ident("Context")), ") {")
 			g.P("carrier := ", g.QualifiedGoIdent(transportHttpPackage.Ident("FromCarrier")), "(c.Request.Context())")
 			if s.UseEncoding && m.HasVars {
-				g.P("c.Request = carrier.RequestWithUri(c.Request, c.Params)")
+				g.P("c.Request = carrier.WithValueUri(c.Request, c.Params)")
 			}
 			{ // binding
 				g.P("shouldBind := func(req *", m.Request, ") error {")
