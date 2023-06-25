@@ -9,8 +9,8 @@ require (
 	github.com/things-go/encoding v0.0.4
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	golang.org/x/oauth2 v0.9.0
-	google.golang.org/genproto v0.0.0-20230327215041-6ac7f18bb9d5
-	google.golang.org/grpc v1.55.0
+	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1
+	google.golang.org/grpc v1.56.1
 	google.golang.org/protobuf v1.30.0
 )
 
