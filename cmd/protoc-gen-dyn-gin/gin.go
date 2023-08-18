@@ -34,7 +34,7 @@ func runProtoGen(gen *protogen.Plugin) error {
 		if !f.Generate {
 			continue
 		}
-		generateFile(gen, f, *omitempty)
+		generateFile(gen, f, args.Omitempty)
 	}
 	return nil
 }
@@ -82,16 +82,18 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 }
 
 func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, service *protogen.Service, omitempty bool) {
-	if service.Desc.Options().(*descriptorpb.ServiceOptions).GetDeprecated() {
-		g.P("//")
-		g.P(deprecationComment)
+	comment := service.Comments.Leading.String() + service.Comments.Trailing.String()
+	if comment != "" {
+		comment = strings.TrimSpace(strings.TrimPrefix(strings.TrimSuffix(comment, "\n"), "//")) // nolint
 	}
 	// HTTP Server.
 	sd := &serviceDesc{
+		Deprecated:  service.Desc.Options().(*descriptorpb.ServiceOptions).GetDeprecated(),
 		ServiceType: service.GoName,
 		ServiceName: string(service.Desc.FullName()),
 		Metadata:    file.Desc.Path(),
-		UseEncoding: *useEncoding,
+		Comment:     comment,
+		UseEncoding: args.UseEncoding,
 	}
 	for _, method := range service.Methods {
 		if method.Desc.IsStreamingClient() || method.Desc.IsStreamingServer() {
@@ -173,7 +175,7 @@ func buildHTTPRule(g *protogen.GeneratedFile, m *protogen.Method, rule *annotati
 	case method == http.MethodDelete:
 		if body != "" {
 			md.HasBody = true
-			if !*allowDeleteBody {
+			if !args.AllowDeleteBody {
 				md.HasBody = false
 				_, _ = fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: %s %s body should not be declared.\n", method, path)
 			}
@@ -185,7 +187,7 @@ func buildHTTPRule(g *protogen.GeneratedFile, m *protogen.Method, rule *annotati
 			md.HasBody = true
 		} else {
 			md.HasBody = false
-			if !*allowEmptyPatchBody {
+			if !args.AllowEmptyPatchBody {
 				_, _ = fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: %s %s is does not declare a body.\n", method, path)
 			}
 		}
@@ -237,19 +239,20 @@ func buildMethodDesc(g *protogen.GeneratedFile, m *protogen.Method, method, path
 	}
 	comment := m.Comments.Leading.String() + m.Comments.Trailing.String()
 	if comment != "" {
-		comment = "// " + m.GoName + strings.TrimPrefix(strings.TrimSuffix(comment, "\n"), "//")
+		comment = "// " + m.GoName + " " + strings.TrimSpace(strings.TrimPrefix(strings.TrimSuffix(comment, "\n"), "//"))
 	} else {
 		comment = "// " + m.GoName
 	}
 	return &methodDesc{
-		Name:    m.GoName,
-		Num:     methodSets[m.GoName],
-		Request: g.QualifiedGoIdent(m.Input.GoIdent),
-		Reply:   g.QualifiedGoIdent(m.Output.GoIdent),
-		Comment: comment,
-		Path:    transformPathParams(path),
-		Method:  method,
-		HasVars: len(vars) > 0,
+		Deprecated: m.Desc.Options().(*descriptorpb.MethodOptions).GetDeprecated(),
+		Name:       m.GoName,
+		Num:        methodSets[m.GoName],
+		Request:    g.QualifiedGoIdent(m.Input.GoIdent),
+		Reply:      g.QualifiedGoIdent(m.Output.GoIdent),
+		Comment:    comment,
+		Path:       transformPathParams(path),
+		Method:     method,
+		HasVars:    len(vars) > 0,
 	}
 }
 

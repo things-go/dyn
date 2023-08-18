@@ -30,7 +30,7 @@ func runProtoGen(gen *protogen.Plugin) error {
 		if !f.Generate {
 			continue
 		}
-		generateFile(gen, f, *omitempty)
+		generateFile(gen, f, args.Omitempty)
 	}
 	return nil
 }
@@ -179,7 +179,7 @@ func buildHTTPRule(g *protogen.GeneratedFile, m *protogen.Method, rule *annotati
 	case method == http.MethodDelete:
 		if body != "" {
 			md.HasBody = true
-			if !*allowDeleteBody {
+			if !args.AllowDeleteBody {
 				md.HasBody = false
 				_, _ = fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: %s %s body should not be declared.\n", method, path)
 			}
@@ -191,7 +191,7 @@ func buildHTTPRule(g *protogen.GeneratedFile, m *protogen.Method, rule *annotati
 			md.HasBody = true
 		} else {
 			md.HasBody = false
-			if !*allowEmptyPatchBody {
+			if !args.AllowEmptyPatchBody {
 				_, _ = fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: %s %s is does not declare a body.\n", method, path)
 			}
 		}
