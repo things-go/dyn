@@ -8,6 +8,7 @@ import (
 	"github.com/go-playground/validator/v10"
 
 	"github.com/things-go/dyn/genproto/errors"
+	"github.com/things-go/dyn/transport"
 	transportHttp "github.com/things-go/dyn/transport/http"
 	"github.com/things-go/encoding"
 )
@@ -17,6 +18,8 @@ var _ transportHttp.Carrier = (*Carry)(nil)
 type Carry struct {
 	encoding   *encoding.Encoding
 	validation *validator.Validate
+	// translate error
+	translate transport.ErrorTranslator
 }
 
 type Option func(*Carry)
@@ -32,7 +35,11 @@ func WithValidation(v *validator.Validate) Option {
 		cy.validation = v
 	}
 }
-
+func WithTranslateError(t transport.ErrorTranslator) Option {
+	return func(cy *Carry) {
+		cy.translate = t
+	}
+}
 func NewCarry(opts ...Option) *Carry {
 	cy := &Carry{
 		encoding: encoding.New(),
@@ -47,6 +54,7 @@ func NewCarry(opts ...Option) *Carry {
 	}
 	return cy
 }
+
 func (cy *Carry) WithValueUri(req *http.Request, params gin.Params) *http.Request {
 	return transportHttp.WithValueUri(req, params)
 }
@@ -62,7 +70,10 @@ func (cy *Carry) BindUri(c *gin.Context, v any) error {
 func (*Carry) ErrorBadRequest(c *gin.Context, err error) {
 	Abort(c, errors.ErrBadRequest(err.Error()))
 }
-func (*Carry) Error(c *gin.Context, err error) {
+func (cy *Carry) Error(c *gin.Context, err error) {
+	if cy.translate != nil {
+		err = cy.translate.Translate(err)
+	}
 	Abort(c, err)
 }
 func (cy *Carry) Render(c *gin.Context, v any) {

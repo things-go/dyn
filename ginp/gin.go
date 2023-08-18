@@ -8,6 +8,7 @@ import (
 	"github.com/go-playground/validator/v10"
 
 	"github.com/things-go/dyn/genproto/errors"
+	"github.com/things-go/dyn/transport"
 	transportHttp "github.com/things-go/dyn/transport/http"
 )
 
@@ -15,6 +16,8 @@ var _ transportHttp.Carrier = (*GinCarry)(nil)
 
 type GinCarry struct {
 	validation *validator.Validate
+	// translate error
+	translate transport.ErrorTranslator
 }
 
 func NewCarryForGin() *GinCarry {
@@ -25,6 +28,11 @@ func NewCarryForGin() *GinCarry {
 			return v
 		}(),
 	}
+}
+
+func (cy *GinCarry) SetTranslateError(e transport.ErrorTranslator) *GinCarry {
+	cy.translate = e
+	return cy
 }
 func (*GinCarry) WithValueUri(req *http.Request, params gin.Params) *http.Request {
 	return transportHttp.WithValueUri(req, params)
@@ -41,7 +49,10 @@ func (*GinCarry) BindUri(cg *gin.Context, v any) error {
 func (*GinCarry) ErrorBadRequest(cg *gin.Context, err error) {
 	Abort(cg, errors.ErrBadRequest(err.Error()))
 }
-func (*GinCarry) Error(cg *gin.Context, err error) {
+func (cy *GinCarry) Error(cg *gin.Context, err error) {
+	if cy.translate != nil {
+		err = cy.translate.Translate(err)
+	}
 	Abort(cg, err)
 }
 func (*GinCarry) Render(cg *gin.Context, v any) {
