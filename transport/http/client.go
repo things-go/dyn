@@ -9,17 +9,16 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/things-go/encoding"
-	"golang.org/x/exp/slices"
 	"golang.org/x/oauth2"
 )
 
-var noBodyMethods = []string{
-	http.MethodGet,
-	http.MethodHead,
-	http.MethodDelete,
-	http.MethodConnect,
-	http.MethodOptions,
-	http.MethodTrace,
+var noRequestBodyMethods = map[string]struct{}{
+	http.MethodGet:     {},
+	http.MethodHead:    {},
+	http.MethodDelete:  {},
+	http.MethodConnect: {},
+	http.MethodOptions: {},
+	http.MethodTrace:   {},
 }
 
 type Client struct {
@@ -80,15 +79,16 @@ func NewClient(opts ...ClientOption) *Client {
 
 func (c *Client) Deref() *resty.Client { return c.cc }
 
-// Invoke do not use this function. use Execute instead.
-func (c *Client) Invoke(ctx context.Context, method, path string, in, out any) error {
+// Invoke the request
+// NOTE: Do not use this function. use Execute instead.
+func (c *Client) Invoke(ctx context.Context, method, path string, in, out any, settings CallSettings) error {
 	if c.validate != nil {
 		err := c.validate(in)
 		if err != nil {
 			return err
 		}
 	}
-	settings := MustFromValueCallOption(ctx)
+	ctx = WithValueCallOption(ctx, settings)
 	r := c.cc.R().SetContext(ctx)
 	if in != nil {
 		reqBody, err := c.codec.Encode(settings.contentType, in)
@@ -128,21 +128,21 @@ func (c *Client) Invoke(ctx context.Context, method, path string, in, out any) e
 	return c.codec.InboundForResponse(resp.RawResponse).NewDecoder(resp.RawResponse.Body).Decode(out)
 }
 
+func hasRequestBody(method string) bool {
+	_, ok := noRequestBodyMethods[method]
+	return !ok
+}
+
 func (c *Client) Execute(ctx context.Context, method, path string, req, resp any, opts ...CallOption) error {
 	var r any
 
-	settings := DefaultCallOption(path)
-	for _, opt := range opts {
-		opt(&settings)
-	}
-
-	hasBody := !slices.Contains(noBodyMethods, method)
+	settings := DefaultCallOption(path, opts...)
+	hasBody := hasRequestBody(method)
 	if hasBody {
 		r = req
 	}
 	url := c.EncodeURL(settings.Path, req, !hasBody)
-	ctx = WithValueCallOption(ctx, settings)
-	return c.Invoke(ctx, method, url, r, &resp)
+	return c.Invoke(ctx, method, url, r, &resp, settings)
 }
 
 // Get method does GET HTTP request. It's defined in section 4.3.1 of RFC7231.

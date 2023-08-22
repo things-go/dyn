@@ -7,7 +7,6 @@ require (
 	github.com/go-playground/validator/v10 v10.15.1
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/things-go/encoding v0.0.5
-	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	golang.org/x/oauth2 v0.11.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20230717213848-3f92550aa753
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230706204954-ccb25ca9f130
