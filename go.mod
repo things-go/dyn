@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/gin-gonic/gin v1.9.1
-	github.com/go-playground/validator/v10 v10.15.5
+	github.com/go-playground/validator/v10 v10.16.0
 	github.com/go-resty/resty/v2 v2.10.0
 	github.com/things-go/encoding v0.0.5
 	golang.org/x/oauth2 v0.13.0
