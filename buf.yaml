@@ -1,8 +1,12 @@
 version: v1
-name: buf.build/thinkgo/dyn
+name: buf.build/things-go/dyn
 breaking:
   use:
     - FILE
 lint:
   use:
     - DEFAULT
+build:
+  excludes:
+    - "example"
+
