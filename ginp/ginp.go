@@ -2,6 +2,7 @@ package ginp
 
 import (
 	"context"
+	stdErrors "errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -67,12 +68,13 @@ func (cy *Carry) BindQuery(c *gin.Context, v any) error {
 func (cy *Carry) BindUri(c *gin.Context, v any) error {
 	return cy.encoding.BindUri(c.Request, v)
 }
-func (*Carry) ErrorBadRequest(c *gin.Context, err error) {
-	Abort(c, errors.ErrBadRequest(err.Error()))
-}
+
 func (cy *Carry) Error(c *gin.Context, err error) {
 	if cy.translate != nil {
 		err = cy.translate.Translate(err)
+	}
+	if e := new(validator.ValidationErrors); stdErrors.As(err, e) {
+		err = errors.ErrBadRequest(err.Error())
 	}
 	Abort(c, err)
 }

@@ -138,7 +138,7 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 				g.P("var reply *", m.Reply)
 				g.P()
 				g.P("if err = shouldBind(&req); err != nil {")
-				g.P("carrier.ErrorBadRequest(c, err)")
+				g.P("carrier.Error(c, err)")
 				g.P("return")
 				g.P("}")
 				g.P("reply, err = srv.", m.Name, "(c.Request.Context(), &req)")

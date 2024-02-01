@@ -21,8 +21,6 @@ type Carrier interface {
 	// BindUri binds the passed struct pointer using the uri codec.Marshaler.
 	// NOTE: before use this, you should set uri params in the request context with RequestWithUri.
 	BindUri(*gin.Context, any) error
-	// ErrorBadRequest encode error response.
-	ErrorBadRequest(*gin.Context, error)
 	// Error encode error response.
 	Error(c *gin.Context, err error)
 	// Render encode response.
