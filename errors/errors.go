@@ -9,13 +9,14 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/proto"
 )
 
-const (
-	// ErrorsProtoPackageIsVersion3 this constant should not be referenced by any other code.
-	ErrorsProtoPackageIsVersion3 = true
-)
+type Error struct {
+	Code     int32             `json:"code,omitempty"`
+	Message  string            `json:"message,omitempty"`
+	Detail   string            `json:"detail,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty"`
+}
 
 func (x *Error) Error() string {
 	b, _ := json.Marshal(x)
@@ -41,9 +42,8 @@ func (x *Error) Is(err error) bool {
 }
 
 func (x *Error) WithMetadata(md map[string]string) *Error {
-	err := proto.Clone(x).(*Error)
-	err.Metadata = md
-	return err
+	x.Metadata = md
+	return x
 }
 
 func New(code int, message, detail string) *Error {
@@ -82,18 +82,15 @@ func FromError(err error) *Error {
 	if err == nil {
 		return nil
 	}
-
 	if e := new(Error); errors.As(err, &e) {
 		return e
 	}
-
 	if se, ok := status.FromError(err); ok {
 		if se.Code() == codes.Unknown {
 			return Parse(se.Message())
 		}
 		return New(FromGRPCCode(se.Code()), se.Message(), "")
 	}
-
 	return Parse(err.Error())
 }
 

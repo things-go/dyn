@@ -16,7 +16,6 @@ const (
 type Converter interface {
 	// ToGRPCCode converts an HTTP error code into the corresponding gRPC response status.
 	ToGRPCCode(code int) codes.Code
-
 	// FromGRPCCode converts a gRPC error code into the corresponding HTTP response status.
 	FromGRPCCode(code codes.Code) int
 }
