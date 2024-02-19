@@ -38,42 +38,42 @@ func (cy *GinCarry) SetTranslateError(e transport.ErrorTranslator) *GinCarry {
 func (*GinCarry) WithValueUri(req *http.Request, params gin.Params) *http.Request {
 	return transportHttp.WithValueUri(req, params)
 }
-func (*GinCarry) Bind(cg *gin.Context, v any) error {
-	return cg.ShouldBind(v)
+func (*GinCarry) Bind(c *gin.Context, v any) error {
+	return c.ShouldBind(v)
 }
-func (*GinCarry) BindQuery(cg *gin.Context, v any) error {
-	return cg.ShouldBindQuery(v)
+func (*GinCarry) BindQuery(c *gin.Context, v any) error {
+	return c.ShouldBindQuery(v)
 }
-func (*GinCarry) BindUri(cg *gin.Context, v any) error {
-	return cg.ShouldBindUri(v)
+func (*GinCarry) BindUri(c *gin.Context, v any) error {
+	return c.ShouldBindUri(v)
 }
-func (cy *GinCarry) Error(cg *gin.Context, err error) {
+func (cy *GinCarry) Error(c *gin.Context, err error) {
 	if cy.translate != nil {
 		err = cy.translate.Translate(err)
 	}
 	if e := new(validator.ValidationErrors); stdErrors.As(err, e) {
 		err = errors.ErrBadRequest(err.Error())
 	}
-	Abort(cg, err)
+	Abort(c, err)
 }
-func (*GinCarry) Render(cg *gin.Context, v any) {
-	Response(cg, v)
+func (*GinCarry) Render(c *gin.Context, v any) {
+	Response(c, v)
 }
-func (cg *GinCarry) Validator() *validator.Validate {
-	return cg.validation
+func (cy *GinCarry) Validator() *validator.Validate {
+	return cy.validation
 }
-func (cg *GinCarry) Validate(ctx context.Context, v any) error {
-	return cg.validation.StructCtx(ctx, v)
+func (cy *GinCarry) Validate(ctx context.Context, v any) error {
+	return cy.validation.StructCtx(ctx, v)
 }
-func (cg *GinCarry) StructCtx(ctx context.Context, v any) error {
-	return cg.validation.StructCtx(ctx, v)
+func (cy *GinCarry) StructCtx(ctx context.Context, v any) error {
+	return cy.validation.StructCtx(ctx, v)
 }
-func (cg *GinCarry) Struct(v any) error {
-	return cg.validation.Struct(v)
+func (cy *GinCarry) Struct(v any) error {
+	return cy.validation.Struct(v)
 }
-func (cg *GinCarry) VarCtx(ctx context.Context, v any, tag string) error {
-	return cg.validation.VarCtx(ctx, v, tag)
+func (cy *GinCarry) VarCtx(ctx context.Context, v any, tag string) error {
+	return cy.validation.VarCtx(ctx, v, tag)
 }
-func (cg *GinCarry) Var(v any, tag string) error {
-	return cg.validation.Var(v, tag)
+func (cy *GinCarry) Var(v any, tag string) error {
+	return cy.validation.Var(v, tag)
 }

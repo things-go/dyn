@@ -22,7 +22,7 @@ type Carrier interface {
 	// NOTE: before use this, you should set uri params in the request context with RequestWithUri.
 	BindUri(*gin.Context, any) error
 	// Error encode error response.
-	Error(c *gin.Context, err error)
+	Error(*gin.Context, error)
 	// Render encode response.
 	Render(*gin.Context, any)
 	// Validate the request.
