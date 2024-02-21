@@ -30,6 +30,8 @@ type Client struct {
 	noAuth bool
 	// validate request
 	validate func(any) error
+	// call option
+	defaultCallOptions []CallOption
 }
 
 type ClientOption func(*Client)
@@ -58,6 +60,12 @@ func WithValidate(f func(any) error) ClientOption {
 	}
 }
 
+func WithCallOption(cs ...CallOption) ClientOption {
+	return func(c *Client) {
+		c.defaultCallOptions = append(c.defaultCallOptions, cs...)
+	}
+}
+
 func NewClient(opts ...ClientOption) *Client {
 	c := &Client{
 		cc:    resty.New(),
@@ -75,6 +83,23 @@ func NewClient(opts ...ClientOption) *Client {
 		return nil
 	})
 	return c
+}
+
+func (c *Client) CallSetting(path string, cos ...CallOption) CallSettings {
+	cs := CallSettings{
+		contentType: "application/json",
+		accept:      "application/json",
+		Path:        path,
+		header:      make(http.Header),
+		noAuth:      false,
+	}
+	for _, co := range c.defaultCallOptions {
+		co(&cs)
+	}
+	for _, co := range cos {
+		co(&cs)
+	}
+	return cs
 }
 
 func (c *Client) Deref() *resty.Client { return c.cc }
@@ -108,6 +133,7 @@ func (c *Client) Invoke(ctx context.Context, method, path string, in, out any, s
 		r.SetHeader("Authorization", tk.Type()+" "+tk.AccessToken)
 	}
 	r.SetHeader("Content-Type", settings.contentType)
+	r.SetHeader("Accept", settings.accept)
 	for k, vs := range settings.header {
 		for _, v := range vs {
 			r.Header.Add(k, v)
@@ -136,7 +162,7 @@ func hasRequestBody(method string) bool {
 func (c *Client) Execute(ctx context.Context, method, path string, req, resp any, opts ...CallOption) error {
 	var r any
 
-	settings := DefaultCallOption(path, opts...)
+	settings := c.CallSetting(path, opts...)
 	hasBody := hasRequestBody(method)
 	if hasBody {
 		r = req
