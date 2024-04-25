@@ -4,6 +4,7 @@ import (
 	"context"
 	stdErrors "errors"
 	"net/http"
+	"net/url"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -47,6 +48,11 @@ func (*GinCarry) BindQuery(c *gin.Context, v any) error {
 func (*GinCarry) BindUri(c *gin.Context, v any) error {
 	return c.ShouldBindUri(v)
 }
+
+func (*GinCarry) BindURI(c *gin.Context, _ url.Values, v any) error {
+	return c.ShouldBindUri(v)
+}
+
 func (cy *GinCarry) Error(c *gin.Context, err error) {
 	if cy.translate != nil {
 		err = cy.translate.Translate(err)

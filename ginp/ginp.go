@@ -4,6 +4,7 @@ import (
 	"context"
 	stdErrors "errors"
 	"net/http"
+	"net/url"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -67,6 +68,9 @@ func (cy *Carry) BindQuery(c *gin.Context, v any) error {
 }
 func (cy *Carry) BindUri(c *gin.Context, v any) error {
 	return cy.encoding.BindUri(c.Request, v)
+}
+func (cy *Carry) BindURI(c *gin.Context, raws url.Values, v any) error {
+	return cy.encoding.BindURI(raws, v)
 }
 
 func (cy *Carry) Error(c *gin.Context, err error) {
