@@ -57,17 +57,21 @@ func NewCarry(opts ...Option) *Carry {
 	return cy
 }
 
+// Deprecated: Use BindURI not need this.
 func (cy *Carry) WithValueUri(req *http.Request, params gin.Params) *http.Request {
 	return transportHttp.WithValueUri(req, params)
 }
+
+// Deprecated: Use BindURI not need this.
+func (cy *Carry) BindUri(c *gin.Context, v any) error {
+	return cy.encoding.BindUri(c.Request, v)
+}
+
 func (cy *Carry) Bind(c *gin.Context, v any) error {
 	return cy.encoding.Bind(c.Request, v)
 }
 func (cy *Carry) BindQuery(c *gin.Context, v any) error {
 	return cy.encoding.BindQuery(c.Request, v)
-}
-func (cy *Carry) BindUri(c *gin.Context, v any) error {
-	return cy.encoding.BindUri(c.Request, v)
 }
 func (cy *Carry) BindURI(c *gin.Context, raws url.Values, v any) error {
 	return cy.encoding.BindURI(raws, v)

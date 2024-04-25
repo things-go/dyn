@@ -36,17 +36,22 @@ func (cy *GinCarry) SetTranslateError(e transport.ErrorTranslator) *GinCarry {
 	cy.translate = e
 	return cy
 }
+
+// Deprecated: Use BindURI not need this.
 func (*GinCarry) WithValueUri(req *http.Request, params gin.Params) *http.Request {
 	return transportHttp.WithValueUri(req, params)
 }
+
+// Deprecated: Use BindURI not need this.
+func (*GinCarry) BindUri(c *gin.Context, v any) error {
+	return c.ShouldBindUri(v)
+}
+
 func (*GinCarry) Bind(c *gin.Context, v any) error {
 	return c.ShouldBind(v)
 }
 func (*GinCarry) BindQuery(c *gin.Context, v any) error {
 	return c.ShouldBindQuery(v)
-}
-func (*GinCarry) BindUri(c *gin.Context, v any) error {
-	return c.ShouldBindUri(v)
 }
 
 func (*GinCarry) BindURI(c *gin.Context, _ url.Values, v any) error {
