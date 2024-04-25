@@ -29,7 +29,7 @@ type Client struct {
 	// validate request
 	validate func(any) error
 	// call option
-	defaultCallOptions []CallOption
+	callOptions []CallOption
 }
 
 type ClientOption func(*Client)
@@ -49,7 +49,7 @@ func WithTokenSource(t oauth2.TokenSource) ClientOption {
 // Deprecated: use WithCallOption(WithCoNoAuth) instead.
 func WithNoAuth() ClientOption {
 	return func(c *Client) {
-		c.defaultCallOptions = append(c.defaultCallOptions, WithCoNoAuth())
+		c.callOptions = append(c.callOptions, WithCoNoAuth())
 	}
 }
 
@@ -61,7 +61,7 @@ func WithValidate(f func(any) error) ClientOption {
 
 func WithCallOption(cs ...CallOption) ClientOption {
 	return func(c *Client) {
-		c.defaultCallOptions = append(c.defaultCallOptions, cs...)
+		c.callOptions = append(c.callOptions, cs...)
 	}
 }
 
@@ -84,35 +84,34 @@ func NewClient(opts ...ClientOption) *Client {
 	return c
 }
 
-func (c *Client) CallSetting(path string, cos ...CallOption) CallSettings {
-	cs := CallSettings{
+func (c *Client) Deref() *resty.Client { return c.cc }
+
+func (c *Client) CallSetting(path string, cos ...CallOption) *CallSettings {
+	cs := &CallSettings{
 		contentType: "application/json",
 		accept:      "application/json",
 		Path:        path,
 		header:      make(http.Header),
 		noAuth:      false,
 	}
-	for _, co := range c.defaultCallOptions {
-		co(&cs)
+	for _, co := range c.callOptions {
+		co(cs)
 	}
 	for _, co := range cos {
-		co(&cs)
+		co(cs)
 	}
 	return cs
 }
 
-func (c *Client) Deref() *resty.Client { return c.cc }
-
 // Invoke the request
 // NOTE: Do not use this function. use Execute instead.
-func (c *Client) Invoke(ctx context.Context, method, path string, in, out any, settings CallSettings) error {
+func (c *Client) Invoke(ctx context.Context, method, path string, in, out any, settings *CallSettings) error {
 	if c.validate != nil {
-		err := c.validate(in)
-		if err != nil {
+		if err := c.validate(in); err != nil {
 			return err
 		}
 	}
-	ctx = WithValueCallOption(ctx, settings)
+	ctx = WithValueCallOption(ctx, *settings)
 	r := c.cc.R().SetContext(ctx)
 	if in != nil {
 		reqBody, err := c.codec.Encode(settings.contentType, in)
