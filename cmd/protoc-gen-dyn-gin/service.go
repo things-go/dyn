@@ -78,9 +78,6 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 		{ // gin.HandleFunc closure
 			g.P("return func(c *", g.QualifiedGoIdent(ginPackage.Ident("Context")), ") {")
 			g.P("carrier := ", g.QualifiedGoIdent(transportHttpPackage.Ident("FromCarrier")), "(c.Request.Context())")
-			if s.UseEncoding && m.HasVars {
-				g.P("c.Request = carrier.WithValueUri(c.Request, c.Params)")
-			}
 			{ // binding
 				g.P("shouldBind := func(req *", m.Request, ") error {")
 				if s.UseEncoding {
@@ -101,7 +98,7 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 						}
 					}
 					if m.HasVars {
-						g.P("if err := carrier.BindUri(c, req); err != nil {")
+						g.P("if err := carrier.BindURI(c, " + g.QualifiedGoIdent(transportHttpPackage.Ident("UrlValues")) + "(c.Params), req); err != nil {")
 						g.P("return err")
 						g.P("}")
 					}

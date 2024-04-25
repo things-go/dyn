@@ -18,6 +18,7 @@ protoc \
   --go-grpc_opt paths=source_relative \
   --dyn-gin_out ${out_dir} \
   --dyn-gin_opt paths=source_relative \
+  --dyn-gin_opt use_encoding=true \
   --dyn-resty_out ${out_dir} \
   --dyn-resty_opt paths=source_relative \
   hello.proto

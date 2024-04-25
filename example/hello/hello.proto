@@ -12,20 +12,28 @@ import "google/api/annotations.proto";
 // The greeting service definition.
 service Greeter {
   // Sends a hello
-  rpc SayHello (HelloRequest) returns (HelloReply) {// I am a trailing comment
+  rpc SayHello(HelloRequest) returns (HelloReply) { // I am a trailing comment
     option (google.api.http) = {
-      post: "/v1/hello",
-      body: "*"
+      post : "/v1/hello",
+      body : "*"
+    };
+  }
+  // Sends a hello
+  rpc GetHello(GetHelloRequest) returns (GetHelloReply) {
+    option (google.api.http) = {
+      get : "/v1/hello/{id}",
     };
   }
 }
 
 // The request message containing the user's name.
-message HelloRequest {
-  string name = 1;
-}
+message HelloRequest { string name = 1; }
 
 // The response message containing the greetings
-message HelloReply {
-  string message = 1;
-}
+message HelloReply { string message = 1; }
+
+// The request message containing the user's name.
+message GetHelloRequest { int64 id = 1; }
+
+// The response message containing the greetings
+message GetHelloReply { string message = 1; }

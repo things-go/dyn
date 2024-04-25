@@ -26,7 +26,7 @@ type Carrier interface {
 	//
 	// Deprecated: Use BindURI not need this.
 	BindUri(*gin.Context, any) error
-	// Deprecated: Use BindURI not need this.
+	// BindUri binds the passed struct pointer using the uri codec.Marshaler.
 	BindURI(*gin.Context, url.Values, any) error
 	// Error encode error response.
 	Error(*gin.Context, error)
