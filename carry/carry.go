@@ -19,8 +19,8 @@ type Carry struct {
 	validation *validator.Validate
 	// translate error
 	translate             transport.ErrorTranslator
-	renderErrorTranslator transport.RenderErrorTranslator
-	renderTranslator      transport.RenderTranslator
+	renderErrorTranslator transport.TranslatorError
+	renderTranslator      transport.TranslatorData
 }
 
 type Option func(*Carry)

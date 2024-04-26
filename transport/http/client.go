@@ -104,7 +104,7 @@ func (c *Client) Invoke(ctx context.Context, method, path string, in, out any, s
 			return err
 		}
 	}
-	ctx = WithValueCallOption(ctx, *settings)
+	ctx = WithValueCallOption(ctx, settings)
 	r := c.cc.R().SetContext(ctx)
 	if in != nil {
 		reqBody, err := c.codec.Encode(settings.contentType, in)

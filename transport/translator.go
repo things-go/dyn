@@ -4,10 +4,10 @@ type ErrorTranslator interface {
 	Translate(error) error
 }
 
-type RenderErrorTranslator interface {
+type TranslatorError interface {
 	TranslateError(err error) (statusCode int, v any)
 }
 
-type RenderTranslator interface {
+type TranslatorData interface {
 	TranslateData(v any) any
 }

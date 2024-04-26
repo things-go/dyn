@@ -1,7 +1,7 @@
 # dyn
-dyn project toolkit for gin 
 
-[![GoDoc](https://godoc.org/github.com/things-go/dyn?status.svg)](https://godoc.org/github.com/things-go/dyn)
+dyn project toolkit for gin
+
 [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-blue?logo=go&logoColor=white)](https://pkg.go.dev/github.com/things-go/dyn?tab=doc)
 [![codecov](https://codecov.io/gh/things-go/dyn/branch/main/graph/badge.svg)](https://codecov.io/gh/things-go/dyn)
 [![Tests](https://github.com/things-go/dyn/actions/workflows/ci.yml/badge.svg)](https://github.com/things-go/dyn/actions/workflows/ci.yml)
@@ -14,18 +14,20 @@ dyn project toolkit for gin
 `dyn`是一个`gin`工程工具生成器, 集成了 [proto-gen-go-errno](cmd/proto-gen-go-errno) 和 [proto-gen-go-gin](cmd/proto-gen-go-gin)
 
 - `proto-gen-go-errno` 从`proto` 枚举统一生成错误
-- `proto-gen-go-gin` 从 `proto` 的生成`gin`的代码. 
-- 
+- `proto-gen-go-gin` 从 `proto` 的生成`gin`的代码.
   ***注意***: 当使用`proto-gen-go-gin`要禁用`gin`自带的`binding`,使用`gin.DisableBindValidation()` 接口
-
+- `proto-gen-go-resty` 从 `proto` 的生成`resty`的代码.
+  
 ### Installation
 
 Use go get.
+
 ```bash
     go get github.com/things-go/dyn
 ```
 
 Then import the package into your own code.
+
 ```bash
     import "github.com/things-go/dyn"
 ```
