@@ -71,7 +71,7 @@ func _Greeter_GetHello0_HTTP_Handler(srv GreeterHTTPServer) gin.HandlerFunc {
 			if err := carrier.BindQuery(c, req); err != nil {
 				return err
 			}
-			if err := carrier.BindURI(c, http.UrlValues(c.Params), req); err != nil {
+			if err := carrier.BindUri(c, req); err != nil {
 				return err
 			}
 			return carrier.Validate(c.Request.Context(), req)

@@ -3,7 +3,6 @@ package http
 import (
 	"context"
 	"net/http"
-	"net/url"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,19 +15,13 @@ type Carrier interface {
 	//
 	// Deprecated: Use BindURI not need this.
 	WithValueUri(*http.Request, gin.Params) *http.Request
-	// BindUri binds the passed struct pointer using the uri codec.Marshaler.
-	// NOTE: before use this, you should set uri params in the request context with RequestWithUri.
-	//
-	// Deprecated: Use BindURI not need this.
-	BindUri(*gin.Context, any) error
-
 	// Bind checks the Method and Content-Type to select codec.Marshaler automatically,
 	// Depending on the "Content-Type" header different bind are used.
 	Bind(*gin.Context, any) error
 	// BindQuery binds the passed struct pointer using the query codec.Marshaler.
 	BindQuery(*gin.Context, any) error
 	// BindUri binds the passed struct pointer using the uri codec.Marshaler.
-	BindURI(*gin.Context, url.Values, any) error
+	BindUri(*gin.Context, any) error
 	// Error encode error response.
 	Error(*gin.Context, error)
 	// Render encode response.

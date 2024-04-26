@@ -98,7 +98,7 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 						}
 					}
 					if m.HasVars {
-						g.P("if err := carrier.BindURI(c, " + g.QualifiedGoIdent(transportHttpPackage.Ident("UrlValues")) + "(c.Params), req); err != nil {")
+						g.P("if err := carrier.BindUri(c, req); err != nil {")
 						g.P("return err")
 						g.P("}")
 					}
