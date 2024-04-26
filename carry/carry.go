@@ -30,7 +30,6 @@ func WithEncoding(e *encoding.Encoding) Option {
 		cy.encoding = e
 	}
 }
-
 func WithValidation(v *validator.Validate) Option {
 	return func(cy *Carry) {
 		cy.validation = v
@@ -63,7 +62,7 @@ func (cy *Carry) BindQuery(c *gin.Context, v any) error {
 	return cy.encoding.BindQuery(c.Request, v)
 }
 func (cy *Carry) BindUri(c *gin.Context, v any) error {
-	return cy.encoding.BindURI(transportHttp.UrlValues(c.Params), v)
+	return cy.encoding.BindUri(transportHttp.UrlValues(c.Params), v)
 }
 func (cy *Carry) Error(c *gin.Context, err error) {
 	var obj any
