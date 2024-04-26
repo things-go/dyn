@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,10 +10,6 @@ type ctxCarrierKey struct{}
 
 // Carrier is an HTTP Carrier.
 type Carrier interface {
-	// WithValueUri sets the URL params for the given request.
-	//
-	// Deprecated: Use BindURI not need this.
-	WithValueUri(*http.Request, gin.Params) *http.Request
 	// Bind checks the Method and Content-Type to select codec.Marshaler automatically,
 	// Depending on the "Content-Type" header different bind are used.
 	Bind(*gin.Context, any) error

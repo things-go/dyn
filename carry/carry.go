@@ -2,13 +2,11 @@ package ginp
 
 import (
 	"context"
-	stdErrors "errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 
-	"github.com/things-go/dyn/errors"
 	"github.com/things-go/dyn/transport"
 	transportHttp "github.com/things-go/dyn/transport/http"
 	"github.com/things-go/encoding"
@@ -20,7 +18,9 @@ type Carry struct {
 	encoding   *encoding.Encoding
 	validation *validator.Validate
 	// translate error
-	translate transport.ErrorTranslator
+	translate             transport.ErrorTranslator
+	renderErrorTranslator transport.RenderErrorTranslator
+	renderTranslator      transport.RenderTranslator
 }
 
 type Option func(*Carry)
@@ -56,10 +56,6 @@ func NewCarry(opts ...Option) *Carry {
 	return cy
 }
 
-// Deprecated: Use BindURI not need this.
-func (cy *Carry) WithValueUri(req *http.Request, params gin.Params) *http.Request {
-	return transportHttp.WithValueUri(req, params)
-}
 func (cy *Carry) Bind(c *gin.Context, v any) error {
 	return cy.encoding.Bind(c.Request, v)
 }
@@ -70,15 +66,26 @@ func (cy *Carry) BindUri(c *gin.Context, v any) error {
 	return cy.encoding.BindURI(transportHttp.UrlValues(c.Params), v)
 }
 func (cy *Carry) Error(c *gin.Context, err error) {
+	var obj any
+	var statusCode = http.StatusInternalServerError
+
 	if cy.translate != nil {
 		err = cy.translate.Translate(err)
 	}
-	if e := new(validator.ValidationErrors); stdErrors.As(err, e) {
-		err = errors.ErrBadRequest(err.Error())
+	if cy.renderErrorTranslator != nil {
+		statusCode, obj = cy.renderErrorTranslator.TranslateError(err)
+	} else {
+		obj = err.Error()
 	}
-	Abort(c, err)
+	c.Writer.WriteHeader(statusCode)
+	if err := cy.encoding.Render(c.Writer, c.Request, obj); err != nil {
+		c.String(http.StatusInternalServerError, "Render failed cause by %v", err)
+	}
 }
 func (cy *Carry) Render(c *gin.Context, v any) {
+	if cy.renderTranslator != nil {
+		v = cy.renderTranslator.TranslateData(v)
+	}
 	c.Writer.WriteHeader(http.StatusOK)
 	err := cy.encoding.Render(c.Writer, c.Request, v)
 	if err != nil {

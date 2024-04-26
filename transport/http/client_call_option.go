@@ -18,21 +18,6 @@ type CallSettings struct {
 	noAuth bool
 }
 
-// Deprecated: use Client.CallSetting(path string, opts ...CallOption) instead.
-func DefaultCallOption(path string, opts ...CallOption) CallSettings {
-	cs := CallSettings{
-		contentType: "application/json",
-		accept:      "application/json",
-		Path:        path,
-		header:      make(http.Header),
-		noAuth:      false,
-	}
-	for _, opt := range opts {
-		opt(&cs)
-	}
-	return cs
-}
-
 // CallOption is an option used by Invoke to control behaviors of RPC calls.
 // CallOption works by modifying relevant fields of CallSettings.
 type CallOption func(cs *CallSettings)

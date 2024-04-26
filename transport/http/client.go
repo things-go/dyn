@@ -46,13 +46,6 @@ func WithTokenSource(t oauth2.TokenSource) ClientOption {
 	}
 }
 
-// Deprecated: use WithCallOption(WithCoNoAuth) instead.
-func WithNoAuth() ClientOption {
-	return func(c *Client) {
-		c.callOptions = append(c.callOptions, WithCoNoAuth())
-	}
-}
-
 func WithValidate(f func(any) error) ClientOption {
 	return func(c *Client) {
 		c.validate = f

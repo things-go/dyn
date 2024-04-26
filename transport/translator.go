@@ -1,7 +1,11 @@
 package transport
 
 type ErrorTranslator interface {
-	Translate(err error) error
+	Translate(error) error
+}
+
+type RenderErrorTranslator interface {
+	TranslateError(err error) (statusCode int, v any)
 }
 
 type RenderTranslator interface {
