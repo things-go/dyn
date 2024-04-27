@@ -12,7 +12,6 @@ enum ErrorReason {
   // 服务器错误
   // #[errno(code=500)]
   internal_server = 0;
-
   // 操作超时
   timeout = 1000;
 }
