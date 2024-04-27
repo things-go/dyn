@@ -6,40 +6,23 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/things-go/encoding"
 
 	"github.com/things-go/dyn/transport"
 	transportHttp "github.com/things-go/dyn/transport/http"
-	"github.com/things-go/encoding"
 )
 
 var _ transportHttp.Carrier = (*Carry)(nil)
+var _ Applier = (*Carry)(nil)
 
 type Carry struct {
-	encoding   *encoding.Encoding
-	validation *validator.Validate
-	// translate error
-	translate             transport.ErrorTranslator
-	renderErrorTranslator transport.TranslatorError
-	renderTranslator      transport.TranslatorData
+	encoding        *encoding.Encoding
+	validation      *validator.Validate
+	errorTranslate  transport.ErrorTranslator
+	translatorError transport.TranslatorError
+	translatorData  transport.TranslatorData
 }
 
-type Option func(*Carry)
-
-func WithEncoding(e *encoding.Encoding) Option {
-	return func(cy *Carry) {
-		cy.encoding = e
-	}
-}
-func WithValidation(v *validator.Validate) Option {
-	return func(cy *Carry) {
-		cy.validation = v
-	}
-}
-func WithTranslateError(t transport.ErrorTranslator) Option {
-	return func(cy *Carry) {
-		cy.translate = t
-	}
-}
 func NewCarry(opts ...Option) *Carry {
 	cy := &Carry{
 		encoding: encoding.New(),
@@ -55,6 +38,24 @@ func NewCarry(opts ...Option) *Carry {
 	return cy
 }
 
+func (cy *Carry) setEncoding(e *encoding.Encoding) {
+	cy.encoding = e
+}
+func (cy *Carry) setValidation(v *validator.Validate) {
+	cy.validation = v
+}
+func (cy *Carry) setErrorTranslator(e transport.ErrorTranslator) {
+	cy.errorTranslate = e
+}
+
+func (cy *Carry) setTranslatorError(e transport.TranslatorError) {
+	cy.translatorError = e
+}
+
+func (cy *Carry) setTranslatorData(e transport.TranslatorData) {
+	cy.translatorData = e
+}
+
 func (cy *Carry) Bind(c *gin.Context, v any) error {
 	return cy.encoding.Bind(c.Request, v)
 }
@@ -68,11 +69,11 @@ func (cy *Carry) Error(c *gin.Context, err error) {
 	var obj any
 	var statusCode = http.StatusInternalServerError
 
-	if cy.translate != nil {
-		err = cy.translate.Translate(err)
+	if cy.errorTranslate != nil {
+		err = cy.errorTranslate.Translate(err)
 	}
-	if cy.renderErrorTranslator != nil {
-		statusCode, obj = cy.renderErrorTranslator.TranslateError(err)
+	if cy.translatorError != nil {
+		statusCode, obj = cy.translatorError.TranslateError(err)
 	} else {
 		obj = err.Error()
 	}
@@ -82,8 +83,8 @@ func (cy *Carry) Error(c *gin.Context, err error) {
 	}
 }
 func (cy *Carry) Render(c *gin.Context, v any) {
-	if cy.renderTranslator != nil {
-		v = cy.renderTranslator.TranslateData(v)
+	if cy.translatorData != nil {
+		v = cy.translatorData.TranslateData(v)
 	}
 	c.Writer.WriteHeader(http.StatusOK)
 	err := cy.encoding.Render(c.Writer, c.Request, v)
