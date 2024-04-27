@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package errno;
+
+option go_package = "github.com/things-go/dyn/example/errno";
+option java_multiple_files = true;
+option java_package = "io.grpc.things-go.dyn.example.errno";
+option java_outer_classname = "HelloWorldProto";
+
+// #[errno]
+enum ErrorReason {
+  // 服务器错误
+  // #[errno(code=500)]
+  internal_server = 0;
+
+  // 操作超时
+  timeout = 1000;
+}
