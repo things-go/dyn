@@ -24,7 +24,7 @@ func Test_Error(t *testing.T) {
 	require.Equal(t, err.Error(), "请求参数错误")
 
 	innerErr := errors.New("内部错误1")
-	err = err.TakeOption(errorx.WithErr(innerErr), errorx.WithMetadata("k1", "v1"))
+	err = err.TakeOption(errorx.WithCause(innerErr), errorx.WithMetadata("k1", "v1"))
 
 	require.Equal(t, err.Code(), int32(400))
 	require.Equal(t, err.Message(), "请求参数错误")
@@ -71,7 +71,7 @@ func Test_Error_Unwrap(t *testing.T) {
 	})
 	t.Run("Unwrap", func(t *testing.T) {
 		err := newTestError("内部错误")
-		err1 := errorx.Newf(400, "请求参数错误").TakeOption(errorx.WithErr(err))
+		err1 := errorx.Newf(400, "请求参数错误").TakeOption(errorx.WithCause(err))
 
 		gotErr := new(testError)
 		ok := errors.As(err1, &gotErr)

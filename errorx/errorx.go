@@ -14,7 +14,7 @@ var _ error = (*Error)(nil)
 type Error struct {
 	code     int32
 	message  string
-	err      error
+	cause    error
 	metadata map[string]string
 }
 
@@ -22,8 +22,8 @@ func (e *Error) Error() string {
 	if e == nil {
 		return "<nil>"
 	}
-	if e.err != nil {
-		return e.message + ": " + e.err.Error()
+	if e.cause != nil {
+		return e.message + ": " + e.cause.Error()
 	}
 	return e.message
 }
@@ -54,7 +54,7 @@ func (e *Error) Unwrap() error {
 	if e == nil {
 		return nil
 	}
-	return e.err
+	return e.cause
 }
 
 type Option func(*Error)
@@ -95,25 +95,21 @@ func WithMessagef(format string, args ...any) Option {
 	}
 }
 
-// WithErr
-func WithErr(err error) Option {
+// WithCause
+func WithCause(err error) Option {
 	return func(e *Error) {
-		e.err = err
+		e.cause = err
 	}
 }
 
 // WithError inner `errors.New`
 func WithError(text string) Option {
-	return func(e *Error) {
-		e.err = errors.New(text)
-	}
+	return WithCause(errors.New(text))
 }
 
 // WithErrorf inner `fmt.Errorf`
 func WithErrorf(format string, args ...any) Option {
-	return func(e *Error) {
-		e.err = fmt.Errorf(format, args...)
-	}
+	return WithCause(fmt.Errorf(format, args...))
 }
 
 // WithMetadata
@@ -142,7 +138,7 @@ func Parse(err error) *Error {
 	if te := new(Error); errors.As(err, &te) {
 		return te
 	}
-	return NewInternalServer(WithErr(err))
+	return NewInternalServer(WithCause(err))
 }
 
 // EqualCode return true if error underlying code equal target code.
