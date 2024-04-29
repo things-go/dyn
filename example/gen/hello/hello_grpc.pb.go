@@ -28,6 +28,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GreeterClient interface {
 	// Sends a hello
+	//
+	// 多一行
 	SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
 	// Get a hello
 	GetHello(ctx context.Context, in *GetHelloRequest, opts ...grpc.CallOption) (*GetHelloReply, error)
@@ -64,6 +66,8 @@ func (c *greeterClient) GetHello(ctx context.Context, in *GetHelloRequest, opts 
 // for forward compatibility
 type GreeterServer interface {
 	// Sends a hello
+	//
+	// 多一行
 	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
 	// Get a hello
 	GetHello(context.Context, *GetHelloRequest) (*GetHelloReply, error)

@@ -20,6 +20,8 @@ var _ = http.NewClient
 // GreeterHTTPClient
 type GreeterHTTPClient interface {
 	// SayHello Sends a hello
+	//
+	// 多一行
 	// I am a trailing comment
 	SayHello(context.Context, *HelloRequest, ...http.CallOption) (*HelloReply, error)
 	// GetHello Get a hello
@@ -37,6 +39,8 @@ func NewGreeterHTTPClient(c *http.Client) GreeterHTTPClient {
 }
 
 // SayHello Sends a hello
+//
+// 多一行
 // I am a trailing comment
 func (c *GreeterHTTPClientImpl) SayHello(ctx context.Context, req *HelloRequest, opts ...http.CallOption) (*HelloReply, error) {
 	var err error

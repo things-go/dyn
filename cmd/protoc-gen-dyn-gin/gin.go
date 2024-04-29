@@ -365,12 +365,19 @@ func lineComment(s string) string {
 		return ""
 	}
 	b := &strings.Builder{}
+	first := true
 	lines := strings.Split(strings.TrimSuffix(s, "\n"), "\n")
-	for i, line := range lines {
-		b.WriteString(strings.TrimSpace(strings.TrimPrefix(line, "//")))
-		if i+1 < len(lines) {
-			b.WriteString(", ")
+	for _, line := range lines {
+		ss := strings.TrimSpace(strings.TrimPrefix(line, "//"))
+		if ss == "" {
+			continue
 		}
+		if !first {
+			b.WriteString(", ")
+		} else {
+			first = false
+		}
+		b.WriteString(ss)
 	}
 	return b.String()
 }

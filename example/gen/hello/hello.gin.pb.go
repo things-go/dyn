@@ -25,6 +25,8 @@ const __Greeter_Metadata_Service = "The greeting service definition."
 // GreeterHTTPServer The greeting service definition.
 type GreeterHTTPServer interface {
 	// SayHello Sends a hello
+	//
+	// 多一行
 	// I am a trailing comment
 	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
 	// GetHello Get a hello
@@ -34,7 +36,7 @@ type GreeterHTTPServer interface {
 func RegisterGreeterHTTPServer(g *gin.RouterGroup, srv GreeterHTTPServer) {
 	r := g.Group("")
 	{
-		r.POST("/v1/hello", http.MetadataInterceptor(http.Metadata{Service: __Greeter_Metadata_Service, Method: "Sends a hello"}), _Greeter_SayHello0_HTTP_Handler(srv))
+		r.POST("/v1/hello", http.MetadataInterceptor(http.Metadata{Service: __Greeter_Metadata_Service, Method: "Sends a hello, 多一行"}), _Greeter_SayHello0_HTTP_Handler(srv))
 		r.GET("/v1/hello/:id", http.MetadataInterceptor(http.Metadata{Service: __Greeter_Metadata_Service, Method: "Get a hello"}), _Greeter_GetHello0_HTTP_Handler(srv))
 	}
 }

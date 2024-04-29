@@ -12,6 +12,8 @@ import "google/api/annotations.proto";
 // The greeting service definition.
 service Greeter {
   // Sends a hello
+  //
+  // 多一行
   rpc SayHello(HelloRequest) returns (HelloReply) {  // I am a trailing comment
     option (google.api.http) = {
       post: "/v1/hello",
