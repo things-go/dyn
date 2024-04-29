@@ -18,7 +18,7 @@ service Greeter {
       body: "*"
     };
   }
-  // Sends a hello
+  // Get a hello
   rpc GetHello(GetHelloRequest) returns (GetHelloReply) {
     option (google.api.http) = {
       get: "/v1/hello/{id}",

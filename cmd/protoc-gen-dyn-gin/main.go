@@ -15,12 +15,14 @@ var args = struct {
 	AllowDeleteBody     bool
 	AllowEmptyPatchBody bool
 	UseEncoding         bool
+	EnableMetadata      bool
 }{
 	ShowVersion:         false,
 	Omitempty:           true,
 	AllowDeleteBody:     false,
 	AllowEmptyPatchBody: false,
 	UseEncoding:         false,
+	EnableMetadata:      false,
 }
 
 func init() {
@@ -29,6 +31,7 @@ func init() {
 	flag.BoolVar(&args.AllowDeleteBody, "allow_delete_body", false, "allow delete body")
 	flag.BoolVar(&args.AllowEmptyPatchBody, "allow_empty_patch_body", false, "allow empty patch body")
 	flag.BoolVar(&args.UseEncoding, "use_encoding", false, "use the framework encoding")
+	flag.BoolVar(&args.EnableMetadata, "enable_metadata", false, "store the metadata for every router.")
 }
 
 func main() {

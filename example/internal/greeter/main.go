@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/things-go/dyn/carry"
@@ -15,6 +16,13 @@ func main() {
 	carrier := carry.NewCarry(carry.WithTranslatorData(translatorData{}))
 	g.Use(transportHttp.CarrierInterceptor(carrier))
 	g.Use(transportHttp.TransportInterceptor())
+	g.Use(func(c *gin.Context) {
+		defer func() {
+			v, ok := transportHttp.GetMetadata(c)
+			log.Printf("---> %v %v", v, ok)
+		}()
+		c.Next()
+	})
 	group := g.Group("/api")
 	hello.RegisterGreeterHTTPServer(group, new(Greeter))
 	g.Run(":9090")

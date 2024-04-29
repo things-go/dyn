@@ -22,7 +22,7 @@ type GreeterHTTPClient interface {
 	// SayHello Sends a hello
 	// I am a trailing comment
 	SayHello(context.Context, *HelloRequest, ...http.CallOption) (*HelloReply, error)
-	// GetHello Sends a hello
+	// GetHello Get a hello
 	GetHello(context.Context, *GetHelloRequest, ...http.CallOption) (*GetHelloReply, error)
 }
 
@@ -51,7 +51,7 @@ func (c *GreeterHTTPClientImpl) SayHello(ctx context.Context, req *HelloRequest,
 	return &resp, nil
 }
 
-// GetHello Sends a hello
+// GetHello Get a hello
 func (c *GreeterHTTPClientImpl) GetHello(ctx context.Context, req *GetHelloRequest, opts ...http.CallOption) (*GetHelloReply, error) {
 	var err error
 	var resp GetHelloReply

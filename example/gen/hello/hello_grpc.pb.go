@@ -29,7 +29,7 @@ const (
 type GreeterClient interface {
 	// Sends a hello
 	SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
-	// Sends a hello
+	// Get a hello
 	GetHello(ctx context.Context, in *GetHelloRequest, opts ...grpc.CallOption) (*GetHelloReply, error)
 }
 
@@ -65,7 +65,7 @@ func (c *greeterClient) GetHello(ctx context.Context, in *GetHelloRequest, opts 
 type GreeterServer interface {
 	// Sends a hello
 	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
-	// Sends a hello
+	// Get a hello
 	GetHello(context.Context, *GetHelloRequest) (*GetHelloReply, error)
 	mustEmbedUnimplementedGreeterServer()
 }

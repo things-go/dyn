@@ -20,20 +20,22 @@ var _ = context.TODO
 var _ = gin.New
 var _ = http.FromCarrier
 
+const __Greeter_Metadata_Service = "The greeting service definition."
+
 // GreeterHTTPServer The greeting service definition.
 type GreeterHTTPServer interface {
 	// SayHello Sends a hello
 	// I am a trailing comment
 	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
-	// GetHello Sends a hello
+	// GetHello Get a hello
 	GetHello(context.Context, *GetHelloRequest) (*GetHelloReply, error)
 }
 
 func RegisterGreeterHTTPServer(g *gin.RouterGroup, srv GreeterHTTPServer) {
 	r := g.Group("")
 	{
-		r.POST("/v1/hello", _Greeter_SayHello0_HTTP_Handler(srv))
-		r.GET("/v1/hello/:id", _Greeter_GetHello0_HTTP_Handler(srv))
+		r.POST("/v1/hello", http.MetadataInterceptor(http.Metadata{Service: __Greeter_Metadata_Service, Method: "Sends a hello"}), _Greeter_SayHello0_HTTP_Handler(srv))
+		r.GET("/v1/hello/:id", http.MetadataInterceptor(http.Metadata{Service: __Greeter_Metadata_Service, Method: "Get a hello"}), _Greeter_GetHello0_HTTP_Handler(srv))
 	}
 }
 

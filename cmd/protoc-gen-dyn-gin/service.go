@@ -7,12 +7,14 @@ import (
 )
 
 type serviceDesc struct {
-	Deprecated  bool   // deprecated or not
-	ServiceType string // Greeter
-	ServiceName string // helloworld.Greeter
-	Metadata    string // api/v1/helloworld.proto
-	Comment     string // comment
-	Methods     []*methodDesc
+	Deprecated      bool   // deprecated or not
+	ServiceType     string // Greeter
+	ServiceName     string // helloworld.Greeter
+	Metadata        string // api/v1/helloworld.proto
+	LeadingComment  string // leading comment
+	TrailingComment string // trailing comment
+	Comment         string // combine leading and trailing comment
+	Methods         []*methodDesc
 
 	UseEncoding bool
 }
@@ -20,11 +22,14 @@ type serviceDesc struct {
 type methodDesc struct {
 	Deprecated bool // deprecated or not
 	// method
-	Name    string // 方法名
-	Num     int    // 方法号
-	Request string // 请求结构
-	Reply   string // 回复结构
-	Comment string // 方法注释
+	Name            string // 方法名
+	Num             int    // 方法号
+	Request         string // 请求结构
+	Reply           string // 回复结构
+	LeadingComment  string // leading comment
+	TrailingComment string // trailing comment
+	Comment         string // combine leading and trailing comment
+
 	// http_rule
 	Path         string // 路径
 	Method       string // 方法
@@ -35,6 +40,10 @@ type methodDesc struct {
 }
 
 func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
+	if args.EnableMetadata {
+		g.P("const ", serviceTypeMetadataKey(s.ServiceType), " = \"", serviceTypeMetadataValue(s.ServiceType, s.LeadingComment)+"\"")
+	}
+	g.P()
 	methodSets := make(map[string]struct{})
 	// http interface defined
 	if s.Deprecated {
@@ -64,7 +73,17 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 	g.P(`r := g.Group("")`)
 	g.P("{")
 	for _, m := range s.Methods {
-		g.P("r.", m.Method, `("`, m.Path, `", `, serverHandlerMethodName(s.ServiceType, m), "(srv))")
+		useMdMiddleware := ""
+		if args.EnableMetadata {
+			useMdMiddleware = "" +
+				g.QualifiedGoIdent(transportHttpPackage.Ident("MetadataInterceptor")) +
+				"(" +
+				g.QualifiedGoIdent(transportHttpPackage.Ident("Metadata")) +
+				"{Service: " + serviceTypeMetadataKey(s.ServiceType) + ", Method: \"" + methodMetadataValue(m.Name, m.LeadingComment) + "\"}" +
+				"), "
+		}
+		g.P("r.", m.Method, `("`, m.Path, `", `, useMdMiddleware, serverHandlerMethodName(s.ServiceType, m), "(srv))")
+
 	}
 	g.P("}")
 	g.P("}")
@@ -152,6 +171,25 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 	}
 
 	return nil
+}
+
+func serviceTypeMetadataKey(serverType string) string {
+	return "__" + serverType + "_Metadata_Service"
+}
+func serviceTypeMetadataValue(serverType, leadingComment string) string {
+	if leadingComment != "" {
+		return lineComment(leadingComment)
+	} else {
+		return serverType
+	}
+}
+
+func methodMetadataValue(name, leadingComment string) string {
+	if leadingComment != "" {
+		return lineComment(leadingComment)
+	} else {
+		return name
+	}
 }
 
 func serverInterfaceName(serverType string) string {
