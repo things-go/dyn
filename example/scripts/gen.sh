@@ -4,10 +4,11 @@ script_dir=$(
 )                                  # 脚本路径
 project_dir=$(dirname $script_dir) # 项目路径
 
-proto_dir=hello
-out_dir=${project_dir}/hello # 生成代码路径
+proto_dir=proto
+out_dir=${project_dir}/gen # 生成代码路径
 third_party_dir=${project_dir}/third_party
 
+protos=$(find ${project_dir}/${proto_dir} -type f -name '*.proto')
 protoc \
   -I ${project_dir}/${proto_dir} \
   -I ${third_party_dir} \
@@ -21,4 +22,6 @@ protoc \
   --dyn-gin_opt use_encoding=true \
   --dyn-resty_out ${out_dir} \
   --dyn-resty_opt paths=source_relative \
-  hello.proto
+  --dyn-errno_out ${out_dir} \
+  --dyn-errno_opt paths=source_relative \
+  $protos

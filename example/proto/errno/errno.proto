@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package errno;
 
-option go_package = "github.com/things-go/dyn/example/errno";
+option go_package = "github.com/things-go/dyn/example/gen/errno";
 option java_multiple_files = true;
 option java_package = "io.grpc.things-go.dyn.example.errno";
 option java_outer_classname = "HelloWorldProto";

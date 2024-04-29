@@ -1,3 +1,4 @@
 gen:
-	./errno/gen.sh
-	./hello/gen.sh
+	./scripts/gen.sh
+
+.PHONY: gen
