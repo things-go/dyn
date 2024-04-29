@@ -32,7 +32,7 @@ func GetMetadata(c *gin.Context) (md Metadata, ok bool) {
 func MustGetMetadata(c *gin.Context) Metadata {
 	p, ok := GetMetadata(c)
 	if !ok {
-		panic("transport: must be set Transporter into context but it is not!!!")
+		panic("http: must be set \"" + ExclusivelyMetadataKey + "\" into gin.Context but it is not!!!")
 	}
 	return p
 }
