@@ -22,14 +22,18 @@ type CarryGin struct {
 	translatorData  transport.TranslatorData
 }
 
-func NewCarryGin() *CarryGin {
-	return &CarryGin{
+func NewCarryGin(opts ...Option) *CarryGin {
+	cy := &CarryGin{
 		validation: func() *validator.Validate {
 			v := validator.New()
 			v.SetTagName("binding")
 			return v
 		}(),
 	}
+	for _, opt := range opts {
+		opt(cy)
+	}
+	return cy
 }
 
 func (cy *CarryGin) setEncoding(e *encoding.Encoding) {}
