@@ -11,6 +11,7 @@ import (
 
 var _ error = (*Error)(nil)
 
+// Error define the error type
 type Error struct {
 	code     int32
 	message  string
@@ -18,6 +19,7 @@ type Error struct {
 	metadata map[string]string
 }
 
+// Error implement `Error() string` interface.
 func (e *Error) Error() string {
 	if e == nil {
 		return "<nil>"
@@ -28,6 +30,7 @@ func (e *Error) Error() string {
 	return e.message
 }
 
+// Code get the code
 func (e *Error) Code() int32 {
 	if e == nil {
 		return 0
@@ -35,6 +38,7 @@ func (e *Error) Code() int32 {
 	return e.code
 }
 
+// Message get the message
 func (e *Error) Message() string {
 	if e == nil {
 		return ""
@@ -42,6 +46,7 @@ func (e *Error) Message() string {
 	return e.message
 }
 
+// Metadata get metadata
 func (e *Error) Metadata() map[string]string {
 	if e == nil {
 		return nil
@@ -59,18 +64,18 @@ func (e *Error) Unwrap() error {
 
 type Option func(*Error)
 
-// New
-func New(code int32, msg string, opts ...Option) *Error {
-	e := &Error{code: code, message: msg}
+// New new Error
+func New(code int32, message string, opts ...Option) *Error {
+	e := &Error{code: code, message: message}
 	return e.TakeOption(opts...)
 }
 
-// Newf
+// Newf new Error
 func Newf(code int32, format string, args ...any) *Error {
 	return &Error{code: code, message: fmt.Sprintf(format, args...)}
 }
 
-// TakeOption
+// TakeOption custom options
 func (e *Error) TakeOption(opts ...Option) *Error {
 	if e == nil {
 		return nil
@@ -81,21 +86,21 @@ func (e *Error) TakeOption(opts ...Option) *Error {
 	return e
 }
 
-// WithMessage 信息
+// WithMessage modifies the message
 func WithMessage(s string) Option {
 	return func(e *Error) {
 		e.message = s
 	}
 }
 
-// WithMessagef
+// WithMessagef modifies the message
 func WithMessagef(format string, args ...any) Option {
 	return func(e *Error) {
 		e.message = fmt.Sprintf(format, args...)
 	}
 }
 
-// WithCause
+// WithCause set cause error
 func WithCause(err error) Option {
 	return func(e *Error) {
 		e.cause = err
@@ -112,7 +117,7 @@ func WithErrorf(format string, args ...any) Option {
 	return WithCause(fmt.Errorf(format, args...))
 }
 
-// WithMetadata
+// WithMetadata add metadata to the error
 func WithMetadata(k, v string) Option {
 	return func(e *Error) {
 		if k != "" && v != "" {
