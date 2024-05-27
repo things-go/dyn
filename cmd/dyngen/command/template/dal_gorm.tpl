@@ -1,0 +1,241 @@
+package {{.Package}}
+
+import (
+    "context"
+    
+    "gorm.io/gorm"
+
+{{- range $e := .Imports}}
+    {{- if ne $e ""}}
+    "{{$e}}"
+    {{- end}}
+{{- end}}
+)
+
+{{- $e := .Entity}}
+{{- $stName := pascalcase $e.Name}}
+{{- $mdPrefix := .ModelPrefix}}
+{{- $queryPrefix := .QueryPrefix}}
+{{- $mdName := printf "%s%s" $mdPrefix $stName}}
+
+var _ {{$stName}}Dal = (*{{$stName}})(nil)
+
+type {{$stName}}Dal interface {
+    Create(ctx context.Context, v ...*{{$mdName}}) (int64, error)
+    Delete(ctx context.Context, id ...int64) (int64, error)
+    UpdateFull(ctx context.Context, v *{{$mdName}}) (int64, error)
+    UpdatePartial(ctx context.Context, v *{{$queryPrefix}}Update{{$stName}}ByPartial) (int64, error) 
+    Get(ctx context.Context, id int64, opts ...DalOption) (*{{$mdName}}, error)
+    GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$stName}}ByFilter, opts ...DalOption) (*{{$mdName}}, error) 
+    ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist{{$stName}}ByFilter, opts ...DalOption) (bool, error) 
+    Count(ctx context.Context, q *{{$queryPrefix}}List{{$stName}}ByFilter) (int64, error) 
+    List(ctx context.Context, q *{{$queryPrefix}}List{{$stName}}ByFilter) ([]*{{$mdName}}, error)
+    ListPage(ctx context.Context, q *{{$queryPrefix}}List{{$stName}}ByFilter) ([]*{{$mdName}}, int64, error)
+    PluckIdByFilter(ctx context.Context, q *{{$queryPrefix}}PluckId{{$stName}}ByFilter) ([]int64, error)
+}
+
+type {{$stName}} struct {
+	db *gorm.DB
+}
+
+func New{{$stName}}(db *gorm.DB) {{$stName}}Dal {
+    return {{$stName}} {
+        db: db,
+    }
+}
+
+func (b {{$stName}}) Create(ctx context.Context, v ...*{{$mdName}}) (int64, error) {
+    res := b.db.Create(v)
+    return res.RowsAffected, res.Error
+}
+
+func (b {{$stName}}) Delete(ctx context.Context, id ...int64) (int64, error) {
+    res := b.db.Model(&{{$mdName}}{}).
+            Scopes(func(db *gorm.DB) *gorm.DB {
+                if len(id) == 1 {
+                    db =  db.Where("id = ?", id[0])
+                }else {
+                    db = db.Where("id IN ?", id)
+                }
+                return db
+            }).
+            Delete(&{{$mdName}}{})
+    return res.RowsAffected, res.Error
+}
+
+
+func (b {{$stName}}) UpdateFull(ctx context.Context, v *{{$mdName}}) (int64, error) {
+    res := b.db.Model(&{{$mdName}}{}).
+            Select("*").
+            Where("id = ?", v.Id).
+            Updates(v)
+    return res.RowsAffected, res.Error
+}
+
+func (b {{$stName}}) UpdatePartial(ctx context.Context, v *{{$queryPrefix}}Update{{$stName}}ByPartial) (int64, error) {
+    up := make(map[string]any, {{add (len $stName) 8}})
+{{- range $f := $e.Fields}}
+    {{- if ne $f.GoName "Id"}}
+    if v.{{$f.GoName}} != nil {
+        up["{{$f.ColumnName}}"] = *v.{{$f.GoName}}
+    }
+    {{- end}}
+{{- end}}
+    if len(up) == 0 {
+        return 0, nil
+    }
+    res := b.db.Model(&{{$mdName}}{}).
+            Where("id = ?", v.Id).
+            Updates(v)
+    return res.RowsAffected, res.Error
+}
+
+func (b {{$stName}}) Get(ctx context.Context, id int64, opts ...DalOption) (*{{$mdName}}, error) {
+    var row {{$mdName}}
+    
+    c := new(DalConfig).TakeOptions(opts...)
+    err := b.db.Model(&{{$mdName}}{}).
+            Scopes(c.funcs...).
+            Where("id = ?", id).
+            Take(&row).Error
+    if err != nil {
+        return nil, err
+    }
+    return &row, nil
+}
+
+func (b {{$stName}}) GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$stName}}ByFilter, opts ...DalOption) (*{{$mdName}}, error) {
+    var row {{$mdName}}
+    
+    c := new(DalConfig).TakeOptions(opts...)
+    err := b.db.Model(&{{$mdName}}{}).
+            Scopes(c.funcs...).
+            Scopes(func(db *gorm.DB) *gorm.DB {
+        {{- range $f := $e.Fields}}
+            {{- if eq $f.Type.Type 15 }}
+                if q.{{$f.GoName}} != "" {
+            {{- else if eq $f.Type.Type 18 }}
+                if !q.{{$f.GoName}}.IsZero() {
+            {{- else if eq $f.Type.Type 1 }}
+                {
+            {{- else }}
+                if q.{{$f.GoName}} != 0 {
+            {{- end}}
+                    db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
+                }
+        {{- end}}
+                return db
+            }).
+            Take(&row).Error
+    if err != nil {
+        return nil, err
+    }
+    return &row, nil
+}
+
+func (b {{$stName}}) ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist{{$stName}}ByFilter, opts ...DalOption) (existed bool, err error) {
+     c := new(DalConfig).TakeOptions(opts...)
+    err = b.db.Model(&{{$mdName}}{}).
+            Select("1").
+            Scopes(c.funcs...).
+            Scopes(func(db *gorm.DB) *gorm.DB {
+        {{- range $f := $e.Fields}}
+            {{- if eq $f.Type.Type 15 }}
+                if q.{{$f.GoName}} != "" {
+            {{- else if eq $f.Type.Type 18 }}
+                if !q.{{$f.GoName}}.IsZero() {
+            {{- else if eq $f.Type.Type 1 }}
+                {
+            {{- else }}
+                if q.{{$f.GoName}} != 0 {
+            {{- end}}
+                    db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
+                }
+        {{- end}}
+                return db
+            }).
+            Scan(&existed).Error
+    return existed, err
+}
+
+func (b {{$stName}}) Count(ctx context.Context, q *{{$queryPrefix}}List{{$stName}}ByFilter) (total int64, err error) {
+    err = b.db.Model(&{{$mdName}}{}).
+            Scopes(list{{$stName}}Filter(q)).
+            Count(&total).Error
+    return total, err
+}
+
+func (b {{$stName}}) List(ctx context.Context, q *{{$queryPrefix}}List{{$stName}}ByFilter) ([]*{{$mdName}}, error) {
+    var rows []*{{$mdName}}
+    
+    err := b.db.Model(&{{$mdName}}{}).
+            Scopes(list{{$stName}}Filter(q), Limit(q.Page, q.PerPage)).
+            Find(&rows).Error
+    return rows, err
+}
+
+func (b {{$stName}}) ListPage(ctx context.Context, q *{{$queryPrefix}}List{{$stName}}ByFilter) ([]*{{$mdName}}, int64, error) {
+    var total int64
+    var rows []*{{$mdName}}
+    
+    db := b.db.Model(&{{$mdName}}{}).
+          Scopes(list{{$stName}}Filter(q))
+
+    err := db.Count(&total).Error
+    if err != nil {
+        return nil, 0, err
+    }
+    if total > 0 {
+        err = db.Scopes(Pagination(q.Page, q.PerPage)).
+                Find(&rows).Error
+        if err != nil {
+            return nil, 0, err
+        }
+    }
+    return rows, total, nil
+}
+
+func (b {{$stName}}) PluckIdByFilter(ctx context.Context, q *{{$queryPrefix}}PluckId{{$stName}}ByFilter) ([]int64, error) {
+    var rows []int64
+
+    err := b.db.Model(&{{$mdName}}{}).
+        Scopes(func(db *gorm.DB) *gorm.DB {
+    {{- range $f := $e.Fields}}
+        {{- if eq $f.Type.Type 15 }}
+            if q.{{$f.GoName}} != "" {
+        {{- else if eq $f.Type.Type 18 }}
+            if !q.{{$f.GoName}}.IsZero() {
+        {{- else if eq $f.Type.Type 1 }}
+            {
+        {{- else }}
+            if q.{{$f.GoName}} != 0 {
+        {{- end}}
+                db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
+            }
+    {{- end}}
+            return db
+        }).
+        Pluck("id", &rows).Error
+    return rows, err
+}
+
+
+func list{{$stName}}Filter(q *{{$queryPrefix}}List{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
+    return func(db *gorm.DB) *gorm.DB {
+{{- range $f := $e.Fields}}
+    {{- if eq $f.Type.Type 15 }}
+        if q.{{$f.GoName}} != "" {
+    {{- else if eq $f.Type.Type 18 }}
+        if !q.{{$f.GoName}}.IsZero() {
+    {{- else if eq $f.Type.Type 1 }}
+        {
+    {{- else }}
+        if q.{{$f.GoName}} != 0 {
+    {{- end}}
+            db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
+        }
+{{- end}}
+        return db
+    }
+}
+

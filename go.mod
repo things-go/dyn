@@ -1,6 +1,6 @@
 module github.com/things-go/dyn
 
-go 1.21
+go 1.22.3
 
 require (
 	github.com/gin-gonic/gin v1.10.0
