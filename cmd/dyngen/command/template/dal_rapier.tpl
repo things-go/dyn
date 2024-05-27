@@ -72,7 +72,7 @@ func (b {{$stName}}) UpdatePartial(ctx context.Context, v *{{$queryPrefix}}Updat
     ref := {{$repoPrefix}}Ref_{{$stName}}()
     up := make([]rapier.AssignExpr, {{add (len $stName) 8}})
 {{- range $f := $e.Fields}}
-    {{- if ne $f.GoName "Id"}}
+    {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt") (ne $f.GoName "Id")}}
     if v.{{$f.GoName}} != nil {
         up = append(up, ref.{{$f.GoName}}.Value(*v.{{$f.GoName}}))
     }
@@ -103,6 +103,7 @@ func (b {{$stName}}) GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$s
             Scopes(c.funcs...).
             Scopes(func(db *gorm.DB) *gorm.DB {
         {{- range $f := $e.Fields}}
+            {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
             {{- if eq $f.Type.Type 15 }}
                 if q.{{$f.GoName}} != "" {
             {{- else if eq $f.Type.Type 18 }}
@@ -114,6 +115,7 @@ func (b {{$stName}}) GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$s
             {{- end}}
                     db = db.Where(ref.{{$f.GoName}}.Eq(q.{{$f.GoName}}))
                 }
+            {{- end}}
         {{- end}}
                 return db
             }).
@@ -127,6 +129,7 @@ func (b {{$stName}}) ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist
             Scopes(c.funcs...).
             Scopes(func(db *gorm.DB) *gorm.DB {
         {{- range $f := $e.Fields}}
+            {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
             {{- if eq $f.Type.Type 15 }}
                 if q.{{$f.GoName}} != "" {
             {{- else if eq $f.Type.Type 18 }}
@@ -138,6 +141,7 @@ func (b {{$stName}}) ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist
             {{- end}}
                     db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
                 }
+            {{- end}}
         {{- end}}
                 return db
             }).
@@ -171,6 +175,7 @@ func (b {{$stName}}) PluckIdByFilter(ctx context.Context, q *{{$queryPrefix}}Plu
     return ref.New_Executor(b.db).Model().
             Scopes(func(db *gorm.DB) *gorm.DB {
         {{- range $f := $e.Fields}}
+            {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
             {{- if eq $f.Type.Type 15 }}
                 if q.{{$f.GoName}} != "" {
             {{- else if eq $f.Type.Type 18 }}
@@ -182,6 +187,7 @@ func (b {{$stName}}) PluckIdByFilter(ctx context.Context, q *{{$queryPrefix}}Plu
             {{- end}}
                     db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
                 }
+            {{- end}}
         {{- end}}
                 return db
             }).
@@ -191,6 +197,7 @@ func (b {{$stName}}) PluckIdByFilter(ctx context.Context, q *{{$queryPrefix}}Plu
 func list{{$stName}}Filter(ref *{{$repoPrefix}}{{$stName}}_Native, q *{{$queryPrefix}}List{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
     return func(db *gorm.DB) *gorm.DB {
 {{- range $f := $e.Fields}}
+    {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
     {{- if eq $f.Type.Type 15 }}
         if q.{{$f.GoName}} != "" {
     {{- else if eq $f.Type.Type 18 }}
@@ -202,6 +209,7 @@ func list{{$stName}}Filter(ref *{{$repoPrefix}}{{$stName}}_Native, q *{{$queryPr
     {{- end}}
             db = db.Where(ref.{{$f.GoName}}.Eq(q.{{$f.GoName}}))
         }
+    {{- end}}
 {{- end}}
         return db
     }

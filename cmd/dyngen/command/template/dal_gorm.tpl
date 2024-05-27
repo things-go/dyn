@@ -75,7 +75,7 @@ func (b {{$stName}}) UpdateFull(ctx context.Context, v *{{$mdName}}) (int64, err
 func (b {{$stName}}) UpdatePartial(ctx context.Context, v *{{$queryPrefix}}Update{{$stName}}ByPartial) (int64, error) {
     up := make(map[string]any, {{add (len $stName) 8}})
 {{- range $f := $e.Fields}}
-    {{- if ne $f.GoName "Id"}}
+    {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt") ne $f.GoName "Id"}}
     if v.{{$f.GoName}} != nil {
         up["{{$f.ColumnName}}"] = *v.{{$f.GoName}}
     }
@@ -112,6 +112,7 @@ func (b {{$stName}}) GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$s
             Scopes(c.funcs...).
             Scopes(func(db *gorm.DB) *gorm.DB {
         {{- range $f := $e.Fields}}
+            {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
             {{- if eq $f.Type.Type 15 }}
                 if q.{{$f.GoName}} != "" {
             {{- else if eq $f.Type.Type 18 }}
@@ -123,6 +124,7 @@ func (b {{$stName}}) GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$s
             {{- end}}
                     db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
                 }
+            {{- end}}
         {{- end}}
                 return db
             }).
@@ -140,6 +142,7 @@ func (b {{$stName}}) ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist
             Scopes(c.funcs...).
             Scopes(func(db *gorm.DB) *gorm.DB {
         {{- range $f := $e.Fields}}
+            {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
             {{- if eq $f.Type.Type 15 }}
                 if q.{{$f.GoName}} != "" {
             {{- else if eq $f.Type.Type 18 }}
@@ -151,6 +154,7 @@ func (b {{$stName}}) ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist
             {{- end}}
                     db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
                 }
+            {{- end}}
         {{- end}}
                 return db
             }).
@@ -201,6 +205,7 @@ func (b {{$stName}}) PluckIdByFilter(ctx context.Context, q *{{$queryPrefix}}Plu
     err := b.db.Model(&{{$mdName}}{}).
         Scopes(func(db *gorm.DB) *gorm.DB {
     {{- range $f := $e.Fields}}
+        {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
         {{- if eq $f.Type.Type 15 }}
             if q.{{$f.GoName}} != "" {
         {{- else if eq $f.Type.Type 18 }}
@@ -212,6 +217,7 @@ func (b {{$stName}}) PluckIdByFilter(ctx context.Context, q *{{$queryPrefix}}Plu
         {{- end}}
                 db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
             }
+        {{- end}}
     {{- end}}
             return db
         }).
@@ -223,6 +229,7 @@ func (b {{$stName}}) PluckIdByFilter(ctx context.Context, q *{{$queryPrefix}}Plu
 func list{{$stName}}Filter(q *{{$queryPrefix}}List{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
     return func(db *gorm.DB) *gorm.DB {
 {{- range $f := $e.Fields}}
+    {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
     {{- if eq $f.Type.Type 15 }}
         if q.{{$f.GoName}} != "" {
     {{- else if eq $f.Type.Type 18 }}
@@ -234,6 +241,7 @@ func list{{$stName}}Filter(q *{{$queryPrefix}}List{{$stName}}ByFilter) func(db *
     {{- end}}
             db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
         }
+    {{- end}}
 {{- end}}
         return db
     }
