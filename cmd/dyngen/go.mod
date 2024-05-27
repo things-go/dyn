@@ -5,7 +5,7 @@ go 1.22.3
 require (
 	ariga.io/atlas v0.23.0
 	github.com/spf13/cobra v1.8.0
-	github.com/things-go/ens v1.0.0-rc2.0.20240526155031-c437129a364d
+	github.com/things-go/ens v1.0.0-rc3
 )
 
 require (
