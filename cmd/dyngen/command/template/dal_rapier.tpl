@@ -188,7 +188,7 @@ func (b {{$stName}}) PluckIdByFilter(ctx context.Context, q *{{$queryPrefix}}Plu
             PluckExprInt64(ref.Id)
 }
 
-func list{{$stName}}Filter(ref *{{$repoPrefix}}Announce_Native, q *{{$queryPrefix}}List{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
+func list{{$stName}}Filter(ref *{{$repoPrefix}}{{$stName}}_Native, q *{{$queryPrefix}}List{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
     return func(db *gorm.DB) *gorm.DB {
 {{- range $f := $e.Fields}}
     {{- if eq $f.Type.Type 15 }}
