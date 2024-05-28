@@ -123,7 +123,7 @@ func (b {{$stName}}) ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist
             {{- else }}
                 if q.{{$f.GoName}} != 0 {
             {{- end}}
-                    db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
+                    db = db.Where(ref.{{$f.GoName}}.Eq(q.{{$f.GoName}}))
                 }
             {{- end}}
         {{- end}}
@@ -171,7 +171,7 @@ func (b {{$stName}}) PluckIdByFilter(ctx context.Context, q *{{$queryPrefix}}Plu
             {{- else }}
                 if q.{{$f.GoName}} != 0 {
             {{- end}}
-                    db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
+                    db = db.Where(ref.{{$f.GoName}}.Eq(q.{{$f.GoName}}))
                 }
             {{- end}}
         {{- end}}
