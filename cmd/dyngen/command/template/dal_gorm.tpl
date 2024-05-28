@@ -135,7 +135,7 @@ func (b {{$stName}}) ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist
             {{- else }}
                 if q.{{$f.GoName}} != 0 {
             {{- end}}
-                    db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
+                    db = db.Where("{{$f.ColumnName}} = ?", {{if eq $f.Type.Type 1 }}*{{- end}}q.{{$f.GoName}})
                 }
             {{- end}}
         {{- end}}
@@ -198,7 +198,7 @@ func (b {{$stName}}) PluckIdByFilter(ctx context.Context, q *{{$queryPrefix}}Plu
         {{- else }}
             if q.{{$f.GoName}} != 0 {
         {{- end}}
-                db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
+                db = db.Where("{{$f.ColumnName}} = ?", {{if eq $f.Type.Type 1 }}*{{- end}}q.{{$f.GoName}})
             }
         {{- end}}
     {{- end}}
@@ -221,7 +221,7 @@ func get{{$stName}}Filter(q *{{$queryPrefix}}Get{{$stName}}ByFilter) func(db *go
             {{- else }}
                 if q.{{$f.GoName}} != 0 {
             {{- end}}
-                    db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
+                    db = db.Where("{{$f.ColumnName}} = ?", {{if eq $f.Type.Type 1 }}*{{- end}}q.{{$f.GoName}})
                 }
             {{- end}}
         {{- end}}
@@ -242,7 +242,7 @@ func list{{$stName}}Filter(q *{{$queryPrefix}}List{{$stName}}ByFilter) func(db *
     {{- else }}
         if q.{{$f.GoName}} != 0 {
     {{- end}}
-            db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
+            db = db.Where("{{$f.ColumnName}} = ?", {{if eq $f.Type.Type 1 }}*{{- end}}q.{{$f.GoName}})
         }
     {{- end}}
 {{- end}}

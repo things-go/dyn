@@ -119,11 +119,11 @@ func (b {{$stName}}) ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist
             {{- else if eq $f.Type.Type 18 }}
                 if !q.{{$f.GoName}}.IsZero() {
             {{- else if eq $f.Type.Type 1 }}
-                {
+                if q.{{$f.GoName}} != nil {
             {{- else }}
                 if q.{{$f.GoName}} != 0 {
             {{- end}}
-                    db = db.Where(ref.{{$f.GoName}}.Eq(q.{{$f.GoName}}))
+                    db = db.Where(ref.{{$f.GoName}}.Eq({{if eq $f.Type.Type 1 }}*{{- end}}q.{{$f.GoName}}))
                 }
             {{- end}}
         {{- end}}
@@ -167,11 +167,11 @@ func (b {{$stName}}) PluckIdByFilter(ctx context.Context, q *{{$queryPrefix}}Plu
             {{- else if eq $f.Type.Type 18 }}
                 if !q.{{$f.GoName}}.IsZero() {
             {{- else if eq $f.Type.Type 1 }}
-                {
+                if q.{{$f.GoName}} != nil {
             {{- else }}
                 if q.{{$f.GoName}} != 0 {
             {{- end}}
-                    db = db.Where(ref.{{$f.GoName}}.Eq(q.{{$f.GoName}}))
+                    db = db.Where(ref.{{$f.GoName}}.Eq({{if eq $f.Type.Type 1 }}*{{- end}}q.{{$f.GoName}}))
                 }
             {{- end}}
         {{- end}}
@@ -189,11 +189,11 @@ func get{{$stName}}Filter(ref *{{$repoPrefix}}{{$stName}}_Native, q *{{$queryPre
             {{- else if eq $f.Type.Type 18 }}
                 if !q.{{$f.GoName}}.IsZero() {
             {{- else if eq $f.Type.Type 1 }}
-                {
+                if q.{{$f.GoName}} != nil {
             {{- else }}
                 if q.{{$f.GoName}} != 0 {
             {{- end}}
-                    db = db.Where(ref.{{$f.GoName}}.Eq(q.{{$f.GoName}}))
+                    db = db.Where(ref.{{$f.GoName}}.Eq({{if eq $f.Type.Type 1 }}*{{- end}}q.{{$f.GoName}}))
                 }
             {{- end}}
         {{- end}}
@@ -210,11 +210,11 @@ func list{{$stName}}Filter(ref *{{$repoPrefix}}{{$stName}}_Native, q *{{$queryPr
     {{- else if eq $f.Type.Type 18 }}
         if !q.{{$f.GoName}}.IsZero() {
     {{- else if eq $f.Type.Type 1 }}
-        {
+        if q.{{$f.GoName}} != nil {
     {{- else }}
         if q.{{$f.GoName}} != 0 {
     {{- end}}
-            db = db.Where(ref.{{$f.GoName}}.Eq(q.{{$f.GoName}}))
+            db = db.Where(ref.{{$f.GoName}}.Eq({{if eq $f.Type.Type 1 }}*{{- end}}q.{{$f.GoName}}))
         }
     {{- end}}
 {{- end}}

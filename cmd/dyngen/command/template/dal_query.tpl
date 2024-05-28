@@ -14,7 +14,7 @@ type Update{{$stName}}ByPartial struct {
 type Get{{$stName}}ByFilter struct {
 {{- range $f := $e.Fields}}
     {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
-    {{$f.GoName}} {{$f.Type.Ident}} `json:"{{smallcamelcase $f.ColumnName}}"`
+    {{$f.GoName}} {{if eq $f.Type.Type 1 }}*{{- end}}{{$f.Type.Ident}} `json:"{{smallcamelcase $f.ColumnName}}"`
     {{- end}}
 {{- end}}
 }
@@ -22,7 +22,7 @@ type Get{{$stName}}ByFilter struct {
 type Exist{{$stName}}ByFilter struct {
 {{- range $f := $e.Fields}}
     {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
-    {{$f.GoName}} {{$f.Type.Ident}} `json:"{{smallcamelcase $f.ColumnName}}"`
+    {{$f.GoName}} {{if eq $f.Type.Type 1 }}*{{- end}}{{$f.Type.Ident}} `json:"{{smallcamelcase $f.ColumnName}}"`
     {{- end}}
 {{- end}}
 }
@@ -30,7 +30,7 @@ type Exist{{$stName}}ByFilter struct {
 type List{{$stName}}ByFilter struct {
 {{- range $f := $e.Fields}}
     {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
-    {{$f.GoName}} {{$f.Type.Ident}} `json:"{{smallcamelcase $f.ColumnName}}"`
+    {{$f.GoName}} {{if eq $f.Type.Type 1 }}*{{- end}}{{$f.Type.Ident}} `json:"{{smallcamelcase $f.ColumnName}}"`
     {{- end}}
 {{- end}}
     Page    int64 `json:"page"`
@@ -40,7 +40,7 @@ type List{{$stName}}ByFilter struct {
 type PluckId{{$stName}}ByFilter struct {
 {{- range $f := $e.Fields}}
     {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
-    {{$f.GoName}} {{$f.Type.Ident}} `json:"{{smallcamelcase $f.ColumnName}}"`
+    {{$f.GoName}} {{if eq $f.Type.Type 1 }}*{{- end}}{{$f.Type.Ident}} `json:"{{smallcamelcase $f.ColumnName}}"`
     {{- end}}
 {{- end}}
 }
