@@ -75,7 +75,7 @@ func (b {{$stName}}) UpdateFull(ctx context.Context, v *{{$mdName}}) (int64, err
 func (b {{$stName}}) UpdatePartial(ctx context.Context, v *{{$queryPrefix}}Update{{$stName}}ByPartial) (int64, error) {
     up := make(map[string]any, {{add (len $stName) 8}})
 {{- range $f := $e.Fields}}
-    {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt") ne $f.GoName "Id"}}
+    {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt") (ne $f.GoName "Id")}}
     if v.{{$f.GoName}} != nil {
         up["{{$f.ColumnName}}"] = *v.{{$f.GoName}}
     }
@@ -110,24 +110,7 @@ func (b {{$stName}}) GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$s
     c := new(DalConfig).TakeOptions(opts...)
     err := b.db.Model(&{{$mdName}}{}).
             Scopes(c.funcs...).
-            Scopes(func(db *gorm.DB) *gorm.DB {
-        {{- range $f := $e.Fields}}
-            {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
-            {{- if eq $f.Type.Type 15 }}
-                if q.{{$f.GoName}} != "" {
-            {{- else if eq $f.Type.Type 18 }}
-                if !q.{{$f.GoName}}.IsZero() {
-            {{- else if eq $f.Type.Type 1 }}
-                {
-            {{- else }}
-                if q.{{$f.GoName}} != 0 {
-            {{- end}}
-                    db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
-                }
-            {{- end}}
-        {{- end}}
-                return db
-            }).
+            Scopes(get{{$stName}}Filter(q)).
             Take(&row).Error
     if err != nil {
         return nil, err
@@ -225,6 +208,26 @@ func (b {{$stName}}) PluckIdByFilter(ctx context.Context, q *{{$queryPrefix}}Plu
     return rows, err
 }
 
+func get{{$stName}}Filter(q *{{$queryPrefix}}Get{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
+    return func(db *gorm.DB) *gorm.DB {
+        {{- range $f := $e.Fields}}
+            {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
+            {{- if eq $f.Type.Type 15 }}
+                if q.{{$f.GoName}} != "" {
+            {{- else if eq $f.Type.Type 18 }}
+                if !q.{{$f.GoName}}.IsZero() {
+            {{- else if eq $f.Type.Type 1 }}
+                {
+            {{- else }}
+                if q.{{$f.GoName}} != 0 {
+            {{- end}}
+                    db = db.Where("{{$f.ColumnName}} = ?", q.{{$f.GoName}})
+                }
+            {{- end}}
+        {{- end}}
+                return db
+            }
+}
 
 func list{{$stName}}Filter(q *{{$queryPrefix}}List{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
     return func(db *gorm.DB) *gorm.DB {

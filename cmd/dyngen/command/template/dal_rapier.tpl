@@ -100,25 +100,9 @@ func (b {{$stName}}) GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$s
     c := new(DalConfig).TakeOptions(opts...)
     ref := {{$repoPrefix}}Ref_{{$stName}}()
     return ref.New_Executor(b.db).Model().
+            SelectExpr(ref.Select_Expr()...).
             Scopes(c.funcs...).
-            Scopes(func(db *gorm.DB) *gorm.DB {
-        {{- range $f := $e.Fields}}
-            {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
-            {{- if eq $f.Type.Type 15 }}
-                if q.{{$f.GoName}} != "" {
-            {{- else if eq $f.Type.Type 18 }}
-                if !q.{{$f.GoName}}.IsZero() {
-            {{- else if eq $f.Type.Type 1 }}
-                {
-            {{- else }}
-                if q.{{$f.GoName}} != 0 {
-            {{- end}}
-                    db = db.Where(ref.{{$f.GoName}}.Eq(q.{{$f.GoName}}))
-                }
-            {{- end}}
-        {{- end}}
-                return db
-            }).
+            Scopes(get{{$stName}}Filter(ref, q)).
             TakeOne()
 }
 
@@ -159,6 +143,7 @@ func (b {{$stName}}) Count(ctx context.Context, q *{{$queryPrefix}}List{{$stName
 func (b {{$stName}}) List(ctx context.Context, q *{{$queryPrefix}}List{{$stName}}ByFilter) ([]*{{$mdName}}, error) {
     ref := {{$repoPrefix}}Ref_{{$stName}}()
     return ref.New_Executor(b.db).Model().
+            SelectExpr(ref.Select_Expr()...).
             Scopes(list{{$stName}}Filter(ref, q), Limit(q.Page, q.PerPage)).
             FindAll()
 }
@@ -166,6 +151,7 @@ func (b {{$stName}}) List(ctx context.Context, q *{{$queryPrefix}}List{{$stName}
 func (b {{$stName}}) ListPage(ctx context.Context, q *{{$queryPrefix}}List{{$stName}}ByFilter) ([]*{{$mdName}}, int64, error) {
     ref := {{$repoPrefix}}Ref_{{$stName}}()
 	return ref.New_Executor(b.db).Model().
+        SelectExpr(ref.Select_Expr()...).
 		Scopes(list{{$stName}}Filter(ref, q)).
 		FindAllPaginate(q.Page, q.PerPage)
 }
@@ -192,6 +178,27 @@ func (b {{$stName}}) PluckIdByFilter(ctx context.Context, q *{{$queryPrefix}}Plu
                 return db
             }).
             PluckExprInt64(ref.Id)
+}
+
+func get{{$stName}}Filter(ref *{{$repoPrefix}}{{$stName}}_Native, q *{{$queryPrefix}}Get{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
+    return func(db *gorm.DB) *gorm.DB {
+        {{- range $f := $e.Fields}}
+            {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
+            {{- if eq $f.Type.Type 15 }}
+                if q.{{$f.GoName}} != "" {
+            {{- else if eq $f.Type.Type 18 }}
+                if !q.{{$f.GoName}}.IsZero() {
+            {{- else if eq $f.Type.Type 1 }}
+                {
+            {{- else }}
+                if q.{{$f.GoName}} != 0 {
+            {{- end}}
+                    db = db.Where(ref.{{$f.GoName}}.Eq(q.{{$f.GoName}}))
+                }
+            {{- end}}
+        {{- end}}
+                return db
+            }
 }
 
 func list{{$stName}}Filter(ref *{{$repoPrefix}}{{$stName}}_Native, q *{{$queryPrefix}}List{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {

@@ -17,12 +17,12 @@ import (
 
 type dalOpt struct {
 	source
-	OutputDir       string
-	PackageName     string // 包名
-	ModelImportPath string // required, model导入路径
-	RepoImportPath  string // required, repository导入路径
-	DalImportPath   string // required, dal导入路径
-	CustomTemplate  string // 自定义模板
+	OutputDir       string // M, 输出路径
+	PackageName     string // M, 包名
+	ModelImportPath string // M, model导入路径
+	RepoImportPath  string // M, repository导入路径
+	DalImportPath   string // M, dal导入路径
+	CustomTemplate  string // O, 自定义模板
 	ens.Option
 }
 
@@ -76,6 +76,7 @@ func newDakCmd() *dalCmd {
 				RepoPrefix:  utils.PkgName(root.RepoImportPath) + ".",
 				Entity:      nil,
 			}
+
 			dalQuery := Dal{
 				Package:     "query",
 				Imports:     []string{},
