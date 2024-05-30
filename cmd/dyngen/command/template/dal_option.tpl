@@ -5,6 +5,8 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+var ErrRecordNotFound = gorm.ErrRecordNotFound
+
 var (
 	// DefaultPerPage 默认页大小
 	DefaultPerPage = int64(50)
