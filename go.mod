@@ -7,7 +7,7 @@ require (
 	github.com/go-playground/validator/v10 v10.20.0
 	github.com/go-resty/resty/v2 v2.13.1
 	github.com/stretchr/testify v1.9.0
-	github.com/things-go/encoding v1.0.0
+	github.com/things-go/encoding v1.1.1
 	golang.org/x/oauth2 v0.20.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240509183442-62759503f434
 	google.golang.org/grpc v1.64.0
@@ -38,6 +38,7 @@ require (
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	golang.org/x/arch v0.8.0 // indirect
 	golang.org/x/crypto v0.23.0 // indirect
+	golang.org/x/exp v0.0.0-20240525044651-4c93da0ed11d // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
