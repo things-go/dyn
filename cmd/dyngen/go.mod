@@ -1,6 +1,6 @@
 module github.com/things-go/dyn/cmd/dyngen
 
-go 1.22.3
+go 1.22.4
 
 require (
 	ariga.io/atlas v0.23.0
