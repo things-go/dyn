@@ -20,6 +20,7 @@ var _ =	errors.New
 {{- range $e := .Errors}}
 {{$enumName := $e.Name}}
 {{ range .Values }}
+// Err{{.CamelValue}} {{.Code}}: {{.Message}}
 func Err{{.CamelValue}}(opts ...errors.Option) *errors.Error {
 	return errors.New({{.Code}}, "{{.Message}}", opts...)
 }

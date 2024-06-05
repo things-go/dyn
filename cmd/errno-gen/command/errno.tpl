@@ -7,13 +7,12 @@
 package {{.Package}}
 
 import (
-	errors "{{.ErrorsPkg}}"
+	errors "{{.Epk}}"
 )
 {{- range $e := .Enums}}
 
 {{- range $ee := $e.Values}}
-// Err{{$ee.OriginalName}} {{.Mapping}}
-// `{{$e.TypeName}}`{{$e.Explain}}: {{$ee.Value}} 
+// Err{{$ee.OriginalName}} {{$ee.Value}}: {{.Mapping}}
 func Err{{$ee.OriginalName}}(opts ...errors.Option) error {
 	return errors.New(int32({{$ee.OriginalName}}), {{$ee.OriginalName}}.String(), opts...)
 }

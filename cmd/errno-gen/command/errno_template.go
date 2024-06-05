@@ -17,7 +17,7 @@ type GenFile struct {
 	Version      string
 	IsDeprecated bool
 	Package      string
-	ErrorsPkg    string
+	Epk          string
 	Enums        []*Enumerate
 }
 

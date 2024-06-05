@@ -21,7 +21,7 @@ type Gen struct {
 	Tags      []string
 	Version   string
 	pkg       *Package
-	ErrorsPkg string
+	Epk       string
 }
 
 func (g *Gen) Generate() error {
@@ -94,7 +94,7 @@ func (g *Gen) generateError(typeName string) error {
 		Version:      g.Version,
 		IsDeprecated: false,
 		Package:      g.pkg.Name,
-		ErrorsPkg:    g.ErrorsPkg,
+		Epk:          g.Epk,
 		Enums: []*Enumerate{
 			{
 				Type:     typeType,

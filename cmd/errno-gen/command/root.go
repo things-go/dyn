@@ -16,7 +16,7 @@ type ErrnoOption struct {
 	Type            []string
 	Tags            []string
 	DisableStringer bool
-	ErrorsPkg       string
+	Epk             string
 }
 
 type RootCmd struct {
@@ -77,7 +77,7 @@ func NewRootCmd() *RootCmd {
 				Type:      root.Type,
 				Tags:      root.Tags,
 				Version:   version,
-				ErrorsPkg: root.ErrorsPkg,
+				Epk:       root.Epk,
 			}
 			err = g.Generate()
 			if err != nil {
@@ -100,7 +100,7 @@ func NewRootCmd() *RootCmd {
 	cmd.Flags().StringSliceVarP(&root.Type, "type", "t", nil, "the list type of enum names; must be set")
 	cmd.Flags().StringSliceVar(&root.Tags, "tags", nil, "comma-separated list of build tags to apply")
 	cmd.Flags().BoolVarP(&root.DisableStringer, "disable-stringer", "d", false, "disable use `stringer` command.")
-	cmd.Flags().StringVarP(&root.ErrorsPkg, "errors-pkg", "e", "github.com/things-go/dyn/errorx", "errors package import path")
+	cmd.Flags().StringVarP(&root.Epk, "epk", "e", "github.com/things-go/dyn/errorx", "errors package import path")
 
 	root.cmd = cmd
 	return root

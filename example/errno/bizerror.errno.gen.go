@@ -6,14 +6,12 @@ import (
 	errors "github.com/things-go/dyn/errorx"
 )
 
-// ErrTimeout 操作超时
-// `BizError`业务错误: 1000
+// ErrTimeout 1000: 操作超时
 func ErrTimeout(opts ...errors.Option) error {
 	return errors.New(int32(Timeout), Timeout.String(), opts...)
 }
 
-// ErrUserNotExist 用户不存在
-// `BizError`业务错误: 1001
+// ErrUserNotExist 1001: 用户不存在
 func ErrUserNotExist(opts ...errors.Option) error {
 	return errors.New(int32(UserNotExist), UserNotExist.String(), opts...)
 }

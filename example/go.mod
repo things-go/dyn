@@ -2,11 +2,11 @@ module github.com/things-go/dyn/example
 
 go 1.21
 
-replace github.com/things-go/dyn v1.0.0-rc1 => ../
+replace github.com/things-go/dyn v1.0.0-rc5 => ../
 
 require (
 	github.com/gin-gonic/gin v1.10.0
-	github.com/things-go/dyn v1.0.0-rc1
+	github.com/things-go/dyn v1.0.0-rc5
 	google.golang.org/genproto/googleapis/api v0.0.0-20240415180920-8c6c420018be
 	google.golang.org/grpc v1.64.0
 	google.golang.org/protobuf v1.34.1
@@ -40,7 +40,7 @@ require (
 	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/exp v0.0.0-20240525044651-4c93da0ed11d // indirect
 	golang.org/x/net v0.25.0 // indirect
-	golang.org/x/oauth2 v0.20.0 // indirect
+	golang.org/x/oauth2 v0.21.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240509183442-62759503f434 // indirect
