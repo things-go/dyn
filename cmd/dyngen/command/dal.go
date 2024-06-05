@@ -31,7 +31,7 @@ type dalCmd struct {
 	dalOpt
 }
 
-func newDakCmd() *dalCmd {
+func newDalCmd() *dalCmd {
 	root := &dalCmd{}
 
 	cmd := &cobra.Command{
