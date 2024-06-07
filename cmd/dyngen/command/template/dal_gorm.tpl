@@ -25,9 +25,9 @@ type {{$stName}}Dal interface {
     Delete(ctx context.Context, id ...int64) (int64, error)
     UpdateFull(ctx context.Context, v *{{$mdName}}) (int64, error)
     UpdatePartial(ctx context.Context, v *{{$queryPrefix}}Update{{$stName}}ByPartial) (int64, error) 
-    Get(ctx context.Context, id int64, opts ...DalOption) (*{{$mdName}}, error)
-    GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$stName}}ByFilter, opts ...DalOption) (*{{$mdName}}, error) 
-    ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist{{$stName}}ByFilter, opts ...DalOption) (bool, error) 
+    Get(ctx context.Context, id int64, funcs ...DalCondition) (*{{$mdName}}, error)
+    GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$stName}}ByFilter, funcs ...DalCondition) (*{{$mdName}}, error) 
+    ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist{{$stName}}ByFilter, funcs ...DalCondition) (bool, error) 
     Count(ctx context.Context, q *{{$queryPrefix}}List{{$stName}}ByFilter) (int64, error) 
     List(ctx context.Context, q *{{$queryPrefix}}List{{$stName}}ByFilter) ([]*{{$mdName}}, error)
     ListPage(ctx context.Context, q *{{$queryPrefix}}List{{$stName}}ByFilter) ([]*{{$mdName}}, int64, error)
@@ -90,12 +90,11 @@ func (b {{$stName}}) UpdatePartial(ctx context.Context, v *{{$queryPrefix}}Updat
     return res.RowsAffected, res.Error
 }
 
-func (b {{$stName}}) Get(ctx context.Context, id int64, opts ...DalOption) (*{{$mdName}}, error) {
+func (b {{$stName}}) Get(ctx context.Context, id int64, funcs ...DalCondition) (*{{$mdName}}, error) {
     var row {{$mdName}}
     
-    c := new(DalConfig).TakeOptions(opts...)
     err := b.db.Model(&{{$mdName}}{}).
-            Scopes(c.funcs...).
+            Scopes(funcs...).
             Where("id = ?", id).
             Take(&row).Error
     if err != nil {
@@ -104,12 +103,11 @@ func (b {{$stName}}) Get(ctx context.Context, id int64, opts ...DalOption) (*{{$
     return &row, nil
 }
 
-func (b {{$stName}}) GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$stName}}ByFilter, opts ...DalOption) (*{{$mdName}}, error) {
+func (b {{$stName}}) GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$stName}}ByFilter, funcs ...DalCondition) (*{{$mdName}}, error) {
     var row {{$mdName}}
     
-    c := new(DalConfig).TakeOptions(opts...)
     err := b.db.Model(&{{$mdName}}{}).
-            Scopes(c.funcs...).
+            Scopes(funcs...).
             Scopes(get{{$stName}}Filter(q)).
             Take(&row).Error
     if err != nil {
@@ -118,11 +116,10 @@ func (b {{$stName}}) GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$s
     return &row, nil
 }
 
-func (b {{$stName}}) ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist{{$stName}}ByFilter, opts ...DalOption) (existed bool, err error) {
-     c := new(DalConfig).TakeOptions(opts...)
+func (b {{$stName}}) ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist{{$stName}}ByFilter, funcs ...DalCondition) (existed bool, err error) {
     err = b.db.Model(&{{$mdName}}{}).
             Select("1").
-            Scopes(c.funcs...).
+            Scopes(funcs...).
             Scopes(func(db *gorm.DB) *gorm.DB {
         {{- range $f := $e.Fields}}
             {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}

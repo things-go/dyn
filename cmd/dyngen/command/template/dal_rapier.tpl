@@ -28,9 +28,9 @@ type {{$stName}}Dal interface {
     Delete(ctx context.Context, id ...int64) (int64, error)
     UpdateFull(ctx context.Context, v *{{$mdName}}) (int64, error)
     UpdatePartial(ctx context.Context, v *{{$queryPrefix}}Update{{$stName}}ByPartial) (int64, error) 
-    Get(ctx context.Context, id int64, opts ...DalOption) (*{{$mdName}}, error)
-    GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$stName}}ByFilter, opts ...DalOption) (*{{$mdName}}, error) 
-    ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist{{$stName}}ByFilter, opts ...DalOption) (bool, error) 
+    Get(ctx context.Context, id int64, funcs ...DalCondition) (*{{$mdName}}, error)
+    GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$stName}}ByFilter, funcs ...DalCondition) (*{{$mdName}}, error) 
+    ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist{{$stName}}ByFilter, funcs ...DalCondition) (bool, error) 
     Count(ctx context.Context, q *{{$queryPrefix}}List{{$stName}}ByFilter) (int64, error) 
     List(ctx context.Context, q *{{$queryPrefix}}List{{$stName}}ByFilter) ([]*{{$mdName}}, error)
     ListPage(ctx context.Context, q *{{$queryPrefix}}List{{$stName}}ByFilter) ([]*{{$mdName}}, int64, error)
@@ -70,7 +70,9 @@ func (b {{$stName}}) UpdateFull(ctx context.Context, v *{{$mdName}}) (int64, err
 
 func (b {{$stName}}) UpdatePartial(ctx context.Context, v *{{$queryPrefix}}Update{{$stName}}ByPartial) (int64, error) {
     ref := {{$repoPrefix}}Ref_{{$stName}}()
-    up := make([]rapier.AssignExpr, {{add (len $stName) 8}})
+	ct := defaultPool.Get()
+	defer defaultPool.Put(ct)
+	up := ct.Exprs
 {{- range $f := $e.Fields}}
     {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt") (ne $f.GoName "Id")}}
     if v.{{$f.GoName}} != nil {
@@ -86,31 +88,28 @@ func (b {{$stName}}) UpdatePartial(ctx context.Context, v *{{$queryPrefix}}Updat
             UpdatesExpr(up...)
 }
 
-func (b {{$stName}}) Get(ctx context.Context, id int64, opts ...DalOption) (*{{$mdName}}, error) {
-    c := new(DalConfig).TakeOptions(opts...)
+func (b {{$stName}}) Get(ctx context.Context, id int64, funcs ...DalCondition) (*{{$mdName}}, error) {
     ref := {{$repoPrefix}}Ref_{{$stName}}()
     return ref.New_Executor(b.db).Model().
             SelectExpr(ref.Select_Expr()...).
-            Scopes(c.funcs...).
+            Scopes(funcs...).
             Where(ref.Id.Eq(id)).
             TakeOne()
 }
 
-func (b {{$stName}}) GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$stName}}ByFilter, opts ...DalOption) (*{{$mdName}}, error) {
-    c := new(DalConfig).TakeOptions(opts...)
+func (b {{$stName}}) GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$stName}}ByFilter, funcs ...DalCondition) (*{{$mdName}}, error) {
     ref := {{$repoPrefix}}Ref_{{$stName}}()
     return ref.New_Executor(b.db).Model().
             SelectExpr(ref.Select_Expr()...).
-            Scopes(c.funcs...).
+            Scopes(funcs...).
             Scopes(get{{$stName}}Filter(ref, q)).
             TakeOne()
 }
 
-func (b {{$stName}}) ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist{{$stName}}ByFilter, opts ...DalOption) (existed bool, err error) {
-    c := new(DalConfig).TakeOptions(opts...)
+func (b {{$stName}}) ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist{{$stName}}ByFilter, funcs ...DalCondition) (existed bool, err error) {
     ref := {{$repoPrefix}}Ref_{{$stName}}()
     return ref.New_Executor(b.db).Model().
-            Scopes(c.funcs...).
+            Scopes(funcs...).
             Scopes(func(db *gorm.DB) *gorm.DB {
         {{- range $f := $e.Fields}}
             {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}

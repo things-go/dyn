@@ -1,8 +1,17 @@
 package {{.Package}}
 
 import (
+	"sync"
+
+	rapier "github.com/thinkgos/gorm-rapier"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+)
+
+// boolean
+const (
+	False = "0"
+	True  = "1"
 )
 
 var ErrRecordNotFound = gorm.ErrRecordNotFound
@@ -72,35 +81,7 @@ func Limit(page, perPage int64) func(*gorm.DB) *gorm.DB {
 	}
 }
 
-type DalOption func(*DalConfig)
-
-type DalConfig struct {
-	funcs []func(db *gorm.DB) *gorm.DB
-}
-
-func (o *DalConfig) TakeOptions(opts ...DalOption) *DalConfig {
-	for _, opt := range opts {
-		opt(o)
-	}
-	return o
-}
-
-func WithLockingUpdate() DalOption {
-	return func(o *DalConfig) {
-		o.funcs = append(o.funcs, LockingUpdate())
-	}
-}
-
-func WithLockingShare() DalOption {
-	return func(o *DalConfig) {
-		o.funcs = append(o.funcs, LockingShare())
-	}
-}
-func WithScopes(funcs ...func(db *gorm.DB) *gorm.DB) DalOption {
-	return func(o *DalConfig) {
-		o.funcs = append(o.funcs, funcs...)
-	}
-}
+type DalCondition = func(db *gorm.DB) *gorm.DB
 
 // LockingUpdate specify the lock strength to UPDATE
 func LockingUpdate() func(db *gorm.DB) *gorm.DB {
@@ -114,4 +95,41 @@ func LockingShare() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Clauses(clause.Locking{Strength: "SHARE"})
 	}
+}
+
+type assignExprPool struct {
+	pool *sync.Pool
+}
+
+var defaultPool = assignExprPool{
+	pool: &sync.Pool{
+		New: func() any {
+			return &assignExprContainer{
+				make([]rapier.AssignExpr, 0, 32),
+			}
+		},
+	},
+}
+
+type assignExprContainer struct {
+	Exprs []rapier.AssignExpr
+}
+
+func (c *assignExprContainer) reset() *assignExprContainer {
+	c.Exprs = c.Exprs[:0]
+	return c
+}
+
+func (p *assignExprPool) Get() *assignExprContainer {
+	c := p.pool.Get().(*assignExprContainer)
+	return c
+}
+
+// Put adds x to the pool.
+// NOTE: See Get.
+func (p *assignExprPool) Put(c *assignExprContainer) {
+	if c == nil {
+		return
+	}
+	p.pool.Put(c.reset())
 }
