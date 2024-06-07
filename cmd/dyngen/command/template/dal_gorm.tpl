@@ -18,7 +18,7 @@ import (
 {{- $queryPrefix := .QueryPrefix}}
 {{- $mdName := printf "%s%s" $mdPrefix $stName}}
 
-var _ {{$stName}}Dal = (*{{$stName}})(nil)
+var _ {{$stName}}Dal = {{$stName}}{}
 
 type {{$stName}}Dal interface {
     Create(ctx context.Context, v ...*{{$mdName}}) (int64, error)

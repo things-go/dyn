@@ -20,7 +20,7 @@ import (
 {{- $repoPrefix := .RepoPrefix}}
 {{- $mdName := printf "%s%s" $mdPrefix $stName}}
 
-var _ {{$stName}}Dal = (*{{$stName}})(nil)
+var _ {{$stName}}Dal = {{$stName}}{}
 var _ = rapier.NewExecutor[{{$stName}}]
 
 type {{$stName}}Dal interface {
