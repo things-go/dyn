@@ -10,9 +10,19 @@ import (
 
 // boolean
 const (
-	False = "0"
-	True  = "1"
+	FALSE = "0"
+	TRUE  = "1"
 )
+
+func Boolean(b bool) string {
+	if b {
+		return TRUE
+	} else {
+		return FALSE
+	}
+}
+
+func ToBool(s string) bool { return s == TRUE }
 
 var ErrRecordNotFound = gorm.ErrRecordNotFound
 

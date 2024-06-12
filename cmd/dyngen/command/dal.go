@@ -53,7 +53,7 @@ func newDalCmd() *dalCmd {
 			buf := bytes.Buffer{}
 			packageName := cmp.Or(root.PackageName, utils.GetPkgName(root.OutputDir))
 			queryImportPath := strings.Join([]string{root.DalImportPath, "query"}, "/")
-			dalOptionFilename := joinFilename(root.OutputDir, "dal_option", ".go")
+			dalOptionFilename := joinFilename(root.OutputDir, "a.dal.ext", ".go")
 			_, err = os.Stat(dalOptionFilename)
 			if !(err == nil || os.IsExist(err)) {
 				err = dalOptionTpl.Execute(&buf, Dal{Package: packageName})
