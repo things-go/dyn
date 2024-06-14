@@ -43,8 +43,8 @@ func (d Mode) IsRelease() bool { return d.IsUat() || d.IsProd() }
 // MustSet must set the mode
 //
 // if not one of dev, test, uat, prod, will panic.
-func (d Mode) MustSet(target string) {
-	d = Parse(target)
+func (d *Mode) MustSet(target string) {
+	*d = Parse(target)
 	if !d.Valid() {
 		panic("deploy: Please set deploy mode first, must be one of dev, test, uat, prod")
 	}
