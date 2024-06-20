@@ -21,7 +21,7 @@ type dalOpt struct {
 	PackageName     string // M, 包名
 	ModelImportPath string // M, model导入路径
 	RepoImportPath  string // M, repository导入路径
-	DalImportPath   string // M, dal导入路径
+	DalImportPath   string // M, dal导入路径, 给query用
 	CustomTemplate  string // O, 自定义模板
 	ens.Option
 }
