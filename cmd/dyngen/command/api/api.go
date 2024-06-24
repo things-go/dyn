@@ -54,6 +54,11 @@ func (g *CodeGen) Println(a ...any) (n int, err error) {
 	return fmt.Fprintln(&g.buf, a...)
 }
 
+func (g *CodeGen) Reset() *CodeGen {
+	g.buf.Reset()
+	return g
+}
+
 func (g *CodeGen) Gen() *CodeGen {
 	g.Println(`syntax = "proto3";`)
 	g.Println()
@@ -82,19 +87,19 @@ func (g *CodeGen) Gen() *CodeGen {
 	g.genFields(et.Fields, nil, false)
 	g.Println("}")
 	g.Printf("message List%sReply {\n", structName)
-	g.Println(`int64 total = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];`)
-	g.Println(`int64 page = 30 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];`)
-	g.Println(`int64 perPage = 31 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];`)
-	g.Printf("repeated mapper.%s list = 32;\n", structName)
+	g.Println("  int64 total = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
+	g.Println("  int64 page = 30 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
+	g.Println("  int64 perPage = 31 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
+	g.Printf("  repeated mapper.%s list = 32;\n", structName)
 	g.Println("}")
 	//* get
 	g.Printf("message Get%sRequest {\n", structName)
 	g.Println(`// @gotags: binding:"gt=0"`)
-	g.Println("int64 id = 1 [(google.api.field_behavior) = REQUIRED,")
-	g.Println("\t(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
+	g.Println("  int64 id = 1 [(google.api.field_behavior) = REQUIRED,")
+	g.Println("  \t(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
 	g.Println("}")
 	g.Printf("message Get%sReply {\n", structName)
-	g.Printf("mapper.%s %s = 1;\n", structName, utils.StyleName(g.Style, et.Name))
+	g.Printf("  mapper.%s %s = 1;\n", structName, utils.StyleName(g.Style, et.Name))
 	g.Println("}")
 	//* create
 	g.Printf("message Add%sRequest {\n", structName)
@@ -111,19 +116,93 @@ func (g *CodeGen) Gen() *CodeGen {
 	//* delete
 	g.Printf("message Delete%sRequest {\n", structName)
 	g.Println(`// @gotags: binding:"gt=0"`)
-	g.Println("int64 id = 1 [(google.api.field_behavior) = REQUIRED,")
-	g.Println("\t(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
+	g.Println("  int64 id = 1 [(google.api.field_behavior) = REQUIRED,")
+	g.Println("  \t(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
 	g.Println("}")
 	g.Printf("message Delete%sReply {\n", structName)
 	g.Println("}")
 	//* bulk delete
 	g.Printf("message BulkDelete%sRequest {\n", structName)
 	g.Println(`// @gotags: binding:"required,dive,gt=0"`)
-	g.Println("repeated int64 id = 1 [(google.api.field_behavior) = REQUIRED];")
+	g.Println("  repeated int64 id = 1 [(google.api.field_behavior) = REQUIRED];")
 	g.Println("}")
 	g.Printf("message BulkDelete%sReply {\n", structName)
 	g.Println("}")
 
+	return g
+}
+
+func (g *CodeGen) GenService() *CodeGen {
+	et := g.Entity
+	structName := utils.PascalCase(et.Name)
+
+	g.Println(`syntax = "proto3";`)
+	g.Println()
+	g.Printf("package %s;\n", g.PackageName)
+	g.Println()
+
+	if len(g.Options) > 0 {
+		for k, v := range g.Options {
+			g.Printf("option %s = \"%s\";\n", k, v)
+		}
+		g.Println()
+	}
+
+	g.Println(`import "google/protobuf/empty.proto";`)
+	g.Println(`import "google/api/annotations.proto";`)
+	g.Println(`import "protoc-gen-openapiv2/options/annotations.proto";`)
+	g.Println()
+
+	g.Printf("service %s {\n", structName)
+	g.Println("option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {")
+	g.Printf("description: \"%s\",\n", et.Comment)
+	g.Println("};")
+
+	//* list
+	g.Printf("// 获取%s列表\n", et.Comment)
+	g.Printf("rpc List%[1]s(List%[1]sRequest) returns (List%[1]sReply) {\n", structName)
+	g.Println("option (google.api.http) = {")
+	g.Printf("get: \"/v1/%s\"\n", et.Name)
+	g.Println("};")
+	g.Println("}")
+	//* get
+	g.Printf("// 获取%s\n", et.Comment)
+	g.Printf("rpc Get%[1]s(Get%[1]sRequest) returns (Get%[1]sReply) {\n", structName)
+	g.Println("option (google.api.http) = {")
+	g.Printf("get: \"/v1/%s/{id}\"\n", et.Name)
+	g.Println("};")
+	g.Println("}")
+	//* create
+	g.Printf("// 增加%s\n", et.Comment)
+	g.Printf("rpc Add%[1]s(Add%[1]sRequest) returns (Add%[1]sReply) {\n", structName)
+	g.Println("option (google.api.http) = {")
+	g.Printf("post: \"/v1/%s\"\n", et.Name)
+	g.Println("body: \"*\"")
+	g.Println("};")
+	g.Println("}")
+	//* update
+	g.Printf("// 更新%s\n", et.Comment)
+	g.Printf("rpc Update%[1]s(Update%[1]sRequest) returns (Update%[1]sReply) {\n", structName)
+	g.Println("option (google.api.http) = {")
+	g.Printf("put: \"/v1/%s\"\n", et.Name)
+	g.Println("body: \"*\"")
+	g.Println("};")
+	g.Println("}")
+	//* 删除
+	g.Printf("// 删除%s\n", et.Comment)
+	g.Printf("rpc Delete%[1]s(Delete%[1]sRequest) returns (Delete%[1]sReply) {\n", structName)
+	g.Println("option (google.api.http) = {")
+	g.Printf("delete: \"/v1/%s/{id}\"\n", et.Name)
+	g.Println("};")
+	g.Println("}")
+	//* 批量删除
+	g.Printf("// 批量删除%s\n", et.Comment)
+	g.Printf("rpc BulkDelete%[1]s(BulkDelete%[1]sRequest) returns (BulkDelete%[1]sReply) {\n", structName)
+	g.Println("option (google.api.http) = {")
+	g.Printf("delete: \"/v1/%s\"\n", et.Name)
+	g.Println("};")
+	g.Println("}")
+	g.Println("}")
 	return g
 }
 

@@ -13,7 +13,7 @@ type apiOpt struct {
 	source
 	OutputDir                 string            // M, 输出路径
 	PackageName               string            // M, 包名
-	Options                   map[string]string // required, proto option
+	Options                   map[string]string // M, proto option
 	Style                     string            // 字段代码风格, snakeCase, smallCamelCase, pascalCase
 	DisableBool               bool              // 禁用bool,使用int32
 	DisableTimestamp          bool              // 禁用google.protobuf.Timestamp,使用int64
@@ -85,5 +85,8 @@ func newApiCmd() *apiCmd {
 	cmd.MarkFlagRequired("package")
 	cmd.MarkFlagRequired("options")
 	root.cmd = cmd
+	root.cmd.AddCommand(
+		newApiServiceCmd().cmd,
+	)
 	return root
 }
