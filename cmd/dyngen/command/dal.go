@@ -37,7 +37,7 @@ func newDalCmd() *dalCmd {
 	cmd := &cobra.Command{
 		Use:     "dal",
 		Short:   "Generate dal from database",
-		Example: "ormat dal",
+		Example: "dyngen dal",
 		RunE: func(*cobra.Command, []string) error {
 			if root.CustomTemplate == "builtin-rapier" && root.RepoImportPath == "" {
 				return errors.New("使用builtin-rapier时repository导入路径, 不能为空")
@@ -46,7 +46,7 @@ func newDalCmd() *dalCmd {
 			if err != nil {
 				return err
 			}
-			daltpl, err := GetUsedTemplate(root.CustomTemplate)
+			daltpl, err := GetDalUsedTemplate(root.CustomTemplate)
 			if err != nil {
 				return err
 			}
@@ -66,7 +66,7 @@ func newDalCmd() *dalCmd {
 				}
 				slog.Info("👉 " + dalOptionFilename)
 			} else {
-				slog.Warn("🐛 dal_option.go already exists, skipping")
+				slog.Warn("🐛 'a.dal.ext.go' already exists, skipping")
 			}
 			dal := Dal{
 				Package:     packageName,
@@ -90,7 +90,7 @@ func newDalCmd() *dalCmd {
 				dalFilename := joinFilename(root.OutputDir, entity.Name, ".go")
 				_, err = os.Stat(dalFilename)
 				if err == nil || os.IsExist(err) {
-					slog.Warn("🐛 " + entity.Name + " already exists, skipping")
+					slog.Warn("🐛 '" + entity.Name + "' already exists, skipping")
 					continue
 				}
 				dal.Entity = entity

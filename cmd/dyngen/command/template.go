@@ -14,10 +14,11 @@ var Static embed.FS
 
 var TemplateFuncs = template.FuncMap{
 	"add":            func(a, b int) int { return a + b },
-	"snakecase":      func(s string) string { return utils.SnakeCase(s) },
-	"kebabcase":      func(s string) string { return utils.Kebab(s) },
-	"pascalcase":     func(s string) string { return utils.PascalCase(s) },
-	"smallcamelcase": func(s string) string { return utils.SmallCamelCase(s) },
+	"snakecase":      utils.SnakeCase,
+	"kebabcase":      utils.Kebab,
+	"pascalcase":     utils.PascalCase,
+	"smallcamelcase": utils.SmallCamelCase,
+	"stylename":      utils.StyleName,
 }
 var (
 	tpl = template.Must(template.New("components").
@@ -27,6 +28,7 @@ var (
 	dalGormTpl   = tpl.Lookup("dal_gorm.tpl")
 	dalQueryTpl  = tpl.Lookup("dal_query.tpl")
 	dalOptionTpl = tpl.Lookup("dal_option.tpl")
+	curdProtoTpl = tpl.Lookup("curd_proto.tpl")
 )
 
 type Dal struct {
@@ -38,14 +40,7 @@ type Dal struct {
 	Entity      *ens.EntityDescriptor
 }
 
-type DalQuery struct {
-	PackageName    string
-	Imports        []string
-	ModelQualifier string
-	Entity         ens.EntityDescriptor
-}
-
-func GetUsedTemplate(t string) (*template.Template, error) {
+func GetDalUsedTemplate(t string) (*template.Template, error) {
 	switch t {
 	case "builtin-gorm":
 		return dalGormTpl, nil

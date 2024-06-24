@@ -38,6 +38,7 @@ func NewRootCmd() *RootCmd {
 	cmd.PersistentFlags().StringVarP(&root.level, "level", "l", "info", "log level(debug,info,warn,error)")
 	cmd.AddCommand(
 		newDalCmd().cmd,
+		newApiCmd().cmd,
 	)
 	root.cmd = cmd
 	return root
