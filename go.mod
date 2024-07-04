@@ -9,8 +9,8 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/things-go/encoding v1.1.1
 	golang.org/x/oauth2 v0.21.0
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240509183442-62759503f434
-	google.golang.org/grpc v1.64.0
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157
+	google.golang.org/grpc v1.65.0
 )
 
 require (
