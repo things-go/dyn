@@ -159,7 +159,7 @@ func (c *Client) Execute(ctx context.Context, method, path string, req, resp any
 		r = req
 	}
 	url := c.EncodeURL(settings.Path, req, !hasBody)
-	return c.Invoke(ctx, method, url, r, &resp, settings)
+	return c.Invoke(ctx, method, url, r, resp, settings)
 }
 
 // Get method does GET HTTP request. It's defined in section 4.3.1 of RFC7231.
