@@ -23,6 +23,7 @@ type dalOpt struct {
 	RepoImportPath  string // M, repository导入路径
 	DalImportPath   string // M, dal导入路径, 给query用
 	CustomTemplate  string // O, 自定义模板
+	Override        bool   // O, 是否覆盖
 	ens.Option
 }
 
@@ -55,7 +56,7 @@ func newDalCmd() *dalCmd {
 			queryImportPath := strings.Join([]string{root.DalImportPath, "query"}, "/")
 			dalOptionFilename := joinFilename(root.OutputDir, "a.dal.ext", ".go")
 			_, err = os.Stat(dalOptionFilename)
-			if !(err == nil || os.IsExist(err)) {
+			if !(err == nil || os.IsExist(err)) || root.Override {
 				err = dalOptionTpl.Execute(&buf, Dal{Package: packageName})
 				if err != nil {
 					return err
@@ -89,7 +90,7 @@ func newDalCmd() *dalCmd {
 			for _, entity := range schemaes.Entities {
 				dalFilename := joinFilename(root.OutputDir, entity.Name, ".go")
 				_, err = os.Stat(dalFilename)
-				if err == nil || os.IsExist(err) {
+				if (err == nil || os.IsExist(err)) && !root.Override {
 					slog.Warn("🐛 '" + entity.Name + "' already exists, skipping")
 					continue
 				}
@@ -135,6 +136,8 @@ func newDalCmd() *dalCmd {
 	cmd.Flags().StringVarP(&root.OutputDir, "out", "o", "./dal", "out directory")
 	cmd.Flags().StringVar(&root.PackageName, "package", "", "package name")
 	cmd.Flags().StringVar(&root.CustomTemplate, "template", "builtin-rapier", "use custom template except [builtin-rapier, builtin-gorm]")
+	cmd.Flags().BoolVar(&root.Override, "override", false, "是否覆盖")
+
 	cmd.Flags().StringVar(&root.ModelImportPath, "modelImportPath", "", "model导入路径")
 	cmd.Flags().StringVar(&root.DalImportPath, "dalImportPath", "", "dal导入路径")
 	cmd.Flags().StringVar(&root.RepoImportPath, "repoImportPath", "", "repository导入路径")

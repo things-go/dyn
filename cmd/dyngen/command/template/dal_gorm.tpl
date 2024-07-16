@@ -86,7 +86,7 @@ func (b {{$stName}}) UpdatePartial(ctx context.Context, v *{{$queryPrefix}}Updat
     }
     res := b.db.Model(&{{$mdName}}{}).
             Where("id = ?", v.Id).
-            Updates(v)
+            Updates(up)
     return res.RowsAffected, res.Error
 }
 
