@@ -8,7 +8,7 @@ require (
 	github.com/go-resty/resty/v2 v2.14.0
 	github.com/stretchr/testify v1.9.0
 	github.com/things-go/encoding v1.2.0
-	golang.org/x/oauth2 v0.22.0
+	golang.org/x/oauth2 v0.23.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240604185151-ef581f913117
 	google.golang.org/grpc v1.66.0
 )
