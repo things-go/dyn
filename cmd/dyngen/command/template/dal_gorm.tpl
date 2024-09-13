@@ -38,7 +38,7 @@ type {{$stName}} struct {
 	db *gorm.DB
 }
 
-func New{{$stName}}(db *gorm.DB) {{$stName}} {
+func New{{$stName}}(db *gorm.DB) {{$stName}}Dal {
     return {{$stName}} {
         db: db,
     }

@@ -1,9 +1,11 @@
 package transport
 
+import "context"
+
 type TranslatorError interface {
-	TranslateError(err error) (statusCode int, v any)
+	TranslateError(ctx context.Context, err error) (statusCode int, v any)
 }
 
 type TranslatorBody interface {
-	TranslateBody(v any) any
+	TranslateBody(ctx context.Context, v any) any
 }

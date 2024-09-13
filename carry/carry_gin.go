@@ -62,7 +62,7 @@ func (cy *CarryGin) Error(c *gin.Context, err error) {
 	var statusCode = http.StatusInternalServerError
 
 	if cy.translatorError != nil {
-		statusCode, obj = cy.translatorError.TranslateError(err)
+		statusCode, obj = cy.translatorError.TranslateError(c.Request.Context(), err)
 	} else {
 		obj = err.Error()
 	}
@@ -70,7 +70,7 @@ func (cy *CarryGin) Error(c *gin.Context, err error) {
 }
 func (cy *CarryGin) Render(c *gin.Context, v any) {
 	if cy.translatorBody != nil {
-		v = cy.translatorBody.TranslateBody(v)
+		v = cy.translatorBody.TranslateBody(c.Request.Context(), v)
 	}
 	c.JSON(http.StatusOK, v)
 }
