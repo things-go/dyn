@@ -37,6 +37,7 @@ type Dal struct {
 	ModelPrefix string
 	QueryPrefix string
 	RepoPrefix  string
+	Style       string
 	Entity      *ens.EntityDescriptor
 }
 

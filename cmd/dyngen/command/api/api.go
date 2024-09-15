@@ -89,7 +89,7 @@ func (g *CodeGen) Gen() *CodeGen {
 	g.Printf("message List%sReply {\n", structName)
 	g.Println("  int64 total = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
 	g.Println("  int64 page = 30 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
-	g.Println("  int64 perPage = 31 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
+	g.Println("  int64 per_page = 31 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
 	g.Printf("  repeated mapper.%s list = 32;\n", structName)
 	g.Println("}")
 	//* get

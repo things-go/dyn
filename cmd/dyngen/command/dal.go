@@ -24,6 +24,7 @@ type dalOpt struct {
 	DalImportPath   string // M, dal导入路径, 给query用
 	CustomTemplate  string // O, 自定义模板
 	Override        bool   // O, 是否覆盖
+	Style           string // O, style kind.
 	ens.Option
 }
 
@@ -75,6 +76,7 @@ func newDalCmd() *dalCmd {
 				ModelPrefix: utils.PkgName(root.ModelImportPath) + ".",
 				QueryPrefix: "query.",
 				RepoPrefix:  utils.PkgName(root.RepoImportPath) + ".",
+				Style:       root.Style,
 				Entity:      nil,
 			}
 
@@ -84,6 +86,7 @@ func newDalCmd() *dalCmd {
 				ModelPrefix: utils.PkgName(root.ModelImportPath) + ".",
 				QueryPrefix: "",
 				RepoPrefix:  "",
+				Style:       root.Style,
 				Entity:      nil,
 			}
 
@@ -137,6 +140,7 @@ func newDalCmd() *dalCmd {
 	cmd.Flags().StringVar(&root.PackageName, "package", "", "package name")
 	cmd.Flags().StringVar(&root.CustomTemplate, "template", "builtin-rapier", "use custom template except [builtin-rapier, builtin-gorm]")
 	cmd.Flags().BoolVar(&root.Override, "override", false, "是否覆盖")
+	cmd.Flags().StringVar(&root.Style, "style", "snakeCase", "字段代码风格, snakeCase, smallCamelCase, pascalCase")
 
 	cmd.Flags().StringVar(&root.ModelImportPath, "modelImportPath", "", "model导入路径")
 	cmd.Flags().StringVar(&root.DalImportPath, "dalImportPath", "", "dal导入路径")

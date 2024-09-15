@@ -75,7 +75,7 @@ func newApiCmd() *apiCmd {
 	cmd.Flags().StringVarP(&root.OutputDir, "out", "o", "./proto", "out directory")
 	cmd.Flags().StringVar(&root.PackageName, "package", "", "proto package name")
 	cmd.Flags().StringToStringVar(&root.Options, "options", nil, "proto options")
-	cmd.Flags().StringVar(&root.Style, "style", "smallCamelCase", "字段代码风格, snakeCase, smallCamelCase, pascalCase")
+	cmd.Flags().StringVar(&root.Style, "style", "snakeCase", "字段代码风格, snakeCase, smallCamelCase, pascalCase")
 
 	cmd.Flags().BoolVar(&root.DisableBool, "disableBool", false, "禁用bool,使用int32")
 	cmd.Flags().BoolVar(&root.DisableTimestamp, "disableTimestamp", false, "禁用google.protobuf.Timestamp,使用int64")
