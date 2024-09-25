@@ -85,6 +85,10 @@ func (g *CodeGen) Gen() *CodeGen {
 	//* list
 	g.Printf("message List%sRequest {\n", structName)
 	g.genFields(et.Fields, nil, false)
+	g.Println(`  // @gotags: binding:"gt=0"`)
+	g.Println("  int64 page = 30 [(google.api.field_behavior) = REQUIRED,(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
+	g.Println(`  // @gotags: binding:"min=1,max=500"`)
+	g.Println("  int64 perPage = 31 [(google.api.field_behavior) = REQUIRED,(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
 	g.Println("}")
 	g.Printf("message List%sReply {\n", structName)
 	g.Println("  int64 total = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
