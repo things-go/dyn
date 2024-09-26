@@ -1,11 +1,12 @@
 module github.com/things-go/dyn/cmd/dyngen
 
-go 1.22.4
+go 1.22
 
 require (
-	ariga.io/atlas v0.23.0
+	ariga.io/atlas v0.22.0
 	github.com/spf13/cobra v1.8.0
 	github.com/things-go/ens v1.0.0-rc3
+	google.golang.org/protobuf v1.34.1
 )
 
 require (
@@ -36,7 +37,6 @@ require (
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
 	golang.org/x/tools v0.21.0 // indirect
-	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gorm.io/datatypes v1.2.0 // indirect
 	gorm.io/driver/mysql v1.5.6 // indirect
