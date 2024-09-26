@@ -14,7 +14,7 @@ import (
 )
 
 {{- $e := .Entity}}
-{{- $stName := pascalcase $e.Name}}
+{{- $stName := pascalCase $e.Name}}
 {{- $mdPrefix := .ModelPrefix}}
 {{- $queryPrefix := .QueryPrefix}}
 {{- $repoPrefix := .RepoPrefix}}

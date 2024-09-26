@@ -14,11 +14,11 @@ var Static embed.FS
 
 var TemplateFuncs = template.FuncMap{
 	"add":            func(a, b int) int { return a + b },
-	"snakecase":      utils.SnakeCase,
-	"kebabcase":      utils.Kebab,
-	"pascalcase":     utils.PascalCase,
-	"smallcamelcase": utils.SmallCamelCase,
-	"stylename":      utils.StyleName,
+	"snakeCase":      utils.SnakeCase,
+	"kebabCase":      utils.Kebab,
+	"pascalCase":     utils.PascalCase,
+	"smallCamelCase": utils.SmallCamelCase,
+	"styleName":      utils.StyleName,
 }
 var (
 	tpl = template.Must(template.New("components").
