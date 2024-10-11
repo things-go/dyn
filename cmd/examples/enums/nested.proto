@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package protogen_saber.examples.enums;
+
+option go_package = "github.com/things-go/examples/enums;enums";
+option java_multiple_files = true;
+option java_package = "cn.things-go.examples.enum";
+option java_outer_classname = "Enums";
+
+message Nested {
+  // Status 状态值
+   // #[enum]
+  enum Status {
+    // "unspecified"
+    // aaaa
+    Status_Unspecified = 0;
+    // nested1
+    Status_Up = 1;
+    // nested2
+    Status_Down  = 2;
+    // nested3
+    Status_Left  = 3;
+    // nested4
+    Status_Right  = 4;
+    // end
+    Status_End = 999;
+  }
+  message Nested1 {
+    // Type 类型
+    // #[enum]
+    enum Type {
+      // 禁用
+      Type_Disable = 0;
+      // 启用
+      Type_Enable = 1;
+    }
+  }
+}

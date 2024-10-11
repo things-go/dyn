@@ -191,7 +191,7 @@ func (b {{$stName}}) PluckIdByFilter(ctx context.Context, q *{{$queryPrefix}}Plu
         {{- else if eq $f.Type.Type 18 }}
             if !q.{{$f.GoName}}.IsZero() {
         {{- else if eq $f.Type.Type 1 }}
-            {
+            if q.{{$f.GoName}} != nil {
         {{- else }}
             if q.{{$f.GoName}} != 0 {
         {{- end}}
@@ -214,7 +214,7 @@ func get{{$stName}}Filter(q *{{$queryPrefix}}Get{{$stName}}ByFilter) func(db *go
             {{- else if eq $f.Type.Type 18 }}
                 if !q.{{$f.GoName}}.IsZero() {
             {{- else if eq $f.Type.Type 1 }}
-                {
+                if q.{{$f.GoName}} != nil {
             {{- else }}
                 if q.{{$f.GoName}} != 0 {
             {{- end}}
@@ -235,7 +235,7 @@ func list{{$stName}}Filter(q *{{$queryPrefix}}List{{$stName}}ByFilter) func(db *
     {{- else if eq $f.Type.Type 18 }}
         if !q.{{$f.GoName}}.IsZero() {
     {{- else if eq $f.Type.Type 1 }}
-        {
+        if q.{{$f.GoName}} != nil {
     {{- else }}
         if q.{{$f.GoName}} != 0 {
     {{- end}}

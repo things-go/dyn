@@ -1,45 +1,22 @@
-package main
+package protoenum
 
 import (
-	"embed"
-	"html/template"
-	"io"
 	"strings"
 
+	"github.com/things-go/dyn/cmd/internal/protoutil"
 	"github.com/things-go/proc/infra"
 	"google.golang.org/protobuf/compiler/protogen"
 )
-
-//go:embed errno.tpl
-var Static embed.FS
-var errnoTpl = template.Must(template.New("components").
-	ParseFS(Static, "errno.tpl")).
-	Lookup("errno.tpl")
-
-type ErrnoFile struct {
-	Version       string
-	ProtocVersion string
-	IsDeprecated  bool
-	Source        string
-	Package       string
-	Epk           string
-	Errors        []*Enum
-}
-
-func (e *ErrnoFile) execute(w io.Writer) error {
-	return errnoTpl.Execute(w, e)
-}
 
 // EnumValue 枚举的枚举项
 type EnumValue struct {
 	Number      int    // 编号
 	Value       string // 值,例: Status_Enabled
 	CamelValue  string // 驼峰值,例: StatusEnabled
+	TrimValue   string // 值截断EnumName前缀,例: Enabled(EnumName=Status)
+	Mapping     string // 映射值
 	Comment     string // 注释
 	IsDuplicate bool   // 是否是副本
-	Status      int    // 状态码
-	Code        int    // 错误码
-	Message     string // 错误信息
 }
 
 // Enum 枚举
@@ -75,7 +52,7 @@ func IntoEnums(nestedMessageName string, protoEnums []*protogen.Enum) []*Enum {
 		if len(pe.Values) == 0 {
 			continue
 		}
-		enumAnnotate, remainComments := ParseDeriveErrno(pe.Comments.Leading)
+		enumAnnotate, remainComments := ParseDeriveEnum(pe.Comments.Leading)
 		if !enumAnnotate.Enabled {
 			continue
 		}
@@ -84,29 +61,68 @@ func IntoEnums(nestedMessageName string, protoEnums []*protogen.Enum) []*Enum {
 		emValueMp := make(map[int]string, len(pe.Values))
 		emValues := make([]*EnumValue, 0, len(pe.Values))
 		for _, v := range pe.Values {
-			annotateEnumValue, remainComments := ParseDeriveErrnoValue(enumAnnotate.Status, int(v.Desc.Number()), v.Comments.Leading)
+			mappingValue := ""
+			comment := strings.TrimSpace(strings.TrimSuffix(string(v.Comments.Leading), "\n"))
+
+			annotateEnumValue, _ := ParseDeriveEnumValue(v.Comments.Leading)
+			if annotateEnumValue.Mapping != "" {
+				mappingValue = annotateEnumValue.Mapping
+			} else {
+				mappingValue = comment
+			}
+
+			comment = strings.ReplaceAll(strings.ReplaceAll(comment, "\n", ","), `"`, `\"`)
+			mappingValue = strings.ReplaceAll(strings.ReplaceAll(mappingValue, "\n", ","), `"`, `\"`)
+
 			enumValueName := string(v.Desc.Name())
 			ev := &EnumValue{
-				Number:      int(v.Desc.Number()),
-				Value:       enumValueName,
-				CamelValue:  infra.CamelCase(enumValueName),
-				Comment:     strings.ReplaceAll(strings.ReplaceAll(remainComments.LineString(), "\n", ","), `"`, `\"`),
-				IsDuplicate: false,
-				Status:      annotateEnumValue.Status,
-				Code:        annotateEnumValue.Code,
-				Message:     annotateEnumValue.Message,
+				Number:     int(v.Desc.Number()),
+				Value:      enumValueName,
+				CamelValue: infra.PascalCase(enumValueName),
+				TrimValue:  strings.TrimPrefix(strings.TrimPrefix(enumValueName, emName), "_"),
+				Mapping:    mappingValue,
+				Comment:    comment,
 			}
 			//* duplicate
-			_, ev.IsDuplicate = emValueMp[ev.Number]
-
+			if _, ev.IsDuplicate = emValueMp[ev.Number]; !ev.IsDuplicate {
+				emValueMp[ev.Number] = mappingValue
+			}
 			emValues = append(emValues, ev)
 		}
+
+		comment := remainComments.Append(protoutil.ToArrayString(emValueMp)).String()
 		enums = append(enums, &Enum{
 			MessageName: nestedMessageName,
 			Name:        emName,
-			Comment:     remainComments.String(),
+			Comment:     comment,
 			Values:      emValues,
 		})
 	}
 	return enums
+}
+
+// IntoEnumComment generates enum comment if it exists
+// format: @EnumValue[xxx]
+func IntoEnumComment(pe *protogen.Enum) string {
+	if pe == nil || len(pe.Values) == 0 {
+		return ""
+	}
+	enumAnnotate, _ := ParseDeriveEnum(pe.Comments.Leading)
+	if !enumAnnotate.Enabled {
+		return ""
+	}
+
+	emValueMp := make(map[int]string, len(pe.Values))
+	for _, v := range pe.Values {
+		mappingValue := ""
+		enumValueAnnotate, _ := ParseDeriveEnumValue(v.Comments.Leading)
+		if enumValueAnnotate.Mapping != "" {
+			mappingValue = enumValueAnnotate.Mapping
+		} else {
+			mappingValue = strings.TrimSpace(strings.TrimSuffix(string(v.Comments.Leading), "\n"))
+		}
+		mappingValue = strings.ReplaceAll(strings.ReplaceAll(mappingValue, "\n", ","), `"`, `\"`)
+		emValueMp[int(v.Desc.Number())] = mappingValue
+	}
+	return "@EnumValue" + protoutil.ToArrayString(emValueMp)
 }
