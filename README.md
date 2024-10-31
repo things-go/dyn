@@ -11,12 +11,14 @@ dyn project toolkit for gin
 
 ## Usage
 
-`dyn`是一个`gin`工程工具生成器, 集成了 [proto-gen-go-errno](cmd/proto-gen-go-errno) 和 [proto-gen-go-gin](cmd/proto-gen-go-gin)
+`dyn`是一个`gin`,`protobuf`工程以及代码工具生成器.
 
-- `proto-gen-go-errno` 从`proto` 枚举统一生成错误
-- `proto-gen-go-gin` 从 `proto` 的生成`gin`的代码.
+- `proto-gen-dyn-gin` 从 `proto` 的生成`gin`的代码.
   ***注意***: 当使用`proto-gen-go-gin`要禁用`gin`自带的`binding`,使用`gin.DisableBindValidation()` 接口
-- `proto-gen-go-resty` 从 `proto` 的生成`resty`的代码.
+- `proto-gen-dyn-resty` 从 `proto` 的生成`resty`的代码.
+- `proto-gen-dyn-enum` 从 `proto` 的生成`enum`的代码.
+- `errno-gen` 从枚举生成统一错误
+- `dyngen` 简化工程模板生成
   
 ### Installation
 
