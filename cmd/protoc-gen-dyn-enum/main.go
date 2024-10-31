@@ -39,7 +39,7 @@ func init() {
 func main() {
 	flag.Parse()
 	if args.ShowVersion {
-		fmt.Printf("protoc-gen-saber-enum %v\n", meta.Version)
+		fmt.Printf("protoc-gen-dyn-enum %v\n", meta.Version)
 		return
 	}
 

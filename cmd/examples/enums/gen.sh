@@ -15,21 +15,21 @@ protoc \
     -I ${third_party_dir} \
     --go_out=${out_dir} \
     --go_opt paths=source_relative \
-    --saber-enum_out ${out_dir} \
-    --saber-enum_opt paths=source_relative \
+    --dyn-enum_out ${out_dir} \
+    --dyn-enum_opt paths=source_relative \
     nested.proto \
     non_nested.proto
 
 protoc \
     -I ${proto_dir} \
     -I ${third_party_dir} \
-    --saber-enum_out ${out_dir} \
-    --saber-enum_opt suffix=".example.pb.go" \
-    --saber-enum_opt template=${proto_dir}/mapper_template.tpl \
-    --saber-enum_opt paths=source_relative \
-    --saber-enum_opt merge=true \
-    --saber-enum_opt filename=mapper \
-    --saber-enum_opt package=enums \
-    --saber-enum_opt go_package="github.com/things-go/examples/enums" \
+    --dyn-enum_out ${out_dir} \
+    --dyn-enum_opt suffix=".example.pb.go" \
+    --dyn-enum_opt template=${proto_dir}/mapper_template.tpl \
+    --dyn-enum_opt paths=source_relative \
+    --dyn-enum_opt merge=true \
+    --dyn-enum_opt filename=mapper \
+    --dyn-enum_opt package=enums \
+    --dyn-enum_opt go_package="github.com/things-go/examples/enums" \
     nested.proto \
     non_nested.proto
