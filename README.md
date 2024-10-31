@@ -6,7 +6,7 @@ dyn project toolkit for gin
 [![codecov](https://codecov.io/gh/things-go/dyn/branch/main/graph/badge.svg)](https://codecov.io/gh/things-go/dyn)
 [![Tests](https://github.com/things-go/dyn/actions/workflows/ci.yml/badge.svg)](https://github.com/things-go/dyn/actions/workflows/ci.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/things-go/dyn)](https://goreportcard.com/report/github.com/things-go/dyn)
-[![Licence](https://img.shields.io/github/license/things-go/dyn)](https://raw.githubusercontent.com/things-go/dyn/main/LICENSE)
+[![License](https://img.shields.io/github/license/things-go/dyn)](https://raw.githubusercontent.com/things-go/dyn/main/LICENSE)
 [![Tag](https://img.shields.io/github/v/tag/things-go/dyn)](https://github.com/things-go/dyn/tags)
 
 ## Usage
