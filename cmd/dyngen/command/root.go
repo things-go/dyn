@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/things-go/dyn/cmd/internal/meta"
 	_ "github.com/things-go/ens/driver/mysql"
 )
 
@@ -21,7 +22,7 @@ func NewRootCmd() *RootCmd {
 		Use:           "ormat",
 		Short:         "gorm reflect tools",
 		Long:          "database/sql to golang struct",
-		Version:       buildVersion(),
+		Version:       meta.BuildVersion(),
 		SilenceUsage:  false,
 		SilenceErrors: false,
 		Args:          cobra.NoArgs,

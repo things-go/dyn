@@ -9,6 +9,7 @@ import (
 
 	"github.com/sourcegraph/conc"
 	"github.com/spf13/cobra"
+	"github.com/things-go/dyn/cmd/internal/meta"
 )
 
 type ErrnoOption struct {
@@ -31,7 +32,7 @@ func NewRootCmd() *RootCmd {
 		Use:           "errno-gen",
 		Short:         "errno-gen generate errno from enum",
 		Long:          "errno-gen generate errno from enum",
-		Version:       BuildVersion(),
+		Version:       meta.BuildVersion(),
 		SilenceUsage:  false,
 		SilenceErrors: false,
 		Args:          cobra.NoArgs,
@@ -76,7 +77,7 @@ func NewRootCmd() *RootCmd {
 				OutputDir: srcDir,
 				Type:      root.Type,
 				Tags:      root.Tags,
-				Version:   version,
+				Version:   meta.Version,
 				Epk:       root.Epk,
 			}
 			err = g.Generate()

@@ -4,10 +4,9 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/things-go/dyn/cmd/internal/meta"
 	"google.golang.org/protobuf/compiler/protogen"
 )
-
-const version = "v0.5.0"
 
 var args = &struct {
 	ShowVersion    bool   // 显示版本
@@ -40,7 +39,7 @@ func init() {
 func main() {
 	flag.Parse()
 	if args.ShowVersion {
-		fmt.Printf("protoc-gen-saber-enum %v\n", version)
+		fmt.Printf("protoc-gen-saber-enum %v\n", meta.Version)
 		return
 	}
 

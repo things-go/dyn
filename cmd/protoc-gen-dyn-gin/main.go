@@ -4,10 +4,9 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/things-go/dyn/cmd/internal/meta"
 	"google.golang.org/protobuf/compiler/protogen"
 )
-
-const version = "v1.0.0"
 
 var args = struct {
 	ShowVersion         bool
@@ -37,7 +36,7 @@ func init() {
 func main() {
 	flag.Parse()
 	if args.ShowVersion {
-		fmt.Printf("protoc-gen-dyn-gin %v\n", version)
+		fmt.Printf("protoc-gen-dyn-gin %v\n", meta.Version)
 		return
 	}
 

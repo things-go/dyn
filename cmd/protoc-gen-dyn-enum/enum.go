@@ -7,6 +7,7 @@ import (
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/types/pluginpb"
 
+	"github.com/things-go/dyn/cmd/internal/meta"
 	"github.com/things-go/dyn/cmd/internal/protoenum"
 	"github.com/things-go/dyn/cmd/internal/protoutil"
 )
@@ -51,7 +52,7 @@ func runProtoGen(gen *protogen.Plugin) error {
 		}
 		g := gen.NewGeneratedFile(f.GeneratedFilenamePrefix+args.Suffix, f.GoImportPath)
 		e := &EnumFile{
-			Version:       version,
+			Version:       meta.Version,
 			ProtocVersion: protoutil.ProtocVersion(gen),
 			IsDeprecated:  f.Proto.GetOptions().GetDeprecated(),
 			Source:        f.Desc.Path(),
@@ -63,7 +64,7 @@ func runProtoGen(gen *protogen.Plugin) error {
 	if isMerge {
 		g := gen.NewGeneratedFile(args.Filename+args.Suffix, protogen.GoImportPath(args.GoPackage))
 		mergeFile := &EnumFile{
-			Version:       version,
+			Version:       meta.Version,
 			ProtocVersion: protoutil.ProtocVersion(gen),
 			IsDeprecated:  false,
 			Source:        strings.Join(source, ","),
