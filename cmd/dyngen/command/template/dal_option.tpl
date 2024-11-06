@@ -24,6 +24,13 @@ func Boolean(b bool) string {
 
 func ToBool(s string) bool { return s == TRUE }
 
+func NilOr[T any](slices []T) []T {
+	if slices == nil {
+		return make([]T, 0)
+	}
+	return slices
+}
+
 var ErrRecordNotFound = gorm.ErrRecordNotFound
 
 var (

@@ -30,7 +30,7 @@ type List{{$stName}}ByFilter struct {
     PerPage int64 `json:"perPage"`
 }
 
-type PluckId{{$stName}}ByFilter struct {
+type Pluck{{$stName}}ByFilter struct {
 {{- range $f := $e.Fields}}
     {{if or (eq $f.GoName "CreatedAt") (eq $f.GoName "UpdatedAt") (eq $f.GoName "DeletedAt")}}// {{end}}{{$f.GoName}} {{if eq $f.Type.Type 1 }}*{{- end}}{{$f.Type.Ident}} `json:"{{styleName $style $f.ColumnName}}"`
 {{- end}}
