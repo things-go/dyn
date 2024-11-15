@@ -76,8 +76,6 @@ github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
-github.com/things-go/dyn v1.0.0-rc5 h1:B2Y8f5GNvvFlT9iklTTu2q3s97B2FnVQOzkOpF6x4Ro=
-github.com/things-go/dyn v1.0.0-rc5/go.mod h1:+ffW5dotMp1xfmS8g5nKlWQL0Q14r4efZp7BTGK8lME=
 github.com/things-go/encoding v1.2.0 h1:XERq98WIrJlMoANP/M7L3y+HWRbpRNpJKzY2ThrHwyk=
 github.com/things-go/encoding v1.2.0/go.mod h1:+OgMxzPYhq+JZ6/I0+URTbN28uUlAxxi1Zb5ef9IbiI=
 github.com/twitchyliquid64/golang-asm v0.15.1 h1:SU5vSMR7hnwNxj24w34ZyCi/FmDZTkS4MhqMhdFk5YI=

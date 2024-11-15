@@ -6,7 +6,7 @@ replace github.com/things-go/dyn v1.0.0-rc8 => ../
 
 require (
 	github.com/gin-gonic/gin v1.10.0
-	github.com/things-go/dyn v1.0.0-rc5
+	github.com/things-go/dyn v1.0.0-rc8
 	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1
 	google.golang.org/grpc v1.68.0
 	google.golang.org/protobuf v1.35.2
