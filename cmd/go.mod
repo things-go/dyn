@@ -1,6 +1,6 @@
 module github.com/things-go/dyn/cmd
 
-go 1.22
+go 1.23
 
 require (
 	ariga.io/atlas v0.22.0

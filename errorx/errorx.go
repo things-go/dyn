@@ -87,6 +87,36 @@ func (e *Error) TakeOption(opts ...Option) *Error {
 }
 
 // WithMessage modifies the message
+func (e *Error) WithMessage(s string) *Error {
+	return e.TakeOption(WithMessage(s))
+}
+
+// WithMessagef modifies the message
+func (e *Error) WithMessagef(format string, args ...any) *Error {
+	return e.TakeOption(WithMessagef(format, args...))
+}
+
+// WithCause set cause error
+func (e *Error) WithCause(err error) *Error {
+	return e.TakeOption(WithCause(err))
+}
+
+// WithError inner `errors.New`
+func (e *Error) WithError(text string) *Error {
+	return e.TakeOption(WithError(text))
+}
+
+// WithErrorf inner `fmt.Errorf`
+func (e *Error) WithErrorf(format string, args ...any) *Error {
+	return e.TakeOption(WithErrorf(format, args...))
+}
+
+// WithMetadata add metadata to the error
+func (e *Error) WithMetadata(k, v string) *Error {
+	return e.TakeOption(WithMetadata(k, v))
+}
+
+// WithMessage modifies the message
 func WithMessage(s string) Option {
 	return func(e *Error) {
 		e.message = s

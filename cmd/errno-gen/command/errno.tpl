@@ -13,7 +13,7 @@ import (
 
 {{- range $ee := $e.Values}}
 // Err{{$ee.OriginalName}} {{$ee.Value}}: {{.Mapping}}
-func Err{{$ee.OriginalName}}(opts ...errors.Option) error {
+func Err{{$ee.OriginalName}}(opts ...errors.Option) *errors.Error {
 	return errors.New(int32({{$ee.OriginalName}}), {{$ee.OriginalName}}.String(), opts...)
 }
 {{- end}}
