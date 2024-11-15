@@ -1,6 +1,7 @@
 module github.com/things-go/dyn
 
 go 1.22
+toolchain go1.22.9
 
 require (
 	github.com/gin-gonic/gin v1.10.0
@@ -10,7 +11,7 @@ require (
 	github.com/things-go/encoding v1.2.0
 	golang.org/x/oauth2 v0.24.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241021214115-324edc3d5d38
-	google.golang.org/grpc v1.67.1
+	google.golang.org/grpc v1.68.0
 )
 
 require (
