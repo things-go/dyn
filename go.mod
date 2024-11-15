@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/validator/v10 v10.22.1
-	github.com/go-resty/resty/v2 v2.15.3
+	github.com/go-resty/resty/v2 v2.16.0
 	github.com/stretchr/testify v1.9.0
 	github.com/things-go/encoding v1.2.0
 	golang.org/x/oauth2 v0.23.0
