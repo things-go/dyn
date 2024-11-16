@@ -23,6 +23,7 @@ var _ {{$stName}}Dal = {{$stName}}{}
 type {{$stName}}Dal interface {
     Create(ctx context.Context, v ...*{{$mdName}}) (int64, error)
     Delete(ctx context.Context, id ...int64) (int64, error)
+    DeleteByFilter(ctx context.Context, q *{{$queryPrefix}}Delete{{$stName}}ByFilter) (int64, error)
     UpdateFull(ctx context.Context, v *{{$mdName}}) (int64, error)
     UpdatePartial(ctx context.Context, v *{{$queryPrefix}}Update{{$stName}}ByPartial) (int64, error) 
     Get(ctx context.Context, id int64, funcs ...DalCondition) (*{{$mdName}}, error)
@@ -59,6 +60,13 @@ func (b {{$stName}}) Delete(ctx context.Context, id ...int64) (int64, error) {
                 }
                 return db
             }).
+            Delete(&{{$mdName}}{})
+    return res.RowsAffected, res.Error
+}
+
+func (b {{$stName}}) DeleteByFilter(ctx context.Context, q *{{$queryPrefix}}Delete{{$stName}}ByFilter) (int64, error) {
+    res := b.db.Model(&{{$mdName}}{}).
+            Scopes(delete{{$stName}}ByFilter(q)).
             Delete(&{{$mdName}}{})
     return res.RowsAffected, res.Error
 }
@@ -188,6 +196,27 @@ func (b {{$stName}}) PluckIdByFilter(ctx context.Context, q *{{$queryPrefix}}Plu
     return rows, err
 }
 
+func delete{{$stName}}ByFilter(q *{{$queryPrefix}}Delete{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
+    return func(db *gorm.DB) *gorm.DB {
+{{- range $f := $e.Fields}}
+    {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
+    {{- if eq $f.Type.Type 15 }}
+        if q.{{$f.GoName}} != "" {
+    {{- else if eq $f.Type.Type 18 }}
+        if !q.{{$f.GoName}}.IsZero() {
+    {{- else if eq $f.Type.Type 1 }}
+        if q.{{$f.GoName}} != nil {
+    {{- else }}
+        if q.{{$f.GoName}} != 0 {
+    {{- end}}
+            db = db.Where("{{$f.ColumnName}} = ?", {{if eq $f.Type.Type 1 }}*{{- end}}q.{{$f.GoName}})
+        }
+    {{- end}}
+{{- end}}
+        return db
+    }
+}
+
 func get{{$stName}}Filter(q *{{$queryPrefix}}Get{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
     return func(db *gorm.DB) *gorm.DB {
         {{- range $f := $e.Fields}}
@@ -229,6 +258,7 @@ func list{{$stName}}Filter(q *{{$queryPrefix}}List{{$stName}}ByFilter) func(db *
         return db
     }
 }
+
 func pluck{{$stName}}ByFilter(q *{{$queryPrefix}}Pluck{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
     return func(db *gorm.DB) *gorm.DB {
 {{- range $f := $e.Fields}}

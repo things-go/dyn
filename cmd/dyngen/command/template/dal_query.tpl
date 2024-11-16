@@ -35,3 +35,9 @@ type Pluck{{$stName}}ByFilter struct {
     {{if or (eq $f.GoName "CreatedAt") (eq $f.GoName "UpdatedAt") (eq $f.GoName "DeletedAt")}}// {{end}}{{$f.GoName}} {{if eq $f.Type.Type 1 }}*{{- end}}{{$f.Type.Ident}} `json:"{{styleName $style $f.ColumnName}}"`
 {{- end}}
 }
+
+type Delete{{$stName}}ByFilter struct {
+{{- range $f := $e.Fields}}
+    {{if or (eq $f.GoName "CreatedAt") (eq $f.GoName "UpdatedAt") (eq $f.GoName "DeletedAt")}}// {{end}}{{$f.GoName}} {{if eq $f.Type.Type 1 }}*{{- end}}{{$f.Type.Ident}} `json:"{{styleName $style $f.ColumnName}}"`
+{{- end}}
+}
