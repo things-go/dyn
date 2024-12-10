@@ -2,7 +2,7 @@ module github.com/things-go/dyn/example
 
 go 1.23
 
-replace github.com/things-go/dyn v1.0.0-rc8 => ../
+replace github.com/things-go/dyn v1.0.0-rc11 => ../
 
 require (
 	github.com/gin-gonic/gin v1.10.0
@@ -22,7 +22,7 @@ require (
 	github.com/go-playground/form/v4 v4.2.1 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.22.1 // indirect
+	github.com/go-playground/validator/v10 v10.23.0 // indirect
 	github.com/go-resty/resty/v2 v2.16.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect

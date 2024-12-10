@@ -9,8 +9,8 @@ import (
 type Applier interface {
 	setEncoding(*encoding.Encoding)
 	setValidation(*validator.Validate)
-	setTranslatorError(transport.TranslatorError)
-	setTranslatorBody(transport.TranslatorBody)
+	setTransformError(transport.TransformError)
+	setTransformBody(transport.TransformBody)
 }
 
 type Option func(Applier)
@@ -26,13 +26,13 @@ func WithValidation(v *validator.Validate) Option {
 	}
 }
 
-func WithTranslatorError(t transport.TranslatorError) Option {
+func WithTransformError(t transport.TransformError) Option {
 	return func(cy Applier) {
-		cy.setTranslatorError(t)
+		cy.setTransformError(t)
 	}
 }
-func WithTranslatorBody(t transport.TranslatorBody) Option {
+func WithTransformBody(t transport.TransformBody) Option {
 	return func(cy Applier) {
-		cy.setTranslatorBody(t)
+		cy.setTransformBody(t)
 	}
 }

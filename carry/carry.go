@@ -16,10 +16,10 @@ var _ transportHttp.Carrier = (*Carry)(nil)
 var _ Applier = (*Carry)(nil)
 
 type Carry struct {
-	encoding        *encoding.Encoding
-	validation      *validator.Validate
-	translatorError transport.TranslatorError
-	translatorBody  transport.TranslatorBody
+	encoding       *encoding.Encoding
+	validation     *validator.Validate
+	transformError transport.TransformError
+	transformBody  transport.TransformBody
 }
 
 func NewCarry(opts ...Option) *Carry {
@@ -44,12 +44,12 @@ func (cy *Carry) setValidation(v *validator.Validate) {
 	cy.validation = v
 }
 
-func (cy *Carry) setTranslatorError(e transport.TranslatorError) {
-	cy.translatorError = e
+func (cy *Carry) setTransformError(e transport.TransformError) {
+	cy.transformError = e
 }
 
-func (cy *Carry) setTranslatorBody(e transport.TranslatorBody) {
-	cy.translatorBody = e
+func (cy *Carry) setTransformBody(e transport.TransformBody) {
+	cy.transformBody = e
 }
 
 func (cy *Carry) Bind(c *gin.Context, v any) error {
@@ -65,8 +65,8 @@ func (cy *Carry) Error(c *gin.Context, err error) {
 	var obj any
 	var statusCode = http.StatusInternalServerError
 
-	if cy.translatorError != nil {
-		statusCode, obj = cy.translatorError.TranslateError(c.Request.Context(), err)
+	if cy.transformError != nil {
+		statusCode, obj = cy.transformError.TransformError(c.Request.Context(), err)
 	} else {
 		obj = err.Error()
 	}
@@ -76,8 +76,8 @@ func (cy *Carry) Error(c *gin.Context, err error) {
 	}
 }
 func (cy *Carry) Render(c *gin.Context, v any) {
-	if cy.translatorBody != nil {
-		v = cy.translatorBody.TranslateBody(c.Request.Context(), v)
+	if cy.transformBody != nil {
+		v = cy.transformBody.TransformBody(c.Request.Context(), v)
 	}
 	c.Writer.WriteHeader(http.StatusOK)
 	err := cy.encoding.Render(c.Writer, c.Request, v)

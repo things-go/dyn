@@ -13,7 +13,7 @@ import (
 
 func main() {
 	g := gin.Default()
-	carrier := carry.NewCarry(carry.WithTranslatorBody(translatorData{}))
+	carrier := carry.NewCarry(carry.WithTransformBody(transformBody{}))
 	g.Use(transportHttp.CarrierInterceptor(carrier))
 	g.Use(transportHttp.TransportInterceptor())
 	g.Use(func(c *gin.Context) {
@@ -34,9 +34,9 @@ type Result struct {
 	Data    any    `json:"data"`
 }
 
-type translatorData struct{}
+type transformBody struct{}
 
-func (t translatorData) TranslateBody(ctx context.Context, v any) any {
+func (t transformBody) TransformBody(ctx context.Context, v any) any {
 	return &Result{
 		Code:    200,
 		Message: "ok",

@@ -16,9 +16,9 @@ var _ transportHttp.Carrier = (*CarryGin)(nil)
 var _ Applier = (*CarryGin)(nil)
 
 type CarryGin struct {
-	validation      *validator.Validate
-	translatorError transport.TranslatorError
-	translatorBody  transport.TranslatorBody
+	validation     *validator.Validate
+	transformError transport.TransformError
+	transformBody  transport.TransformBody
 }
 
 func NewCarryGin(opts ...Option) *CarryGin {
@@ -40,12 +40,12 @@ func (cy *CarryGin) setValidation(v *validator.Validate) {
 	cy.validation = v
 }
 
-func (cy *CarryGin) setTranslatorError(e transport.TranslatorError) {
-	cy.translatorError = e
+func (cy *CarryGin) setTransformError(e transport.TransformError) {
+	cy.transformError = e
 }
 
-func (cy *CarryGin) setTranslatorBody(e transport.TranslatorBody) {
-	cy.translatorBody = e
+func (cy *CarryGin) setTransformBody(e transport.TransformBody) {
+	cy.transformBody = e
 }
 
 func (*CarryGin) Bind(c *gin.Context, v any) error {
@@ -61,16 +61,16 @@ func (cy *CarryGin) Error(c *gin.Context, err error) {
 	var obj any
 	var statusCode = http.StatusInternalServerError
 
-	if cy.translatorError != nil {
-		statusCode, obj = cy.translatorError.TranslateError(c.Request.Context(), err)
+	if cy.transformError != nil {
+		statusCode, obj = cy.transformError.TransformError(c.Request.Context(), err)
 	} else {
 		obj = err.Error()
 	}
 	c.AbortWithStatusJSON(statusCode, obj)
 }
 func (cy *CarryGin) Render(c *gin.Context, v any) {
-	if cy.translatorBody != nil {
-		v = cy.translatorBody.TranslateBody(c.Request.Context(), v)
+	if cy.transformBody != nil {
+		v = cy.transformBody.TransformBody(c.Request.Context(), v)
 	}
 	c.JSON(http.StatusOK, v)
 }
