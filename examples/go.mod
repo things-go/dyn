@@ -2,13 +2,13 @@ module github.com/things-go/dyn/example
 
 go 1.23
 
-replace github.com/things-go/dyn v1.0.0-rc11 => ../
+// replace github.com/things-go/dyn v1.0.0-rc12 => ../
 
 require (
 	github.com/gin-gonic/gin v1.10.0
-	github.com/things-go/dyn v1.0.0-rc8
-	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1
-	google.golang.org/grpc v1.68.0
+	github.com/things-go/dyn v1.0.0-rc12
+	google.golang.org/genproto/googleapis/api v0.0.0-20241015192408-796eee8c2d53
+	google.golang.org/grpc v1.69.0
 	google.golang.org/protobuf v1.35.2
 )
 
@@ -23,7 +23,7 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.23.0 // indirect
-	github.com/go-resty/resty/v2 v2.16.0 // indirect
+	github.com/go-resty/resty/v2 v2.16.2 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
