@@ -96,26 +96,32 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 		g.P("func ", serverHandlerMethodName(s.ServiceType, m), "(srv ", s.ServiceType, "HTTPServer", ") ", g.QualifiedGoIdent(ginPackage.Ident("HandlerFunc")), " {")
 		{ // gin.HandleFunc closure
 			g.P("return func(c *", g.QualifiedGoIdent(ginPackage.Ident("Context")), ") {")
+			g.P("var err error")
+			g.P("var req ", m.Request)
+			g.P("var reply *", m.Reply)
+			g.P()
 			g.P("carrier := ", g.QualifiedGoIdent(transportHttpPackage.Ident("FromCarrier")), "(c.Request.Context())")
 			{ // binding
-				g.P("shouldBind := func(req *", m.Request, ") error {")
 				if s.UseEncoding {
 					if m.HasBody {
 						if m.Body == "" {
 							if m.HasVars {
-								g.P("if err := carrier.ShouldBindQueryBodyUri(c, req); err != nil {")
-								g.P("return err")
+								g.P("if err = carrier.ShouldBindQueryBodyUri(c, &req); err != nil {")
+								g.P("carrier.Error(c, err)")
+								g.P("return")
 								g.P("}")
 							} else {
-								g.P("if err := carrier.ShouldBindQueryBody(c, req); err != nil {")
-								g.P("return err")
+								g.P("if err = carrier.ShouldBindQueryBody(c, &req); err != nil {")
+								g.P("carrier.Error(c, err)")
+								g.P("return")
 								g.P("}")
 							}
 						} else {
+							g.P("shouldBind := func(req *", m.Request, ") error {")
 							g.P("if err := carrier.BindQuery(c, req); err != nil {")
 							g.P("return err")
 							g.P("}")
-							g.P("if err := carrier.Bind(c, req", m.Body, "); err != nil {")
+							g.P("if err := carrier.Bind(c, &req", m.Body, "); err != nil {")
 							g.P("return err")
 							g.P("}")
 							if m.HasVars {
@@ -123,15 +129,24 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 								g.P("return err")
 								g.P("}")
 							}
+							g.P("return carrier.Validate(c.Request.Context(), req)")
+							g.P("}")
+							g.P()
+							g.P("if err = shouldBind(&req); err != nil {")
+							g.P("carrier.Error(c, err)")
+							g.P("return")
+							g.P("}")
 						}
 					} else {
 						if m.HasVars {
-							g.P("if err := carrier.ShouldBindQueryUri(c, req); err != nil {")
-							g.P("return err")
+							g.P("if err = carrier.ShouldBindQueryUri(c, &req); err != nil {")
+							g.P("carrier.Error(c, err)")
+							g.P("return")
 							g.P("}")
 						} else {
-							g.P("if err := carrier.ShouldBindQuery(c, req); err != nil {")
-							g.P("return err")
+							g.P("if err = carrier.ShouldBindQuery(c, &req); err != nil {")
+							g.P("carrier.Error(c, err)")
+							g.P("return")
 							g.P("}")
 						}
 					}
@@ -139,19 +154,22 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 					if m.HasBody {
 						if m.Body == "" {
 							if m.HasVars {
-								g.P("if err := c.ShouldBindQueryBodyUri(req); err != nil {")
-								g.P("return err")
+								g.P("if err = c.ShouldBindQueryBodyUri(&req); err != nil {")
+								g.P("carrier.Error(c, err)")
+								g.P("return")
 								g.P("}")
 							} else {
-								g.P("if err := c.ShouldBindQueryBody(req); err != nil {")
-								g.P("return err")
+								g.P("if err = c.ShouldBindQueryBody(&req); err != nil {")
+								g.P("carrier.Error(c, err)")
+								g.P("return")
 								g.P("}")
 							}
 						} else {
+							g.P("shouldBind := func(req *", m.Request, ") error {")
 							g.P("if err := c.BindQuery(req); err != nil {")
 							g.P("return err")
 							g.P("}")
-							g.P("if err := c.Bind(req", m.Body, "); err != nil {")
+							g.P("if err := c.Bind(&req", m.Body, "); err != nil {")
 							g.P("return err")
 							g.P("}")
 							if m.HasVars {
@@ -159,39 +177,35 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 								g.P("return err")
 								g.P("}")
 							}
+							g.P("return carrier.Validate(c.Request.Context(), req)")
+							g.P("}")
+							g.P()
+							g.P("if err = shouldBind(&req); err != nil {")
+							g.P("carrier.Error(c, err)")
+							g.P("return")
+							g.P("}")
 						}
 					} else {
 						if m.HasVars {
-							g.P("if err := c.ShouldBindQueryUri(req); err != nil {")
-							g.P("return err")
+							g.P("if err = c.ShouldBindQueryUri(&req); err != nil {")
+							g.P("carrier.Error(c, err)")
+							g.P("return")
 							g.P("}")
 						} else {
-							g.P("if err := c.ShouldBindQuery(req); err != nil {")
-							g.P("return err")
+							g.P("if err = c.ShouldBindQuery(&req); err != nil {")
+							g.P("carrier.Error(c, err)")
+							g.P("return")
 							g.P("}")
 						}
 					}
 				}
-				g.P("return carrier.Validate(c.Request.Context(), req)")
-				g.P("}")
 			}
-			g.P()
-			{ // done
-				g.P("var err error")
-				g.P("var req ", m.Request)
-				g.P("var reply *", m.Reply)
-				g.P()
-				g.P("if err = shouldBind(&req); err != nil {")
-				g.P("carrier.Error(c, err)")
-				g.P("return")
-				g.P("}")
-				g.P("reply, err = srv.", m.Name, "(c.Request.Context(), &req)")
-				g.P("if err != nil {")
-				g.P("carrier.Error(c, err)")
-				g.P("return")
-				g.P("}")
-				g.P("carrier.Render(c, reply", m.ResponseBody, ")")
-			}
+			g.P("reply, err = srv.", m.Name, "(c.Request.Context(), &req)")
+			g.P("if err != nil {")
+			g.P("carrier.Error(c, err)")
+			g.P("return")
+			g.P("}")
+			g.P("carrier.Render(c, reply", m.ResponseBody, ")")
 			g.P("}")
 		}
 		g.P("}")
