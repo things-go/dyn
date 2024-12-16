@@ -17,6 +17,21 @@ type Carrier interface {
 	BindQuery(*gin.Context, any) error
 	// BindUri binds the passed struct pointer using the uri codec.Marshaler.
 	BindUri(*gin.Context, any) error
+	// ShouldBind checks the Method and Content-Type to select codec.Marshaler automatically then validate the request,
+	// Depending on the "Content-Type" header different bind are used.
+	ShouldBind(*gin.Context, any) error
+	// ShouldBindQuery binds the passed struct pointer using the query codec.Marshaler then validate the request.
+	ShouldBindQuery(*gin.Context, any) error
+	// ShouldBindUri binds the passed struct pointer using the uri codec.Marshaler then validate the request.
+	ShouldBindUri(*gin.Context, any) error
+	// ShouldBindQueryUri binds the passed struct pointer using the query and uri codec.Marshaler then validate the request.
+	ShouldBindQueryUri(*gin.Context, any) error
+	// ShouldBindBodyUri binds the passed struct pointer using the body and uri codec.Marshaler then validate the request.
+	ShouldBindBodyUri(*gin.Context, any) error
+	// ShouldBindQueryBody binds the passed struct pointer using the query and body codec.Marshaler then validate the request.
+	ShouldBindQueryBody(*gin.Context, any) error
+	// ShouldBindQueryBodyUri auto binds the passed struct pointer using query, body, uri codec.Marshaler if necessary.
+	ShouldBindQueryBodyUri(*gin.Context, any) error
 	// Error encode error response.
 	Error(*gin.Context, error)
 	// Render encode response.

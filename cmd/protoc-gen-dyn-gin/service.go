@@ -101,47 +101,75 @@ func executeServiceDesc(g *protogen.GeneratedFile, s *serviceDesc) error {
 				g.P("shouldBind := func(req *", m.Request, ") error {")
 				if s.UseEncoding {
 					if m.HasBody {
-						g.P("if err := carrier.Bind(c, req", m.Body, "); err != nil {")
-						g.P("return err")
-						g.P("}")
-						if m.Body != "" {
+						if m.Body == "" {
+							if m.HasVars {
+								g.P("if err := carrier.ShouldBindQueryBodyUri(c, req); err != nil {")
+								g.P("return err")
+								g.P("}")
+							} else {
+								g.P("if err := carrier.ShouldBindQueryBody(c, req); err != nil {")
+								g.P("return err")
+								g.P("}")
+							}
+						} else {
 							g.P("if err := carrier.BindQuery(c, req); err != nil {")
 							g.P("return err")
 							g.P("}")
+							g.P("if err := carrier.Bind(c, req", m.Body, "); err != nil {")
+							g.P("return err")
+							g.P("}")
+							if m.HasVars {
+								g.P("if err := carrier.BindUri(c, req); err != nil {")
+								g.P("return err")
+								g.P("}")
+							}
 						}
 					} else {
-						if m.Method != "PATCH" {
-							g.P("if err := carrier.BindQuery(c, req", m.Body, "); err != nil {")
+						if m.HasVars {
+							g.P("if err := carrier.ShouldBindQueryUri(c, req); err != nil {")
+							g.P("return err")
+							g.P("}")
+						} else {
+							g.P("if err := carrier.ShouldBindQuery(c, req); err != nil {")
 							g.P("return err")
 							g.P("}")
 						}
 					}
-					if m.HasVars {
-						g.P("if err := carrier.BindUri(c, req); err != nil {")
-						g.P("return err")
-						g.P("}")
-					}
 				} else {
 					if m.HasBody {
-						g.P("if err := c.ShouldBind(req", m.Body, "); err != nil {")
-						g.P("return err")
-						g.P("}")
-						if m.Body != "" {
+						if m.Body == "" {
+							if m.HasVars {
+								g.P("if err := c.ShouldBindQueryBodyUri(req); err != nil {")
+								g.P("return err")
+								g.P("}")
+							} else {
+								g.P("if err := c.ShouldBindQueryBody(req); err != nil {")
+								g.P("return err")
+								g.P("}")
+							}
+						} else {
+							g.P("if err := c.BindQuery(req); err != nil {")
+							g.P("return err")
+							g.P("}")
+							g.P("if err := c.Bind(req", m.Body, "); err != nil {")
+							g.P("return err")
+							g.P("}")
+							if m.HasVars {
+								g.P("if err := c.BindUri(req); err != nil {")
+								g.P("return err")
+								g.P("}")
+							}
+						}
+					} else {
+						if m.HasVars {
+							g.P("if err := c.ShouldBindQueryUri(req); err != nil {")
+							g.P("return err")
+							g.P("}")
+						} else {
 							g.P("if err := c.ShouldBindQuery(req); err != nil {")
 							g.P("return err")
 							g.P("}")
 						}
-					} else {
-						if m.Method != "PATCH" {
-							g.P("if err := c.ShouldBindQuery(req", m.Body, "); err != nil {")
-							g.P("return err")
-							g.P("}")
-						}
-					}
-					if m.HasVars {
-						g.P("if err := c.ShouldBindUri(req); err != nil {")
-						g.P("return err")
-						g.P("}")
 					}
 				}
 				g.P("return carrier.Validate(c.Request.Context(), req)")

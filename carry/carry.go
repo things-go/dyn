@@ -61,6 +61,63 @@ func (cy *Carry) BindQuery(c *gin.Context, v any) error {
 func (cy *Carry) BindUri(c *gin.Context, v any) error {
 	return cy.encoding.BindUri(transportHttp.UrlValues(c.Params), v)
 }
+func (cy *Carry) ShouldBind(c *gin.Context, v any) error {
+	if err := cy.Bind(c, v); err != nil {
+		return err
+	}
+	return cy.Validate(c.Request.Context(), v)
+}
+func (cy *Carry) ShouldBindQuery(c *gin.Context, v any) error {
+	if err := cy.BindQuery(c, v); err != nil {
+		return err
+	}
+	return cy.Validate(c.Request.Context(), v)
+}
+func (cy *Carry) ShouldBindUri(c *gin.Context, v any) error {
+	if err := cy.BindUri(c, v); err != nil {
+		return err
+	}
+	return cy.Validate(c.Request.Context(), v)
+}
+func (cy *Carry) ShouldBindBodyUri(c *gin.Context, v any) error {
+	if err := cy.Bind(c, v); err != nil {
+		return err
+	}
+	if err := cy.BindUri(c, v); err != nil {
+		return err
+	}
+	return cy.Validate(c.Request.Context(), v)
+}
+func (cy *Carry) ShouldBindQueryUri(c *gin.Context, v any) error {
+	if err := cy.BindQuery(c, v); err != nil {
+		return err
+	}
+	if err := cy.BindUri(c, v); err != nil {
+		return err
+	}
+	return cy.Validate(c.Request.Context(), v)
+}
+func (cy *Carry) ShouldBindQueryBody(c *gin.Context, v any) error {
+	if err := cy.BindQuery(c, v); err != nil {
+		return err
+	}
+	if err := cy.Bind(c, v); err != nil {
+		return err
+	}
+	return cy.Validate(c.Request.Context(), v)
+}
+func (cy *Carry) ShouldBindQueryBodyUri(c *gin.Context, v any) error {
+	if err := cy.BindQuery(c, v); err != nil {
+		return err
+	}
+	if err := cy.Bind(c, v); err != nil {
+		return err
+	}
+	if err := cy.BindUri(c, v); err != nil {
+		return err
+	}
+	return cy.Validate(c.Request.Context(), v)
+}
 func (cy *Carry) Error(c *gin.Context, err error) {
 	var obj any
 	var statusCode = http.StatusInternalServerError

@@ -23,6 +23,4 @@ protoc \
   --dyn-gin_opt enable_metadata=true \
   --dyn-resty_out ${out_dir} \
   --dyn-resty_opt paths=source_relative \
-  --dyn-errno_out ${out_dir} \
-  --dyn-errno_opt paths=source_relative \
   $protos
