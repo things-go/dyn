@@ -268,7 +268,7 @@ func buildMethodDesc(g *protogen.GeneratedFile, m *protogen.Method, method, path
 func transformPathParams(path string) string {
 	paths := strings.Split(path, "/")
 	for i, p := range paths {
-		if strings.HasPrefix(p, "{") && strings.HasSuffix(p, "}") || strings.HasPrefix(p, ":") {
+		if strings.HasPrefix(p, "{") && strings.HasSuffix(p, "}") {
 			paths[i] = ":" + p[1:len(p)-1]
 		}
 	}
