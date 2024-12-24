@@ -116,7 +116,7 @@ func (b {{$stName}}) GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$s
     
     err := b.db.Model(&{{$mdName}}{}).
             Scopes(funcs...).
-            Scopes(get{{$stName}}Filter(q)).
+            Scopes(get{{$stName}}ByFilter(q)).
             Take(&row).Error
     if err != nil {
         return nil, err
@@ -152,7 +152,7 @@ func (b {{$stName}}) ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist
 
 func (b {{$stName}}) Count(ctx context.Context, q *{{$queryPrefix}}List{{$stName}}ByFilter) (total int64, err error) {
     err = b.db.Model(&{{$mdName}}{}).
-            Scopes(list{{$stName}}Filter(q)).
+            Scopes(list{{$stName}}ByFilter(q)).
             Count(&total).Error
     return total, err
 }
@@ -161,7 +161,7 @@ func (b {{$stName}}) List(ctx context.Context, q *{{$queryPrefix}}List{{$stName}
     var rows []*{{$mdName}}
     
     err := b.db.Model(&{{$mdName}}{}).
-            Scopes(list{{$stName}}Filter(q), Limit(q.Page, q.PerPage)).
+            Scopes(list{{$stName}}ByFilter(q), Limit(q.Page, q.PerPage)).
             Find(&rows).Error
     return rows, err
 }
@@ -171,7 +171,7 @@ func (b {{$stName}}) ListPage(ctx context.Context, q *{{$queryPrefix}}List{{$stN
     var rows []*{{$mdName}}
     
     db := b.db.Model(&{{$mdName}}{}).
-          Scopes(list{{$stName}}Filter(q))
+          Scopes(list{{$stName}}ByFilter(q))
 
     err := db.Count(&total).Error
     if err != nil {
@@ -217,7 +217,7 @@ func delete{{$stName}}ByFilter(q *{{$queryPrefix}}Delete{{$stName}}ByFilter) fun
     }
 }
 
-func get{{$stName}}Filter(q *{{$queryPrefix}}Get{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
+func get{{$stName}}ByFilter(q *{{$queryPrefix}}Get{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
     return func(db *gorm.DB) *gorm.DB {
         {{- range $f := $e.Fields}}
             {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
@@ -238,7 +238,7 @@ func get{{$stName}}Filter(q *{{$queryPrefix}}Get{{$stName}}ByFilter) func(db *go
             }
 }
 
-func list{{$stName}}Filter(q *{{$queryPrefix}}List{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
+func list{{$stName}}ByFilter(q *{{$queryPrefix}}List{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
     return func(db *gorm.DB) *gorm.DB {
 {{- range $f := $e.Fields}}
     {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}

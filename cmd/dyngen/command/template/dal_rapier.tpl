@@ -109,7 +109,7 @@ func (b {{$stName}}) GetByFilter(ctx context.Context, q *{{$queryPrefix}}Get{{$s
     return ref.New_Executor(b.db).Model().
             SelectExpr(ref.Select_Expr()...).
             Scopes(funcs...).
-            Scopes(get{{$stName}}Filter(ref, q)).
+            Scopes(get{{$stName}}ByFilter(ref, q)).
             TakeOne()
 }
 
@@ -141,7 +141,7 @@ func (b {{$stName}}) ExistByFilter(ctx context.Context, q *{{$queryPrefix}}Exist
 func (b {{$stName}}) Count(ctx context.Context, q *{{$queryPrefix}}List{{$stName}}ByFilter) (total int64, err error) {
     ref := {{$repoPrefix}}Ref_{{$stName}}()
     return ref.New_Executor(b.db).Model().
-            Scopes(list{{$stName}}Filter(ref, q)).
+            Scopes(list{{$stName}}ByFilter(ref, q)).
             Count()
 }
 
@@ -150,7 +150,7 @@ func (b {{$stName}}) List(ctx context.Context, q *{{$queryPrefix}}List{{$stName}
     ref := {{$repoPrefix}}Ref_{{$stName}}()
     return ref.New_Executor(b.db).Model().
             SelectExpr(ref.Select_Expr()...).
-            Scopes(list{{$stName}}Filter(ref, q), Limit(q.Page, q.PerPage)).
+            Scopes(list{{$stName}}ByFilter(ref, q), Limit(q.Page, q.PerPage)).
             FindAll()
 }
 
@@ -158,7 +158,7 @@ func (b {{$stName}}) ListPage(ctx context.Context, q *{{$queryPrefix}}List{{$stN
     ref := {{$repoPrefix}}Ref_{{$stName}}()
 	return ref.New_Executor(b.db).Model().
         SelectExpr(ref.Select_Expr()...).
-		Scopes(list{{$stName}}Filter(ref, q)).
+		Scopes(list{{$stName}}ByFilter(ref, q)).
 		FindAllPaginate(q.Page, q.PerPage)
 }
 
@@ -191,7 +191,7 @@ func delete{{$stName}}ByFilter(ref *{{$repoPrefix}}{{$stName}}_Native, q *{{$que
     }
 }
 
-func get{{$stName}}Filter(ref *{{$repoPrefix}}{{$stName}}_Native, q *{{$queryPrefix}}Get{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
+func get{{$stName}}ByFilter(ref *{{$repoPrefix}}{{$stName}}_Native, q *{{$queryPrefix}}Get{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
     return func(db *gorm.DB) *gorm.DB {
         {{- range $f := $e.Fields}}
             {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
@@ -212,7 +212,7 @@ func get{{$stName}}Filter(ref *{{$repoPrefix}}{{$stName}}_Native, q *{{$queryPre
             }
 }
 
-func list{{$stName}}Filter(ref *{{$repoPrefix}}{{$stName}}_Native, q *{{$queryPrefix}}List{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
+func list{{$stName}}ByFilter(ref *{{$repoPrefix}}{{$stName}}_Native, q *{{$queryPrefix}}List{{$stName}}ByFilter) func(db *gorm.DB) *gorm.DB {
     return func(db *gorm.DB) *gorm.DB {
 {{- range $f := $e.Fields}}
     {{- if and (ne $f.GoName "CreatedAt") (ne $f.GoName "UpdatedAt") (ne $f.GoName "DeletedAt")}}
