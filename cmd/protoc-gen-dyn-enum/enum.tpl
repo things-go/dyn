@@ -24,7 +24,7 @@ import (
 
 // Enum value mapping for {{$enumName}}.
 var (
-	__{{$enumName}}Mapping_Desc = map[{{$enumName}}]string{
+	__{{$enumName}}Mapping_Label = map[{{$enumName}}]string{
 	{{- range $ee := $e.Values}}
 		{{if $ee.IsDuplicate}}// Duplicate value: {{end}}{{$ee.Number}}: "{{$ee.Mapping}}",
 	{{- end}}
@@ -46,10 +46,10 @@ func (x {{$enumName}}) IntoNumberString() string {
 	return strconv.FormatInt(int64(x), 10)
 }
 
-// MappingDescriptor mapping description.
+// MappingLabel mapping label.
 {{$e.Comment}}
-func (x {{$enumName}}) MappingDescriptor() string {
-	return __{{$enumName}}Mapping_Desc[x]
+func (x {{$enumName}}) MappingLabel() string {
+	return __{{$enumName}}Mapping_Label[x]
 }
 
 // EnumCount the number of enum values.
