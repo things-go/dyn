@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-
+	"github.com/things-go/dyn/cmd/dyn-gen/command/crud"
+	"github.com/things-go/dyn/cmd/dyn-gen/command/errno"
 	"github.com/things-go/dyn/cmd/internal/meta"
-	_ "github.com/things-go/ens/driver/mysql"
 )
 
 type RootCmd struct {
@@ -19,9 +19,9 @@ type RootCmd struct {
 func NewRootCmd() *RootCmd {
 	root := &RootCmd{}
 	cmd := &cobra.Command{
-		Use:           "ormat",
-		Short:         "gorm reflect tools",
-		Long:          "database/sql to golang struct",
+		Use:           "ast-gen",
+		Short:         "ast gen tools",
+		Long:          "ast gen tools",
 		Version:       meta.BuildVersion(),
 		SilenceUsage:  false,
 		SilenceErrors: false,
@@ -38,8 +38,9 @@ func NewRootCmd() *RootCmd {
 
 	cmd.PersistentFlags().StringVarP(&root.level, "level", "l", "info", "log level(debug,info,warn,error)")
 	cmd.AddCommand(
-		newDalCmd().cmd,
-		newApiCmd().cmd,
+		errno.NewErrnoCmd().Cmd,
+		crud.NewDalCmd().Cmd,
+		crud.NewApiCmd().Cmd,
 	)
 	root.cmd = cmd
 	return root

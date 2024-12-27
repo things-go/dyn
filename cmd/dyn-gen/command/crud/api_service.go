@@ -1,4 +1,4 @@
-package command
+package crud
 
 import (
 	"errors"
@@ -6,7 +6,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/things-go/dyn/cmd/dyngen/command/api"
+	"github.com/things-go/dyn/cmd/dyn-gen/command/crud/api"
+	"github.com/things-go/dyn/cmd/dyn-gen/util"
 )
 
 type apiServiceOpt struct {
@@ -37,7 +38,7 @@ func newApiServiceCmd() *apiServiceCmd {
 				return errors.New("at least one schema entity")
 			}
 			entity := schemaes.Entities[0].IntoProto()
-			filename := joinFilename(root.OutputDir, root.Filename, ".proto")
+			filename := util.JoinFilename(root.OutputDir, root.Filename, ".proto")
 			_, err = os.Stat(filename)
 			if err == nil || os.IsExist(err) {
 				slog.Warn("🐛 '" + root.Filename + "' already exists, skipping")
@@ -49,7 +50,7 @@ func newApiServiceCmd() *apiServiceCmd {
 				Options:     root.Options,
 			}
 			data := codegen.GenService().Bytes()
-			err = WriteFile(filename, data)
+			err = util.WriteFile(filename, data)
 			if err != nil {
 				return err
 			}

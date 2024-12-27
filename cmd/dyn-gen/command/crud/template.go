@@ -1,4 +1,4 @@
-package command
+package crud
 
 import (
 	"embed"
@@ -28,7 +28,6 @@ var (
 	dalGormTpl   = tpl.Lookup("dal_gorm.tpl")
 	dalQueryTpl  = tpl.Lookup("dal_query.tpl")
 	dalOptionTpl = tpl.Lookup("dal_option.tpl")
-	curdProtoTpl = tpl.Lookup("curd_proto.tpl")
 )
 
 type Dal struct {

@@ -1,4 +1,4 @@
-package command
+package crud
 
 import (
 	"errors"
@@ -6,7 +6,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/things-go/dyn/cmd/dyngen/command/api"
+	"github.com/things-go/dyn/cmd/dyn-gen/command/crud/api"
+	"github.com/things-go/dyn/cmd/dyn-gen/util"
 )
 
 type apiOpt struct {
@@ -20,13 +21,13 @@ type apiOpt struct {
 	EnableOpenapiv2Annotation bool              // 启用int64的openapiv2注解
 }
 
-type apiCmd struct {
-	cmd *cobra.Command
+type ApiCmd struct {
+	Cmd *cobra.Command
 	apiOpt
 }
 
-func newApiCmd() *apiCmd {
-	root := &apiCmd{}
+func NewApiCmd() *ApiCmd {
+	root := &ApiCmd{}
 	cmd := &cobra.Command{
 		Use:     "api",
 		Short:   "Generate api from database",
@@ -40,7 +41,7 @@ func newApiCmd() *apiCmd {
 				return errors.New("at least one schema entity")
 			}
 			entity := schemaes.Entities[0].IntoProto()
-			filename := joinFilename(root.OutputDir, entity.TableName, ".proto")
+			filename := util.JoinFilename(root.OutputDir, entity.TableName, ".proto")
 			_, err = os.Stat(filename)
 			if err == nil || os.IsExist(err) {
 				slog.Warn("🐛 '" + entity.TableName + "' already exists, skipping")
@@ -56,7 +57,7 @@ func newApiCmd() *apiCmd {
 				EnableOpenapiv2Annotation: root.EnableOpenapiv2Annotation,
 			}
 			data := codegen.Gen().Bytes()
-			err = WriteFile(filename, data)
+			err = util.WriteFile(filename, data)
 			if err != nil {
 				return err
 			}
@@ -84,8 +85,8 @@ func newApiCmd() *apiCmd {
 	cmd.MarkFlagsOneRequired("url", "input")
 	cmd.MarkFlagRequired("package")
 	cmd.MarkFlagRequired("options")
-	root.cmd = cmd
-	root.cmd.AddCommand(
+	root.Cmd = cmd
+	root.Cmd.AddCommand(
 		newApiServiceCmd().cmd,
 	)
 	return root

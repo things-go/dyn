@@ -1,4 +1,4 @@
-package command
+package util
 
 import (
 	"os"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func joinFilename(dir, filename, suffix string) string {
+func JoinFilename(dir, filename, suffix string) string {
 	suffix = strings.TrimSpace(suffix)
 	if suffix != "" && !strings.HasPrefix(suffix, ".") {
 		suffix = "." + suffix

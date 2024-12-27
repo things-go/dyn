@@ -1,4 +1,4 @@
-package command
+package crud
 
 import (
 	"bytes"
@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/things-go/dyn/cmd/dyn-gen/util"
 	"github.com/things-go/ens"
 	"github.com/things-go/ens/utils"
 )
@@ -28,13 +29,13 @@ type dalOpt struct {
 	ens.Option
 }
 
-type dalCmd struct {
-	cmd *cobra.Command
+type DalCmd struct {
+	Cmd *cobra.Command
 	dalOpt
 }
 
-func newDalCmd() *dalCmd {
-	root := &dalCmd{}
+func NewDalCmd() *DalCmd {
+	root := &DalCmd{}
 
 	cmd := &cobra.Command{
 		Use:     "dal",
@@ -55,14 +56,14 @@ func newDalCmd() *dalCmd {
 			buf := bytes.Buffer{}
 			packageName := cmp.Or(root.PackageName, utils.GetPkgName(root.OutputDir))
 			queryImportPath := strings.Join([]string{root.DalImportPath, "query"}, "/")
-			dalOptionFilename := joinFilename(root.OutputDir, "a.dal.ext", ".go")
+			dalOptionFilename := util.JoinFilename(root.OutputDir, "a.dal.ext", ".go")
 			_, err = os.Stat(dalOptionFilename)
 			if !(err == nil || os.IsExist(err)) || root.Override {
 				err = dalOptionTpl.Execute(&buf, Dal{Package: packageName})
 				if err != nil {
 					return err
 				}
-				err = WriteFile(dalOptionFilename, buf.Bytes())
+				err = util.WriteFile(dalOptionFilename, buf.Bytes())
 				if err != nil {
 					return fmt.Errorf("dal_option: %v", err)
 				}
@@ -91,7 +92,7 @@ func newDalCmd() *dalCmd {
 			}
 
 			for _, entity := range schemaes.Entities {
-				dalFilename := joinFilename(root.OutputDir, entity.Name, ".go")
+				dalFilename := util.JoinFilename(root.OutputDir, entity.Name, ".go")
 				_, err = os.Stat(dalFilename)
 				if (err == nil || os.IsExist(err)) && !root.Override {
 					slog.Warn("🐛 '" + entity.Name + "' already exists, skipping")
@@ -104,7 +105,7 @@ func newDalCmd() *dalCmd {
 					return err
 				}
 
-				err = WriteFile(dalFilename, buf.Bytes())
+				err = util.WriteFile(dalFilename, buf.Bytes())
 				if err != nil {
 					return fmt.Errorf("%v: %v", entity.Name, err)
 				}
@@ -115,8 +116,8 @@ func newDalCmd() *dalCmd {
 				if err != nil {
 					return err
 				}
-				dalQueryFilename := joinFilename(filepath.Join(root.OutputDir, "query"), entity.Name, ".go")
-				err = WriteFile(dalQueryFilename, buf.Bytes())
+				dalQueryFilename := util.JoinFilename(filepath.Join(root.OutputDir, "query"), entity.Name, ".go")
+				err = util.WriteFile(dalQueryFilename, buf.Bytes())
 				if err != nil {
 					return err
 				}
@@ -154,6 +155,6 @@ func newDalCmd() *dalCmd {
 	cmd.MarkFlagsOneRequired("url", "input")
 	cmd.MarkFlagRequired("modelImportPath")
 	cmd.MarkFlagRequired("dalImportPath")
-	root.cmd = cmd
+	root.Cmd = cmd
 	return root
 }

@@ -1,4 +1,4 @@
-package command
+package errno
 
 import (
 	"log/slog"
@@ -20,18 +20,17 @@ type ErrnoOption struct {
 	Epk             string
 }
 
-type RootCmd struct {
-	cmd   *cobra.Command
-	level string
+type ErrnoCmd struct {
+	Cmd *cobra.Command
 	ErrnoOption
 }
 
-func NewRootCmd() *RootCmd {
-	root := &RootCmd{}
+func NewErrnoCmd() *ErrnoCmd {
+	root := &ErrnoCmd{}
 	cmd := &cobra.Command{
-		Use:           "errno-gen",
-		Short:         "errno-gen generate errno from enum",
-		Long:          "errno-gen generate errno from enum",
+		Use:           "errno",
+		Short:         "generate errno from enum",
+		Long:          "generate errno from enum",
 		Version:       meta.BuildVersion(),
 		SilenceUsage:  false,
 		SilenceErrors: false,
@@ -87,42 +86,13 @@ func NewRootCmd() *RootCmd {
 			return nil
 		},
 	}
-	cobra.OnInitialize(func() {
-		textHandler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-			AddSource:   false,
-			Level:       level(root.level),
-			ReplaceAttr: nil,
-		})
-		slog.SetDefault(slog.New(textHandler))
-	})
 
-	cmd.PersistentFlags().StringVarP(&root.level, "level", "l", "info", "log level(debug,info,warn,error)")
 	cmd.Flags().StringSliceVarP(&root.Pattern, "pattern", "p", []string{"."}, "the list of files or a directory.")
 	cmd.Flags().StringSliceVarP(&root.Type, "type", "t", nil, "the list type of enum names; must be set")
 	cmd.Flags().StringSliceVar(&root.Tags, "tags", nil, "comma-separated list of build tags to apply")
 	cmd.Flags().BoolVarP(&root.DisableStringer, "disable-stringer", "d", false, "disable use `stringer` command.")
 	cmd.Flags().StringVarP(&root.Epk, "epk", "e", "github.com/things-go/dyn/errorx", "errors package import path")
 
-	root.cmd = cmd
+	root.Cmd = cmd
 	return root
-}
-
-// Execute adds all child commands to the root command and sets flags appropriately.
-func (r *RootCmd) Execute() error {
-	return r.cmd.Execute()
-}
-
-func level(s string) slog.Level {
-	switch strings.ToUpper(s) {
-	case "DEBUG":
-		return slog.LevelDebug
-	case "INFO":
-		return slog.LevelInfo
-	case "WARN":
-		return slog.LevelWarn
-	case "ERROR":
-		return slog.LevelError
-	default:
-		return slog.LevelInfo
-	}
 }
