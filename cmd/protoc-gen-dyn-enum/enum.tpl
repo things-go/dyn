@@ -22,19 +22,36 @@ import (
 {{$enumValuePrefix = $e.MessageName}}
 {{end}}
 
-// Enum value mapping for {{$enumName}}.
+// Enum value label/mapping for {{$enumName}}.
 var (
-	__{{$enumName}}Mapping_Label = map[{{$enumName}}]string{
+	__{{$enumName}}_xx_Label = map[{{$enumName}}]string{
+	{{- range $ee := $e.Values}}
+		{{if $ee.IsDuplicate}}// Duplicate value: {{end}}{{$ee.Number}}: "{{$ee.Label}}",
+	{{- end}}
+	}
+	__{{$enumName}}_xx_Value = map[string]{{$enumName}}{
+	{{- range $ee := $e.Values}}
+		"{{$ee.Label}}": {{$ee.Number}},
+	{{- end}}
+	}
+{{if $e.HasMapping }}
+	__{{$enumName}}_xx_Mapping = map[{{$enumName}}]string{
 	{{- range $ee := $e.Values}}
 		{{if $ee.IsDuplicate}}// Duplicate value: {{end}}{{$ee.Number}}: "{{$ee.Mapping}}",
 	{{- end}}
 	}
-	__{{$enumName}}Mapping_Value = map[string]{{$enumName}}{
+	__{{$enumName}}_xx_Mapping_Value = map[string]{{$enumName}}{
 	{{- range $ee := $e.Values}}
 		"{{$ee.Mapping}}": {{$ee.Number}},
 	{{- end}}
 	}
+{{end}}
 )
+
+// EnumCount the number of enum value.
+func ({{$enumName}}) EnumCount() int {
+	return {{len $e.Values}}
+}
 
 // IntoNumber returns the enum value as an integer.
 func (x {{$enumName}}) IntoNumber() int32 {
@@ -46,21 +63,29 @@ func (x {{$enumName}}) IntoNumberString() string {
 	return strconv.FormatInt(int64(x), 10)
 }
 
-// MappingLabel mapping label.
+// EnumLabel the label of enum value.
 {{$e.Comment}}
-func (x {{$enumName}}) MappingLabel() string {
-	return __{{$enumName}}Mapping_Label[x]
+func (x {{$enumName}}) EnumLabel() string {
+	return __{{$enumName}}_xx_Label[x]
 }
 
-// EnumCount the number of enum values.
-func ({{$enumName}}) EnumCount() int {
-	return {{len $e.Values}}
+// ParseEnumLabel parse the label.
+{{$e.Comment}}
+func (e *{{$enumName}}) ParseEnumLabel(s string ) {
+	*e = __{{$enumName}}_xx_Value[s]
 }
 
-// Get{{$enumName}}Value get mapping value
-{{$e.Comment}}
-func Get{{$enumName}}Value(s string) int {
-	return int(__{{$enumName}}Mapping_Value[s])
+{{if $e.HasMapping }}
+// EnumMapping the mapping of enum value.
+func (x {{$enumName}}) EnumMapping() string {
+	return __{{$enumName}}_xx_Mapping[x]
 }
+
+// ParseEnumMapping parse the mapping.
+func (e *{{$enumName}}) ParseEnumMapping(s string ) {
+	*e = __{{$enumName}}_xx_Mapping_Value[s]
+}
+{{end}}
+
 {{- end}}
 

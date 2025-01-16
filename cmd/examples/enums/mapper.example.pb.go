@@ -21,11 +21,11 @@ func EnumComment() []map[int32]string {
 			int32(Nested_Nested1_Type_Enable):  "启用",
 		},
 		{
-			int32(NonNestedStatus_NonNestedStatusAnnote_Unspecified): "未定义",
-			int32(NonNestedStatus_NonNestedStatusAnnote_Up):          "打开",
-			int32(NonNestedStatus_NonNestedStatusAnnote_Down):        "关闭",
-			int32(NonNestedStatus_NonNestedStatusAnnote_Left):        "左",
-			int32(NonNestedStatus_NonNestedStatusAnnote_Right):       "右",
+			int32(NonNestedStatus_NonNestedStatusAnnote_Unspecified): "unspecified",
+			int32(NonNestedStatus_NonNestedStatusAnnote_Up):          "up",
+			int32(NonNestedStatus_NonNestedStatusAnnote_Down):        "down",
+			int32(NonNestedStatus_NonNestedStatusAnnote_Left):        "left",
+			int32(NonNestedStatus_NonNestedStatusAnnote_Right):       "right",
 		},
 	}
 }

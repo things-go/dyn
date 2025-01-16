@@ -9,19 +9,20 @@ option java_outer_classname = "Enums";
 
 message Nested {
   // Status 状态值
-   // #[enum]
+  // #[enum]
   enum Status {
     // "unspecified"
     // aaaa
+    // #[enum(label="custom label")]
     Status_Unspecified = 0;
     // nested1
     Status_Up = 1;
     // nested2
-    Status_Down  = 2;
+    Status_Down = 2;
     // nested3
-    Status_Left  = 3;
+    Status_Left = 3;
     // nested4
-    Status_Right  = 4;
+    Status_Right = 4;
     // end
     Status_End = 999;
   }

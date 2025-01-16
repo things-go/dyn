@@ -10,25 +10,30 @@ import (
 	"strconv"
 )
 
-// Enum value mapping for Nested_Status.
+// Enum value label/mapping for Nested_Status.
 var (
-	__Nested_StatusMapping_Desc = map[Nested_Status]string{
-		0:   "\"unspecified\", aaaa",
+	__Nested_Status_xx_Label = map[Nested_Status]string{
+		0:   "custom label",
 		1:   "nested1",
 		2:   "nested2",
 		3:   "nested3",
 		4:   "nested4",
 		999: "end",
 	}
-	__Nested_StatusMapping_Value = map[string]Nested_Status{
-		"\"unspecified\", aaaa": 0,
-		"nested1":               1,
-		"nested2":               2,
-		"nested3":               3,
-		"nested4":               4,
-		"end":                   999,
+	__Nested_Status_xx_Value = map[string]Nested_Status{
+		"custom label": 0,
+		"nested1":      1,
+		"nested2":      2,
+		"nested3":      3,
+		"nested4":      4,
+		"end":          999,
 	}
 )
+
+// EnumCount the number of enum value.
+func (Nested_Status) EnumCount() int {
+	return 6
+}
 
 // IntoNumber returns the enum value as an integer.
 func (x Nested_Status) IntoNumber() int32 {
@@ -40,36 +45,36 @@ func (x Nested_Status) IntoNumberString() string {
 	return strconv.FormatInt(int64(x), 10)
 }
 
-// MappingDescriptor mapping description.
+// EnumLabel the label of enum value.
 // Status 状态值
-// [0:\"unspecified\", aaaa,1:nested1,2:nested2,3:nested3,4:nested4,999:end]
-func (x Nested_Status) MappingDescriptor() string {
-	return __Nested_StatusMapping_Desc[x]
+// [0:custom label,1:nested1,2:nested2,3:nested3,4:nested4,999:end]
+func (x Nested_Status) EnumLabel() string {
+	return __Nested_Status_xx_Label[x]
 }
 
-// EnumCount the number of enum values.
-func (Nested_Status) EnumCount() int {
-	return 6
-}
-
-// GetNested_StatusValue get mapping value
+// ParseEnumLabel parse the label.
 // Status 状态值
-// [0:\"unspecified\", aaaa,1:nested1,2:nested2,3:nested3,4:nested4,999:end]
-func GetNested_StatusValue(s string) int {
-	return int(__Nested_StatusMapping_Value[s])
+// [0:custom label,1:nested1,2:nested2,3:nested3,4:nested4,999:end]
+func (e *Nested_Status) ParseEnumLabel(s string) {
+	*e = __Nested_Status_xx_Value[s]
 }
 
-// Enum value mapping for Nested_Nested1_Type.
+// Enum value label/mapping for Nested_Nested1_Type.
 var (
-	__Nested_Nested1_TypeMapping_Desc = map[Nested_Nested1_Type]string{
+	__Nested_Nested1_Type_xx_Label = map[Nested_Nested1_Type]string{
 		0: "禁用",
 		1: "启用",
 	}
-	__Nested_Nested1_TypeMapping_Value = map[string]Nested_Nested1_Type{
+	__Nested_Nested1_Type_xx_Value = map[string]Nested_Nested1_Type{
 		"禁用": 0,
 		"启用": 1,
 	}
 )
+
+// EnumCount the number of enum value.
+func (Nested_Nested1_Type) EnumCount() int {
+	return 2
+}
 
 // IntoNumber returns the enum value as an integer.
 func (x Nested_Nested1_Type) IntoNumber() int32 {
@@ -81,21 +86,16 @@ func (x Nested_Nested1_Type) IntoNumberString() string {
 	return strconv.FormatInt(int64(x), 10)
 }
 
-// MappingDescriptor mapping description.
+// EnumLabel the label of enum value.
 // Type 类型
 // [0:禁用,1:启用]
-func (x Nested_Nested1_Type) MappingDescriptor() string {
-	return __Nested_Nested1_TypeMapping_Desc[x]
+func (x Nested_Nested1_Type) EnumLabel() string {
+	return __Nested_Nested1_Type_xx_Label[x]
 }
 
-// EnumCount the number of enum values.
-func (Nested_Nested1_Type) EnumCount() int {
-	return 2
-}
-
-// GetNested_Nested1_TypeValue get mapping value
+// ParseEnumLabel parse the label.
 // Type 类型
 // [0:禁用,1:启用]
-func GetNested_Nested1_TypeValue(s string) int {
-	return int(__Nested_Nested1_TypeMapping_Value[s])
+func (e *Nested_Nested1_Type) ParseEnumLabel(s string) {
+	*e = __Nested_Nested1_Type_xx_Value[s]
 }

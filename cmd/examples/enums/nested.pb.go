@@ -27,6 +27,7 @@ type Nested_Status int32
 const (
 	// "unspecified"
 	// aaaa
+	// #[enum(label="custom label")]
 	Nested_Status_Unspecified Nested_Status = 0
 	// nested1
 	Nested_Status_Up Nested_Status = 1

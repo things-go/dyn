@@ -15,6 +15,7 @@ type EnumValue struct {
 	CamelValue  string // 驼峰值,例: StatusEnabled
 	TrimValue   string // 值截断EnumName前缀,例: Enabled(EnumName=Status)
 	Mapping     string // 映射值
+	Label       string // 标签
 	Comment     string // 注释
 	IsDuplicate bool   // 是否是副本
 }
@@ -28,6 +29,7 @@ type Enum struct {
 	MessageName string       // 嵌套消息名
 	Name        string       // 名称
 	Comment     string       // 注释
+	HasMapping  bool         // 有mapping映射
 	Values      []*EnumValue // 枚举项
 }
 
@@ -60,19 +62,28 @@ func IntoEnums(nestedMessageName string, protoEnums []*protogen.Enum) []*Enum {
 		emName := string(pe.Desc.Name())
 		emValueMp := make(map[int]string, len(pe.Values))
 		emValues := make([]*EnumValue, 0, len(pe.Values))
+		emHasMapping := false
 		for _, v := range pe.Values {
 			mappingValue := ""
-			comment := strings.TrimSpace(strings.TrimSuffix(string(v.Comments.Leading), "\n"))
+			labelValue := ""
 
-			annotateEnumValue, _ := ParseDeriveEnumValue(v.Comments.Leading)
+			annotateEnumValue, remainComments := ParseDeriveEnumValue(v.Comments.Leading)
+			comment := strings.TrimSpace(strings.TrimSuffix(string(remainComments.LineString()), "\n"))
 			if annotateEnumValue.Mapping != "" {
 				mappingValue = annotateEnumValue.Mapping
+				emHasMapping = true
 			} else {
 				mappingValue = comment
+			}
+			if annotateEnumValue.Label != "" {
+				labelValue = annotateEnumValue.Label
+			} else {
+				labelValue = comment
 			}
 
 			comment = strings.ReplaceAll(strings.ReplaceAll(comment, "\n", ","), `"`, `\"`)
 			mappingValue = strings.ReplaceAll(strings.ReplaceAll(mappingValue, "\n", ","), `"`, `\"`)
+			labelValue = strings.ReplaceAll(strings.ReplaceAll(labelValue, "\n", ","), `"`, `\"`)
 
 			enumValueName := string(v.Desc.Name())
 			ev := &EnumValue{
@@ -81,11 +92,12 @@ func IntoEnums(nestedMessageName string, protoEnums []*protogen.Enum) []*Enum {
 				CamelValue: infra.PascalCase(enumValueName),
 				TrimValue:  strings.TrimPrefix(strings.TrimPrefix(enumValueName, emName), "_"),
 				Mapping:    mappingValue,
+				Label:      labelValue,
 				Comment:    comment,
 			}
 			//* duplicate
 			if _, ev.IsDuplicate = emValueMp[ev.Number]; !ev.IsDuplicate {
-				emValueMp[ev.Number] = mappingValue
+				emValueMp[ev.Number] = labelValue
 			}
 			emValues = append(emValues, ev)
 		}
@@ -95,6 +107,7 @@ func IntoEnums(nestedMessageName string, protoEnums []*protogen.Enum) []*Enum {
 			MessageName: nestedMessageName,
 			Name:        emName,
 			Comment:     comment,
+			HasMapping:  emHasMapping,
 			Values:      emValues,
 		})
 	}

@@ -9,6 +9,7 @@ import (
 const (
 	Identity               = "enum"
 	Attribute_Name_Mapping = "mapping"
+	Attribute_Name_Label   = "label"
 )
 
 type EnumDerive struct {
@@ -24,15 +25,23 @@ func ParseDeriveEnum(s protogen.Comments) (*EnumDerive, proc.CommentLines) {
 
 type EnumValueDerive struct {
 	Mapping string
+	Label   string
 }
 
 func ParseDeriveEnumValue(s protogen.Comments) (*EnumValueDerive, proc.CommentLines) {
-	ret := &EnumValueDerive{Mapping: ""}
+	ret := &EnumValueDerive{Mapping: "", Label: ""}
 	derives, remainComments := proc.NewCommentLines(string(s)).FindDerives(Identity)
-	values := proc.Derives(derives).FindValue(Identity, Attribute_Name_Mapping)
-	for _, v := range values {
+	mappingValues := proc.Derives(derives).FindValue(Identity, Attribute_Name_Mapping)
+	for _, v := range mappingValues {
 		if v, ok := v.(proc.String); ok {
 			ret.Mapping = v.Value
+			break
+		}
+	}
+	labelValues := proc.Derives(derives).FindValue(Identity, Attribute_Name_Label)
+	for _, v := range labelValues {
+		if v, ok := v.(proc.String); ok {
+			ret.Label = v.Value
 			break
 		}
 	}

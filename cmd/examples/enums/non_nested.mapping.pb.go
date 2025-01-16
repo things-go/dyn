@@ -10,23 +10,43 @@ import (
 	"strconv"
 )
 
-// Enum value mapping for NonNestedStatus.
+// Enum value label/mapping for NonNestedStatus.
 var (
-	__NonNestedStatusMapping_Desc = map[NonNestedStatus]string{
+	__NonNestedStatus_xx_Label = map[NonNestedStatus]string{
 		0: "未定义",
-		1: "打开",
-		2: "关闭",
+		1: "上",
+		2: "下",
 		3: "左",
 		4: "右",
 	}
-	__NonNestedStatusMapping_Value = map[string]NonNestedStatus{
+	__NonNestedStatus_xx_Value = map[string]NonNestedStatus{
 		"未定义": 0,
-		"打开":  1,
-		"关闭":  2,
+		"上":   1,
+		"下":   2,
 		"左":   3,
 		"右":   4,
 	}
+
+	__NonNestedStatus_xx_Mapping = map[NonNestedStatus]string{
+		0: "unspecified",
+		1: "up",
+		2: "down",
+		3: "left",
+		4: "right",
+	}
+	__NonNestedStatus_xx_Mapping_Value = map[string]NonNestedStatus{
+		"unspecified": 0,
+		"up":          1,
+		"down":        2,
+		"left":        3,
+		"right":       4,
+	}
 )
+
+// EnumCount the number of enum value.
+func (NonNestedStatus) EnumCount() int {
+	return 5
+}
 
 // IntoNumber returns the enum value as an integer.
 func (x NonNestedStatus) IntoNumber() int32 {
@@ -38,21 +58,26 @@ func (x NonNestedStatus) IntoNumberString() string {
 	return strconv.FormatInt(int64(x), 10)
 }
 
-// MappingDescriptor mapping description.
+// EnumLabel the label of enum value.
 // NonNestedStatus 状态值
-// [0:未定义,1:打开,2:关闭,3:左,4:右]
-func (x NonNestedStatus) MappingDescriptor() string {
-	return __NonNestedStatusMapping_Desc[x]
+// [0:未定义,1:上,2:下,3:左,4:右]
+func (x NonNestedStatus) EnumLabel() string {
+	return __NonNestedStatus_xx_Label[x]
 }
 
-// EnumCount the number of enum values.
-func (NonNestedStatus) EnumCount() int {
-	return 5
+// ParseEnumLabel parse the label.
+// NonNestedStatus 状态值
+// [0:未定义,1:上,2:下,3:左,4:右]
+func (e *NonNestedStatus) ParseEnumLabel(s string) {
+	*e = __NonNestedStatus_xx_Value[s]
 }
 
-// GetNonNestedStatusValue get mapping value
-// NonNestedStatus 状态值
-// [0:未定义,1:打开,2:关闭,3:左,4:右]
-func GetNonNestedStatusValue(s string) int {
-	return int(__NonNestedStatusMapping_Value[s])
+// EnumMapping the mapping of enum value.
+func (x NonNestedStatus) EnumMapping() string {
+	return __NonNestedStatus_xx_Mapping[x]
+}
+
+// ParseEnumMapping parse the mapping.
+func (e *NonNestedStatus) ParseEnumMapping(s string) {
+	*e = __NonNestedStatus_xx_Mapping_Value[s]
 }

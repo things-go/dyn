@@ -11,18 +11,18 @@ option java_outer_classname = "Enums";
 // #[enum]
 enum NonNestedStatus {
   // 未定义
+  // #[enum(mapping="unspecified")]
   NonNestedStatusAnnote_Unspecified = 0;
-  // 打开
-  // #[enum(mapping="打开")]
+  // 上
+  // #[enum(mapping="up")]
   NonNestedStatusAnnote_Up = 1;
-  // 关闭
-  // #[enum(mapping="关闭")]
+  // 下
+  // #[enum(mapping="down")]
   NonNestedStatusAnnote_Down = 2;
   // 左
-  // #[enum(mapping="左")]
+  // #[enum(mapping="left")]
   NonNestedStatusAnnote_Left = 3;
   // 右
-  // #[enum(mapping="右")]
+  // #[enum(mapping="right")]
   NonNestedStatusAnnote_Right = 4;
 }
-
