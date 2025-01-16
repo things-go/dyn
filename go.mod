@@ -10,7 +10,7 @@ require (
 	github.com/things-go/encoding v1.2.0
 	golang.org/x/oauth2 v0.25.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241113202542-65e8d215514f
-	google.golang.org/grpc v1.69.2
+	google.golang.org/grpc v1.69.4
 )
 
 require (
