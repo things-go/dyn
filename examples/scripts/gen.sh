@@ -24,3 +24,15 @@ protoc \
   --dyn-resty_out ${out_dir} \
   --dyn-resty_opt paths=source_relative \
   $protos
+
+out_errno_dir=${project_dir} # 生成代码路径
+protoerrno=$(find ${project_dir}/errnop -type f -name '*.proto')
+protoc \
+  -I ${project_dir}/${proto_dir} \
+  -I ${third_party_dir} \
+  -I ${project_dir} \
+  --go_out=${out_errno_dir} \
+  --go_opt paths=source_relative \
+  --dyn-errno_out ${out_errno_dir} \
+  --dyn-errno_opt paths=source_relative \
+  $protoerrno

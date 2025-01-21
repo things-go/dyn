@@ -43,19 +43,12 @@ func RegisterGreeterHTTPServer(g *gin.RouterGroup, srv GreeterHTTPServer) {
 
 func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		carrier := http.FromCarrier(c.Request.Context())
-		shouldBind := func(req *HelloRequest) error {
-			if err := carrier.ShouldBindQueryBody(c, req); err != nil {
-				return err
-			}
-			return carrier.Validate(c.Request.Context(), req)
-		}
-
 		var err error
 		var req HelloRequest
 		var reply *HelloReply
 
-		if err = shouldBind(&req); err != nil {
+		carrier := http.FromCarrier(c.Request.Context())
+		if err = carrier.ShouldBindQueryBody(c, &req); err != nil {
 			carrier.Error(c, err)
 			return
 		}
@@ -70,19 +63,12 @@ func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) gin.HandlerFunc {
 
 func _Greeter_GetHello0_HTTP_Handler(srv GreeterHTTPServer) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		carrier := http.FromCarrier(c.Request.Context())
-		shouldBind := func(req *GetHelloRequest) error {
-			if err := carrier.ShouldBindQueryUri(c, req); err != nil {
-				return err
-			}
-			return carrier.Validate(c.Request.Context(), req)
-		}
-
 		var err error
 		var req GetHelloRequest
 		var reply *GetHelloReply
 
-		if err = shouldBind(&req); err != nil {
+		carrier := http.FromCarrier(c.Request.Context())
+		if err = carrier.ShouldBindQueryUri(c, &req); err != nil {
 			carrier.Error(c, err)
 			return
 		}

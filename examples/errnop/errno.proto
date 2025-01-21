@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package errnop;
+
+option go_package = "github.com/things-go/dyn/example/errnop";
+
+enum ErrorReason {
+  unspecified = 0;     // 未定义
+  bad_request = 1000;  // 用户名或密码错误
+}

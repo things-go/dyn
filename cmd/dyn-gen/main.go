@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/things-go/dyn/cmd/dyn-gen/command"
+	_ "github.com/things-go/ens/driver/mysql"
 )
 
 func main() {

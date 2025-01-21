@@ -88,12 +88,12 @@ func (g *CodeGen) Gen() *CodeGen {
 	g.Println(`  // @gotags: binding:"gt=0"`)
 	g.Println("  int64 page = 30 [(google.api.field_behavior) = REQUIRED,(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
 	g.Println(`  // @gotags: binding:"min=1,max=500"`)
-	g.Println("  int64 perPage = 31 [(google.api.field_behavior) = REQUIRED,(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
+	g.Printf("  int64 %s = 31 [(google.api.field_behavior) = REQUIRED,(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];\n", utils.StyleName(g.Style, "PerPage"))
 	g.Println("}")
 	g.Printf("message List%sReply {\n", structName)
 	g.Println("  int64 total = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
 	g.Println("  int64 page = 30 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
-	g.Println("  int64 per_page = 31 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];")
+	g.Printf("  int64 %s = 31 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { type: [ INTEGER ] }];\n", utils.StyleName(g.Style, "PerPage"))
 	g.Printf("  repeated mapper.%s list = 32;\n", structName)
 	g.Println("}")
 	//* get
@@ -127,7 +127,7 @@ func (g *CodeGen) Gen() *CodeGen {
 	g.Println("}")
 	//* bulk delete
 	g.Printf("message BulkDelete%sRequest {\n", structName)
-	g.Println(`// @gotags: binding:"required,dive,gt=0"`)
+	g.Println(`// @gotags: binding:"gt=0,dive,gt=0"`)
 	g.Println("  repeated int64 id = 1 [(google.api.field_behavior) = REQUIRED];")
 	g.Println("}")
 	g.Printf("message BulkDelete%sReply {\n", structName)
